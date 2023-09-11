@@ -22,10 +22,10 @@ except:
     from PyQt5.QtCore import Qt, QSize, QSettings
     from PyQt5.QtGui import QIcon
 
-from persepolis.scripts.data_base import PersepolisDB
 from persepolis.scripts import osCommands
 from persepolis.gui import resources
 
+from ghermez import DataBase
 
 class ErrorWindow(QWidget):
     def __init__(self, text):
@@ -81,14 +81,14 @@ class ErrorWindow(QWidget):
         self.close()
 
     def resetPushButtonPressed(self, button):
-        # create an object for PersepolisDB
-        persepolis_db = PersepolisDB()
+        # create an object for DataBase
+        persepolis_db = DataBase()
 
         # Reset data base
         persepolis_db.resetDataBase()
 
         # close connections
-        persepolis_db.closeConnections()
+        # persepolis_db.closeConnections()
 
         # Reset persepolis_setting
         persepolis_setting = QSettings('persepolis_download_manager', 'persepolis')

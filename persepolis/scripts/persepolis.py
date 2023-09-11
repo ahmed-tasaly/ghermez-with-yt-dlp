@@ -253,16 +253,16 @@ if args.parent_window or unknownargs:
 
 # persepolis --clear >> remove config_folder
 if args.clear:
-    from persepolis.scripts.data_base import PersepolisDB
+    from ghermez import DataBase
 
-    # create an object for PersepolisDB
-    persepolis_db = PersepolisDB()
+    # create an object for DataBase
+    persepolis_db = DataBase()
 
     # Reset data base
     persepolis_db.resetDataBase()
 
     # close connections
-    persepolis_db.closeConnections()
+    # persepolis_db.closeConnections()
 
     # Reset persepolis_setting
     persepolis_setting.clear()
@@ -336,7 +336,7 @@ if ('link' in add_link_dictionary.keys()):
 if len(plugin_list) != 0:
 
     # import PluginsDB
-    from persepolis.scripts.data_base import PluginsDB
+    from ghermez import PluginsDB
 
     # create an object for PluginsDB
     plugins_db = PluginsDB()
@@ -345,7 +345,7 @@ if len(plugin_list) != 0:
     plugins_db.insertInPluginsTable(plugin_list)
 
     # Job is done! close connections.
-    plugins_db.closeConnections()
+    # plugins_db.closeConnections()
 
     # notify that a link is added!
     plugin_ready = os.path.join(persepolis_tmp, 'persepolis-plugin-ready')

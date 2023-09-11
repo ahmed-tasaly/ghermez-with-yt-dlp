@@ -33,7 +33,6 @@ except:
 from persepolis.scripts.useful_tools import muxer, freeSpace, determineConfigFolder, osAndDesktopEnvironment
 from persepolis.scripts.video_finder_progress import VideoFinderProgressWindow
 from persepolis.gui.mainwindow_ui import MainWindow_Ui, QTableWidgetItem
-from persepolis.scripts.data_base import PluginsDB, PersepolisDB, TempDB
 from persepolis.scripts.browser_plugin_queue import BrowserPluginQueue
 from persepolis.scripts.after_download import AfterDownloadWindow
 from persepolis.scripts.properties import PropertiesWindow
@@ -63,6 +62,8 @@ import random
 import time
 import sys
 import os
+
+from ghermez import PluginsDB, DataBase, TempDB
 
 global youtube_dl_is_installed
 try:
@@ -707,7 +708,7 @@ class Queue(QThread):
             download_table_dict = self.parent.persepolis_db.returnItemsInDownloadTable(self.category)
             category_table_dict = self.parent.persepolis_db.searchCategoryInCategoryTable(self.category)
 
-            gid_list = category_table_dict['gid_list']
+            gid_list = eval(category_table_dict['gid_list'])
 
             # sort downloads top to the bottom of the list OR bottom to the top
             if not(self.parent.reverse_checkBox.isChecked()):
@@ -1311,8 +1312,8 @@ class MainWindow(MainWindow_Ui):
         # create an object for PluginsDB
         self.plugins_db = PluginsDB()
 
-        # create an object for PersepolisDB
-        self.persepolis_db = PersepolisDB()
+        # create an object for DataBase
+        self.persepolis_db = DataBase()
 
         # create an object fo TempDB
         self.temp_db = TempDB()
@@ -1344,7 +1345,7 @@ class MainWindow(MainWindow_Ui):
 
         # read gid_list from date base
         category_dict = self.persepolis_db.searchCategoryInCategoryTable('All Downloads')
-        gid_list = category_dict['gid_list']
+        gid_list = eval(category_dict['gid_list'])
 
         keys_list = ['file_name',
                      'status',
@@ -2187,7 +2188,7 @@ class MainWindow(MainWindow_Ui):
 
             # check my_gid used before or not!
             category_dict = self.persepolis_db.searchCategoryInCategoryTable('All Downloads')
-            gid_list = category_dict['gid_list']
+            gid_list = eval(category_dict['gid_list'])
 
             if not(my_gid in gid_list):
                 break
@@ -3148,8 +3149,8 @@ class MainWindow(MainWindow_Ui):
             sleep(0.1)
 
         # close data bases connections
-        for db in self.persepolis_db, self.plugins_db, self.temp_db:
-            db.closeConnections()
+        # for db in self.persepolis_db, self.plugins_db, self.temp_db:
+        #     db.closeConnections()
 
         QCoreApplication.instance().quit
         logger.sendToLog("Persepolis closed!", "INFO")
@@ -4496,7 +4497,7 @@ class MainWindow(MainWindow_Ui):
 
         # get gid_list
         category_dict = self.persepolis_db.searchCategoryInCategoryTable(current_category_tree_text)
-        gid_list = category_dict['gid_list']
+        gid_list = eval(category_dict['gid_list'])
 
         keys_list = ['file_name',
                      'status',
@@ -4932,7 +4933,7 @@ class MainWindow(MainWindow_Ui):
                 current_category_dict = self.persepolis_db.searchCategoryInCategoryTable(current_category)
 
                 # get gid_list
-                current_category_gid_list = current_category_dict['gid_list']
+                current_category_gid_list = eval(current_category_dict['gid_list'])
 
                 # delete item
                 current_category_gid_list = current_category_gid_list.remove(gid)
@@ -4945,7 +4946,7 @@ class MainWindow(MainWindow_Ui):
                 new_category_dict = self.persepolis_db.searchCategoryInCategoryTable(new_category)
 
                 # get gid_list
-                new_category_gid_list = new_category_dict['gid_list']
+                new_category_gid_list = eval(new_category_dict['gid_list'])
 
                 # add gid of item to gid_list
                 new_category_gid_list = new_category_gid_list.append(gid)
@@ -5299,7 +5300,7 @@ class MainWindow(MainWindow_Ui):
         # get gid_list from data base
         category_dict = self.persepolis_db.searchCategoryInCategoryTable(current_category_tree_text)
 
-        gid_list = category_dict['gid_list']
+        gid_list = eval(category_dict['gid_list'])
 
         # find selected rows
         rows_list = self.userSelectedRows()
@@ -5396,7 +5397,7 @@ class MainWindow(MainWindow_Ui):
         category_dict = self.persepolis_db.searchCategoryInCategoryTable(
             current_category_tree_text)
 
-        gid_list = category_dict['gid_list']
+        gid_list = eval(category_dict['gid_list'])
 
         rows_list.reverse()
 

@@ -15,11 +15,12 @@
 
 from persepolis.scripts.useful_tools import determineConfigFolder
 from persepolis.scripts.osCommands import remove, removeDir
-from persepolis.scripts.data_base import PersepolisDB
 from persepolis.scripts.newopen import readList
 import time
 import ast
 import os
+
+from ghermez import DataBase
 
 # config_folder
 config_folder = determineConfigFolder()
@@ -53,7 +54,7 @@ single_downloads_list_file = os.path.join(category_folder, "Single Downloads")
 
 def compatibility():
     if os.path.isfile(queues_list_file):
-        persepolis_db = PersepolisDB()
+        persepolis_db = DataBase()
 
         # add categories to category_db_table in data_base
         f = open(queues_list_file)
@@ -171,7 +172,7 @@ def compatibility():
         persepolis_db.insertInAddLinkTable([add_link_dictionary])
 
     # close connections
-    persepolis_db.closeConnections()
+    # persepolis_db.closeConnections()
 
     # remove unwanted files and folders
     for file in [download_list_file, download_list_file_active]:

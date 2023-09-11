@@ -1,0 +1,11 @@
+certifi==2023.7.22
+charset-normalizer==3.2.0
+ghermez @ file:///tmp/.tmpCl7nfr/ghermez-0.1.0-cp311-cp311-linux_x86_64.whl
+idna==3.4
+maturin==1.2.3
+patchelf==0.17.2.1
+PyQt5==5.15.9
+PyQt5-Qt5==5.15.2
+PyQt5-sip==12.12.2
+requests==2.31.0
+urllib3==2.0.4

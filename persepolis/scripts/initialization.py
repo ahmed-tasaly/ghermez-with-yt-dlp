@@ -84,16 +84,16 @@ else:
                  + '\n')
     f.close()
 
-from persepolis.scripts.data_base import PersepolisDB, PluginsDB
+from ghermez import DataBase, PluginsDB
 
-# create an object for PersepolisDB
-persepolis_db = PersepolisDB()
+# create an object for DataBase
+persepolis_db = DataBase()
 
 # create tables
 persepolis_db.createTables()
 
 # close connections
-persepolis_db.closeConnections()
+# persepolis_db.closeConnections()
 
 # create an object for PluginsDB
 plugins_db = PluginsDB()
@@ -105,7 +105,7 @@ plugins_db.createTables()
 plugins_db.deleteOldLinks()
 
 # close connections
-plugins_db.closeConnections()
+# plugins_db.closeConnections()
 
 
 # import persepolis_setting
@@ -196,14 +196,14 @@ if persepolis_version < 2.6:
         compatibility()
     except Exception as e:
 
-        # create an object for PersepolisDB
-        persepolis_db = PersepolisDB()
+        # create an object for DataBase
+        persepolis_db = DataBase()
 
         # create tables
         persepolis_db.resetDataBase()
 
         # close connections
-        persepolis_db.closeConnections()
+        # persepolis_db.closeConnections()
 
         # write error in log
         logger.sendToLog(
@@ -214,14 +214,14 @@ if persepolis_version < 2.6:
     persepolis_version = 2.6
 
 if persepolis_version < 3.1:
-    # create an object for PersepolisDB
-    persepolis_db = PersepolisDB()
+    # create an object for DataBase
+    persepolis_db = DataBase()
 
     # correct data base
     persepolis_db.correctDataBase()
 
     # close connections
-    persepolis_db.closeConnections()
+    # persepolis_db.closeConnections()
 
     persepolis_version = 3.1
 
