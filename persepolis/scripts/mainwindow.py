@@ -280,7 +280,7 @@ class StartAria2Thread(QThread):
             signal_str = 'yes'
             logger.sendToLog("Aria2 is running", "INFO")
             logger.sendToLog("Aria2 version: "
-                             + answer['version'], "INFO")
+                             + answer, "INFO")
 
         # emit the signal
         # ARIA2RESPONDSIGNAL have 3 conditions >>>

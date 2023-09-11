@@ -8,3 +8,11 @@ persepolis.egg-info/
 man/persepolis.1.gz
 .idea/
 .mypy_cache
+venv/
+resources.py
+
+# Rust
+target/
+
+# Database
+*.db

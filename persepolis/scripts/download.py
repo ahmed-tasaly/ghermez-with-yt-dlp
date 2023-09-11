@@ -28,6 +28,8 @@ import ast
 import sys
 import os
 
+import ghermez
+
 try:
     from PySide6.QtCore import QSettings
 except:
@@ -63,67 +65,8 @@ server = xmlrpc.client.ServerProxy(server_uri, allow_none=True)
 
 
 def startAria():
-    # in Linux and BSD
-    if os_type in OS.UNIX_LIKE:
-
-        subprocess.Popen(['aria2c', '--no-conf',
-                          '--enable-rpc', '--rpc-listen-port=' + str(port),
-                          '--rpc-max-request-size=2M',
-                          '--rpc-listen-all', '--quiet=true'],
-                         stderr=subprocess.PIPE,
-                         stdout=subprocess.PIPE,
-                         stdin=subprocess.PIPE,
-                         shell=False)
-
-    # in macintosh
-    elif os_type == OS.OSX:
-        if aria2_path == "" or aria2_path == None or os.path.isfile(str(aria2_path)) == False:
-
-            cwd = sys.argv[0]
-            current_directory = os.path.dirname(cwd)
-            aria2d = os.path.join(current_directory, 'aria2c')
-
-        else:
-            aria2d = aria2_path
-
-        subprocess.Popen([aria2d, '--no-conf',
-                          '--enable-rpc', '--rpc-listen-port=' + str(port),
-                          '--rpc-max-request-size=2M',
-                          '--rpc-listen-all', '--quiet=true'],
-                         stderr=subprocess.PIPE,
-                         stdout=subprocess.PIPE,
-                         stdin=subprocess.PIPE,
-                         shell=False)
-
-    # in Windows
-    elif os_type == OS.WINDOWS:
-        if aria2_path == "" or aria2_path == None or os.path.isfile(str(aria2_path)) == False:
-            cwd = sys.argv[0]
-            current_directory = os.path.dirname(cwd)
-
-            aria2d = os.path.join(current_directory, "aria2c.exe")  # aria2c.exe path
-        else:
-            aria2d = aria2_path
-
-        # NO_WINDOW option avoids opening additional CMD window in MS Windows.
-        NO_WINDOW = 0x08000000
-
-        if not os.path.exists(aria2d):
-            logger.sendToLog("Aria2 does not exist in the current path!", "ERROR")
-            return None
-        # aria2 command in windows
-        subprocess.Popen([aria2d, '--no-conf', '--enable-rpc', '--rpc-listen-port=' + str(port),
-                          '--rpc-max-request-size=2M', '--rpc-listen-all', '--quiet=true'],
-                         stderr=subprocess.PIPE,
-                         stdout=subprocess.PIPE,
-                         stdin=subprocess.PIPE,
-                         shell=False,
-                         creationflags=NO_WINDOW)
-
-    time.sleep(2)
-
-    # check that starting is successful or not!
-    answer = aria2Version()
+    # return that starting is successful or not!
+    answer = ghermez.startAria(port, aria2_path)
 
     # return result
     return answer
