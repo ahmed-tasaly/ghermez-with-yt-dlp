@@ -15,9 +15,7 @@
 """
 
 from persepolis.scripts.useful_tools import determineConfigFolder
-from persepolis.scripts import logger
 from time import sleep
-import traceback
 import sqlite3
 import random
 import ast
@@ -388,80 +386,80 @@ class PersepolisDB():
         self.lockCursor()
         # Create category_db_table and add 'All Downloads' and 'Single Downloads' to it
         self.persepolis_db_cursor.execute("""CREATE TABLE IF NOT EXISTS category_db_table(
-                                                                category TEXT PRIMARY KEY,
-                                                                start_time_enable TEXT,
-                                                                start_time TEXT,
-                                                                end_time_enable TEXT,
-                                                                end_time TEXT,
-                                                                reverse TEXT,
-                                                                limit_enable TEXT,
-                                                                limit_value TEXT,
-                                                                after_download TEXT,
-                                                                gid_list TEXT
-                                                                            )""")
+                                                category TEXT PRIMARY KEY,
+                                                start_time_enable TEXT,
+                                                start_time TEXT,
+                                                end_time_enable TEXT,
+                                                end_time TEXT,
+                                                reverse TEXT,
+                                                limit_enable TEXT,
+                                                limit_value TEXT,
+                                                after_download TEXT,
+                                                gid_list TEXT
+                                            )""")
 
         # download table contains download table download items information
         self.persepolis_db_cursor.execute("""CREATE TABLE IF NOT EXISTS download_db_table(
-                                                                                    file_name TEXT,
-                                                                                    status TEXT,
-                                                                                    size TEXT,
-                                                                                    downloaded_size TEXT,
-                                                                                    percent TEXT,
-                                                                                    connections TEXT,
-                                                                                    rate TEXT,
-                                                                                    estimate_time_left TEXT,
-                                                                                    gid TEXT PRIMARY KEY,
-                                                                                    link TEXT,
-                                                                                    first_try_date TEXT,
-                                                                                    last_try_date TEXT,
-                                                                                    category TEXT,
-                                                                                    FOREIGN KEY(category) REFERENCES category_db_table(category)
-                                                                                    ON UPDATE CASCADE
-                                                                                    ON DELETE CASCADE
-                                                                                         )""")
+                                                file_name TEXT,
+                                                status TEXT,
+                                                size TEXT,
+                                                downloaded_size TEXT,
+                                                percent TEXT,
+                                                connections TEXT,
+                                                rate TEXT,
+                                                estimate_time_left TEXT,
+                                                gid TEXT PRIMARY KEY,
+                                                link TEXT,
+                                                first_try_date TEXT,
+                                                last_try_date TEXT,
+                                                category TEXT,
+                                                FOREIGN KEY(category) REFERENCES category_db_table(category)
+                                                ON UPDATE CASCADE
+                                                ON DELETE CASCADE
+                                            )""")
 
         # addlink_db_table contains addlink window download information
         self.persepolis_db_cursor.execute("""CREATE TABLE IF NOT EXISTS addlink_db_table(
-                                                                                ID INTEGER PRIMARY KEY,
-                                                                                gid TEXT,
-                                                                                out TEXT,
-                                                                                start_time TEXT,
-                                                                                end_time TEXT,
-                                                                                link TEXT,
-                                                                                ip TEXT,
-                                                                                port TEXT,
-                                                                                proxy_user TEXT,
-                                                                                proxy_passwd TEXT,
-                                                                                download_user TEXT,
-                                                                                download_passwd TEXT,
-                                                                                connections TEXT,
-                                                                                limit_value TEXT,
-                                                                                download_path TEXT,
-                                                                                referer TEXT,
-                                                                                load_cookies TEXT,
-                                                                                user_agent TEXT,
-                                                                                header TEXT,
-                                                                                after_download TEXT,
-                                                                                FOREIGN KEY(gid) REFERENCES download_db_table(gid) 
-                                                                                ON UPDATE CASCADE 
-                                                                                ON DELETE CASCADE 
-                                                                                    )""")
+                                                ID INTEGER PRIMARY KEY,
+                                                gid TEXT,
+                                                out TEXT,
+                                                start_time TEXT,
+                                                end_time TEXT,
+                                                link TEXT,
+                                                ip TEXT,
+                                                port TEXT,
+                                                proxy_user TEXT,
+                                                proxy_passwd TEXT,
+                                                download_user TEXT,
+                                                download_passwd TEXT,
+                                                connections TEXT,
+                                                limit_value TEXT,
+                                                download_path TEXT,
+                                                referer TEXT,
+                                                load_cookies TEXT,
+                                                user_agent TEXT,
+                                                header TEXT,
+                                                after_download TEXT,
+                                                FOREIGN KEY(gid) REFERENCES download_db_table(gid) 
+                                                ON UPDATE CASCADE 
+                                                ON DELETE CASCADE 
+                                            )""")
 
         # video_finder_db_table contains addlink window download information
         self.persepolis_db_cursor.execute("""CREATE TABLE IF NOT EXISTS video_finder_db_table(
-                                                                                ID INTEGER PRIMARY KEY,
-                                                                                video_gid TEXT,
-                                                                                audio_gid TEXT,
-                                                                                video_completed TEXT,
-                                                                                audio_completed TEXT,
-                                                                                muxing_status TEXT,
-                                                                                checking TEXT,
-                                                                                download_path TEXT,
-                                                                                FOREIGN KEY(video_gid) REFERENCES download_db_table(gid)
-                                                                                ON DELETE CASCADE,
-                                                                                FOREIGN KEY(audio_gid) REFERENCES download_db_table(gid)
-                                                                                ON DELETE CASCADE
-                                                                                    )""")
+                                                ID INTEGER PRIMARY KEY,
+                                                video_gid TEXT,
+                                                audio_gid TEXT,
+                                                video_completed TEXT,
+                                                audio_completed TEXT,
+                                                muxing_status TEXT,
+                                                checking TEXT,
+                                                download_path TEXT,
+                                                FOREIGN KEY(video_gid) REFERENCES download_db_table(gid)
+                                                ON DELETE CASCADE,
+                                                FOREIGN KEY(audio_gid) REFERENCES download_db_table(gid)
+                                                ON DELETE CASCADE
+                                            )""")
 
         self.persepolis_db_connection.commit()
 
@@ -652,7 +650,8 @@ class PersepolisDB():
         self.lockCursor()
 
         self.persepolis_db_cursor.execute(
-            """SELECT * FROM video_finder_db_table WHERE audio_gid = '{}' OR video_gid = '{}'""".format(str(gid), str(gid)))
+            """SELECT * FROM video_finder_db_table
+            WHERE audio_gid = '{}' OR video_gid = '{}'""".format(str(gid), str(gid)))
         result_list = self.persepolis_db_cursor.fetchall()
 
         # job is done
@@ -884,19 +883,20 @@ class PersepolisDB():
                     dict[key] = None
 
             # update data base if value for the keys is not None
-            self.persepolis_db_cursor.execute("""UPDATE download_db_table SET   file_name = coalesce(:file_name, file_name),
-                                                                                    status = coalesce(:status, status),
-                                                                                    size = coalesce(:size, size),
-                                                                                    downloaded_size = coalesce(:downloaded_size, downloaded_size),
-                                                                                    percent = coalesce(:percent, percent),
-                                                                                    connections = coalesce(:connections, connections),
-                                                                                    rate = coalesce(:rate, rate),
-                                                                                    estimate_time_left = coalesce(:estimate_time_left, estimate_time_left),
-                                                                                    link = coalesce(:link, link),
-                                                                                    first_try_date = coalesce(:first_try_date, first_try_date),
-                                                                                    last_try_date = coalesce(:last_try_date, last_try_date),
-                                                                                    category = coalesce(:category, category)
-                                                                                    WHERE gid = :gid""", dict)
+            self.persepolis_db_cursor.execute("""UPDATE download_db_table SET
+                                            file_name = coalesce(:file_name, file_name),
+                                            status = coalesce(:status, status),
+                                            size = coalesce(:size, size),
+                                            downloaded_size = coalesce(:downloaded_size, downloaded_size),
+                                            percent = coalesce(:percent, percent),
+                                            connections = coalesce(:connections, connections),
+                                            rate = coalesce(:rate, rate),
+                                            estimate_time_left = coalesce(:estimate_time_left, estimate_time_left),
+                                            link = coalesce(:link, link),
+                                            first_try_date = coalesce(:first_try_date, first_try_date),
+                                            last_try_date = coalesce(:last_try_date, last_try_date),
+                                            category = coalesce(:category, category)
+                                            WHERE gid = :gid""", dict)
 
         # commit the changes
         self.persepolis_db_connection.commit()
@@ -935,16 +935,17 @@ class PersepolisDB():
                     dict[key] = None
 
             # update data base if value for the keys is not None
-            self.persepolis_db_cursor.execute("""UPDATE category_db_table SET   start_time_enable = coalesce(:start_time_enable, start_time_enable),
-                                                                                    start_time = coalesce(:start_time, start_time),
-                                                                                    end_time_enable = coalesce(:end_time_enable, end_time_enable),
-                                                                                    end_time = coalesce(:end_time, end_time),
-                                                                                    reverse = coalesce(:reverse, reverse),
-                                                                                    limit_enable = coalesce(:limit_enable, limit_enable),
-                                                                                    limit_value = coalesce(:limit_value, limit_value),
-                                                                                    after_download = coalesce(:after_download, after_download),
-                                                                                    gid_list = coalesce(:gid_list, gid_list)
-                                                                                    WHERE category = :category""", dict)
+            self.persepolis_db_cursor.execute("""UPDATE category_db_table SET
+                                            start_time_enable = coalesce(:start_time_enable, start_time_enable),
+                                            start_time = coalesce(:start_time, start_time),
+                                            end_time_enable = coalesce(:end_time_enable, end_time_enable),
+                                            end_time = coalesce(:end_time, end_time),
+                                            reverse = coalesce(:reverse, reverse),
+                                            limit_enable = coalesce(:limit_enable, limit_enable),
+                                            limit_value = coalesce(:limit_value, limit_value),
+                                            after_download = coalesce(:after_download, after_download),
+                                            gid_list = coalesce(:gid_list, gid_list)
+                                            WHERE category = :category""", dict)
 
         # commit changes
         self.persepolis_db_connection.commit()
@@ -987,25 +988,26 @@ class PersepolisDB():
                     dict[key] = None
 
             # update data base if value for the keys is not None
-            self.persepolis_db_cursor.execute("""UPDATE addlink_db_table SET out = coalesce(:out, out),
-                                                                                start_time = coalesce(:start_time, start_time),
-                                                                                end_time = coalesce(:end_time, end_time),
-                                                                                link = coalesce(:link, link),
-                                                                                ip = coalesce(:ip, ip),
-                                                                                port = coalesce(:port, port),
-                                                                                proxy_user = coalesce(:proxy_user, proxy_user),
-                                                                                proxy_passwd = coalesce(:proxy_passwd, proxy_passwd),
-                                                                                download_user = coalesce(:download_user, download_user),
-                                                                                download_passwd = coalesce(:download_passwd, download_passwd),
-                                                                                connections = coalesce(:connections, connections),
-                                                                                limit_value = coalesce(:limit_value, limit_value),
-                                                                                download_path = coalesce(:download_path, download_path),
-                                                                                referer = coalesce(:referer, referer),
-                                                                                load_cookies = coalesce(:load_cookies, load_cookies),
-                                                                                user_agent = coalesce(:user_agent, user_agent),
-                                                                                header = coalesce(:header, header),
-                                                                                after_download = coalesce(:after_download , after_download)
-                                                                                WHERE gid = :gid""", dict)
+            self.persepolis_db_cursor.execute("""UPDATE addlink_db_table SET
+                                            out = coalesce(:out, out),
+                                            start_time = coalesce(:start_time, start_time),
+                                            end_time = coalesce(:end_time, end_time),
+                                            link = coalesce(:link, link),
+                                            ip = coalesce(:ip, ip),
+                                            port = coalesce(:port, port),
+                                            proxy_user = coalesce(:proxy_user, proxy_user),
+                                            proxy_passwd = coalesce(:proxy_passwd, proxy_passwd),
+                                            download_user = coalesce(:download_user, download_user),
+                                            download_passwd = coalesce(:download_passwd, download_passwd),
+                                            connections = coalesce(:connections, connections),
+                                            limit_value = coalesce(:limit_value, limit_value),
+                                            download_path = coalesce(:download_path, download_path),
+                                            referer = coalesce(:referer, referer),
+                                            load_cookies = coalesce(:load_cookies, load_cookies),
+                                            user_agent = coalesce(:user_agent, user_agent),
+                                            header = coalesce(:header, header),
+                                            after_download = coalesce(:after_download , after_download)
+                                            WHERE gid = :gid""", dict)
         # commit the changes!
         self.persepolis_db_connection.commit()
 
@@ -1033,20 +1035,22 @@ class PersepolisDB():
 
             if dictionary['video_gid']:
                 # update data base if value for the keys is not None
-                self.persepolis_db_cursor.execute("""UPDATE video_finder_db_table SET video_completed = coalesce(:video_completed, video_completed),
-                                                                                audio_completed = coalesce(:audio_completed, audio_completed),
-                                                                                muxing_status = coalesce(:muxing_status, muxing_status),
-                                                                                checking = coalesce(:checking, checking),
-                                                                                download_path = coalesce(:download_path, download_path)
-                                                                                WHERE video_gid = :video_gid""", dictionary)
+                self.persepolis_db_cursor.execute("""UPDATE video_finder_db_table SET
+                                                video_completed = coalesce(:video_completed, video_completed),
+                                                audio_completed = coalesce(:audio_completed, audio_completed),
+                                                muxing_status = coalesce(:muxing_status, muxing_status),
+                                                checking = coalesce(:checking, checking),
+                                                download_path = coalesce(:download_path, download_path)
+                                                WHERE video_gid = :video_gid""", dictionary)
             elif dictionary['audio_gid']:
                 # update data base if value for the keys is not None
-                self.persepolis_db_cursor.execute("""UPDATE video_finder_db_table SET video_completed = coalesce(:video_completed, video_completed),
-                                                                                audio_completed = coalesce(:audio_completed, audio_completed),
-                                                                                muxing_status = coalesce(:muxing_status, muxing_status),
-                                                                                checking = coalesce(:checking, checking),
-                                                                                download_path = coalesce(:download_path, download_path)
-                                                                                WHERE audio_gid = :audio_gid""", dictionary)
+                self.persepolis_db_cursor.execute("""UPDATE video_finder_db_table SET
+                                                video_completed = coalesce(:video_completed, video_completed),
+                                                audio_completed = coalesce(:audio_completed, audio_completed),
+                                                muxing_status = coalesce(:muxing_status, muxing_status),
+                                                checking = coalesce(:checking, checking),
+                                                download_path = coalesce(:download_path, download_path)
+                                                WHERE audio_gid = :audio_gid""", dictionary)
 
         # commit the changes!
         self.persepolis_db_connection.commit()
@@ -1137,7 +1141,8 @@ class PersepolisDB():
 
         # change start_time_enable , end_time_enable , reverse ,
         # limit_enable , after_download value to default value !
-        self.persepolis_db_cursor.execute("""UPDATE category_db_table SET start_time_enable = 'no', end_time_enable = 'no',
+        self.persepolis_db_cursor.execute("""UPDATE category_db_table SET
+                                        start_time_enable = 'no', end_time_enable = 'no',
                                         reverse = 'no', limit_enable = 'no', after_download = 'no'""")
 
         # change status of download to 'stopped' if status isn't 'complete' or 'error'
@@ -1165,10 +1170,12 @@ class PersepolisDB():
 
         # find download items is download_db_table with status = "downloading" or "waiting" or paused or scheduled
         if category:
-            self.persepolis_db_cursor.execute("""SELECT gid FROM download_db_table WHERE (category = '{}') AND (status = 'downloading' OR status = 'waiting' 
+            self.persepolis_db_cursor.execute("""SELECT gid FROM download_db_table
+                                            WHERE (category = '{}') AND (status = 'downloading' OR status = 'waiting' 
                                             OR status = 'scheduled' OR status = 'paused')""".format(str(category)))
         else:
-            self.persepolis_db_cursor.execute("""SELECT gid FROM download_db_table WHERE (status = 'downloading' OR status = 'waiting' 
+            self.persepolis_db_cursor.execute("""SELECT gid FROM download_db_table
+                                            WHERE (status = 'downloading' OR status = 'waiting' 
                                             OR status = 'scheduled' OR status = 'paused')""")
 
         # create a list for returning answer
@@ -1298,7 +1305,8 @@ class PersepolisDB():
 
         # delete all items in category_db_table, except 'All Downloads' and 'Single Downloads'
         self.persepolis_db_cursor.execute(
-            """DELETE FROM category_db_table WHERE category NOT IN ('All Downloads', 'Single Downloads', 'Scheduled Downloads')""")
+            """DELETE FROM category_db_table
+            WHERE category NOT IN ('All Downloads', 'Single Downloads', 'Scheduled Downloads')""")
         self.persepolis_db_cursor.execute("""DELETE FROM download_db_table""")
         self.persepolis_db_cursor.execute("""DELETE FROM addlink_db_table""")
 

@@ -16,7 +16,7 @@ try:
     from PySide6.QtCore import Qt, QEvent, QTime, QSize, QPoint, QDir, QTranslator, QCoreApplication, QLocale
     from PySide6.QtWidgets import QFileDialog, QStyleFactory, QMessageBox, QTableWidgetItem
     from PySide6.QtGui import QFont, QKeySequence
-except:
+except ImportError:
     from PyQt5.QtCore import Qt, QEvent, QTime, QSize, QPoint, QDir, QTranslator, QCoreApplication, QLocale
     from PyQt5.QtWidgets import QFileDialog, QStyleFactory, QMessageBox, QTableWidgetItem
     from PyQt5.QtGui import QFont, QKeySequence
@@ -28,7 +28,6 @@ from persepolis.scripts.useful_tools import returnDefaultSettings
 from persepolis.scripts import osCommands
 from persepolis.scripts import startup
 import platform
-import copy
 import sys
 import os
 
@@ -101,7 +100,7 @@ class PreferencesWindow(Setting_Ui):
         wait_queue_list = self.persepolis_setting.value('wait-queue')
         try:
             q_time = QTime(int(wait_queue_list[0]), int(wait_queue_list[1]))
-        except:
+        except ValueError:
             q_time = QTime(0, 0)
 
         self.wait_queue_time.setTime(q_time)
@@ -112,7 +111,7 @@ class PreferencesWindow(Setting_Ui):
         aria2_path = self.persepolis_setting.value('settings/aria2_path')
 
         self.aria2_path_lineEdit.setEnabled(False)
-        if aria2_path != None:
+        if aria2_path is not None:
             self.aria2_path_checkBox.setChecked(True)
             self.aria2_path_lineEdit.setText(str(aria2_path))
 
@@ -161,7 +160,8 @@ class PreferencesWindow(Setting_Ui):
             self.style_comboBox.setCurrentIndex(current_style_index)
 
         # available language
-        available_language = ['en_US', 'fa_IR', 'ar', 'zh_CN', 'fr_FR', 'pl_PL', 'nl_NL', 'pt_BR', 'es_ES', 'hu', 'tr', 'tr_TR']
+        available_language = ['en_US', 'fa_IR', 'ar', 'zh_CN', 'fr_FR', 'pl_PL',
+                              'nl_NL', 'pt_BR', 'es_ES', 'hu', 'tr', 'tr_TR']
         for lang in available_language:
             self.lang_comboBox.addItem(str(QLocale(lang).nativeLanguageName()), lang)
 
@@ -343,7 +343,7 @@ class PreferencesWindow(Setting_Ui):
         # video_finder
         try:  # Integer casting may raise exception.
             self.max_links_spinBox.setValue(int(persepolis_setting.value('video_finder/max_links', 3)))
-        except:
+        except ValueError:
             pass
 
         # shortcuts
@@ -393,8 +393,10 @@ class PreferencesWindow(Setting_Ui):
         self.font_checkBox.stateChanged.connect(self.fontCheckBoxState)
 
         # saving initial value of self.persepolis_setting in self.first_key_value_dict
-        # at the end! in the okPushButtonPressed method, first_key_value_dict will compared with second_key_value_dict.
-        # if any thing changed , then a message box notify user about "some changes take effect after restarting persepolis".
+        # at the end! in the okPushButtonPressed method,
+        # first_key_value_dict will compared with second_key_value_dict.
+        # if any thing changed , then a message box notify user about
+        # "some changes take effect after restarting persepolis".
         self.first_key_value_dict = {}
         for member in self.persepolis_setting.allKeys():
             self.first_key_value_dict[member] = str(self.persepolis_setting.value(member))
@@ -436,10 +438,11 @@ class PreferencesWindow(Setting_Ui):
         # check that if shortcut used before.
         if keys in self.shortcuts_list:
             self.msgBox = QMessageBox()
-            self.msgBox.setText(QCoreApplication.translate("setting_src_ui_tr", "<b><center>This shortcut has been used before!\
+            self.msgBox.setText(QCoreApplication.translate("setting_src_ui_tr",
+                                                           "<b><center>This shortcut has been used before!\
                     Use another one!</center></b>"))
             self.msgBox.setIcon(QMessageBox.Warning)
-            reply = self.msgBox.exec_()
+            reply = self.msgBox.exec_()  # noqa: F841
 
         # set new shortcut
         else:
@@ -526,7 +529,7 @@ class PreferencesWindow(Setting_Ui):
         elif selected_style == 'Adwaita' or selected_style == 'macintosh':
             dark_theme = False
 
-        if dark_theme == True:
+        if dark_theme:
             self.icon_comboBox.clear()
 
             if selected_size < 48:
@@ -545,7 +548,7 @@ class PreferencesWindow(Setting_Ui):
 
             self.icon_comboBox.setCurrentIndex(current_icons_index)
 
-        elif dark_theme == False:
+        elif dark_theme is False:
 
             if selected_size < 48:
                 icons = ['Breeze', 'Papirus', 'Papirus-Light']
@@ -609,7 +612,7 @@ class PreferencesWindow(Setting_Ui):
         self.persepolis_setting.sync()
         event.accept()
 
-        if self.parent.isVisible() == False:
+        if self.parent.isVisible() is False:
             self.parent.minMaxTray(event)
         self.close()
 
@@ -649,7 +652,8 @@ class PreferencesWindow(Setting_Ui):
             self, 'Select a directory', download_path)
 
         if fname:
-            # Returns pathName with the '/' separators converted to separators that are appropriate for the underlying operating system.
+            # Returns pathName with the '/' separators converted to separators
+            # that are appropriate for the underlying operating system.
             # On Windows, toNativeSeparators("c:/winnt/system32") returns
             # "c:\winnt\system32".
             fname = QDir.toNativeSeparators(fname)
@@ -1164,14 +1168,18 @@ class PreferencesWindow(Setting_Ui):
         show_message_box = False
         for key in self.first_key_value_dict.keys():
             if self.first_key_value_dict[key] != self.second_key_value_dict[key]:
-                if key in ['locale', 'aria2_path', 'download_path_temp', 'download_path', 'custom-font', 'rpc-port', 'max-tries', 'retry-wait', 'timeout', 'connections', 'style', 'font', 'font-size', 'color-scheme']:
+                if key in ['locale', 'aria2_path', 'download_path_temp', 'download_path',
+                           'custom-font', 'rpc-port', 'max-tries', 'retry-wait', 'timeout',
+                           'connections', 'style', 'font', 'font-size', 'color-scheme']:
                     show_message_box = True
 
-        # if any thing changed that needs restarting, then notify user about "Some changes take effect after restarting persepolis"
+        # if any thing changed that needs restarting, then notify user about
+        # "Some changes take effect after restarting persepolis"
         if show_message_box:
             restart_messageBox = QMessageBox()
             restart_messageBox.setText(QCoreApplication.translate(
-                "setting_src_ui_tr", '<b><center>Restart Persepolis Please!</center></b><br><center>Some changes take effect after restarting Persepolis</center>'))
+                "setting_src_ui_tr", '<b><center>Restart Persepolis Please!</center></b>\
+                <br><center>Some changes take effect after restarting Persepolis</center>'))
             restart_messageBox.setWindowTitle(QCoreApplication.translate("setting_src_ui_tr", 'Restart Persepolis!'))
             restart_messageBox.exec_()
 

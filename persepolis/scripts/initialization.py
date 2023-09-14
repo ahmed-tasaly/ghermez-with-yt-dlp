@@ -19,14 +19,12 @@
 from persepolis.scripts.useful_tools import determineConfigFolder, returnDefaultSettings
 from persepolis.scripts.browser_integration import browserIntegration
 from persepolis.scripts import osCommands
-import subprocess
-import shutil
 import time
 import os
 
 try:
     from PySide6.QtCore import QSettings
-except:
+except ImportError:
     from PyQt5.QtCore import QSettings
 
 # initialization
@@ -42,7 +40,7 @@ for folder in [config_folder, persepolis_tmp]:
     osCommands.makeDirs(folder)
 
 # persepolisdm.log file contains persepolis log.
-from persepolis.scripts import logger
+from persepolis.scripts import logger  # noqa: E402
 
 # refresh logs!
 log_file = os.path.join(str(config_folder), 'persepolisdm.log')
@@ -84,7 +82,7 @@ else:
                  + '\n')
     f.close()
 
-from ghermez import DataBase, PluginsDB
+from ghermez import DataBase, PluginsDB  # noqa: E402
 
 # create an object for DataBase
 persepolis_db = DataBase()
@@ -124,7 +122,8 @@ for key in default_setting_dict.keys():
     setting_value = persepolis_setting.value(key, default_setting_dict[key])
     persepolis_setting.setValue(key, setting_value)
 
-# download files is downloading in temporary folder(download_path_temp) and then they will be moved to user download folder(download_path) after completion.
+# download files is downloading in temporary folder(download_path_temp)
+# and then they will be moved to user download folder(download_path) after completion.
 # Check that mount point is available of not!
 if not(os.path.exists(persepolis_setting.value('download_path_temp'))):
     persepolis_setting.setValue('download_path_temp', default_setting_dict['download_path_temp'])
@@ -160,16 +159,16 @@ for browser in ['chrome', 'chromium', 'opera', 'vivaldi', 'firefox', 'brave']:
 
     log_message = browser
 
-    if json_done == True:
+    if json_done:
         log_message = log_message + ': ' + 'Json file is created successfully.\n'
 
     else:
         log_message = log_message + ': ' + 'Json ERROR!\n'
 
-    if native_done == True:
+    if native_done:
         log_message = log_message + 'persepolis executer file is created successfully.\n'
 
-    elif native_done == False:
+    elif native_done is False:
         log_message = log_message + ': ' + 'persepolis executer file ERROR!\n'
 
     logger.sendToLog(log_message)

@@ -14,22 +14,26 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 try:
-    from PySide6.QtWidgets import QAbstractItemView, QTableWidget, QTableWidgetItem, QCheckBox, QVBoxLayout, QHBoxLayout, QFrame, QWidget, QLabel, QLineEdit, QTabWidget, QSpinBox, QPushButton, QDial, QComboBox, QFontComboBox, QSpacerItem, QSizePolicy
+    from PySide6.QtWidgets import (
+        QAbstractItemView, QTableWidget, QTableWidgetItem, QCheckBox, QVBoxLayout,QHBoxLayout,
+        QFrame, QWidget, QLabel, QLineEdit, QTabWidget, QSpinBox, QPushButton, QDial, QComboBox, QFontComboBox
+    )
     from PySide6.QtCore import Qt, QTranslator, QCoreApplication, QLocale
     from PySide6.QtGui import QIcon
-except:
-    from PyQt5.QtWidgets import QAbstractItemView, QTableWidget, QTableWidgetItem, QCheckBox, QVBoxLayout, QHBoxLayout, QFrame, QWidget, QLabel, QLineEdit, QTabWidget, QSpinBox, QPushButton, QDial, QComboBox, QFontComboBox, QSpacerItem, QSizePolicy
+except ImportError:
+    from PyQt5.QtWidgets import (
+        QAbstractItemView, QTableWidget, QTableWidgetItem, QCheckBox, QVBoxLayout, QHBoxLayout,
+        QFrame, QWidget, QLabel, QLineEdit, QTabWidget, QSpinBox, QPushButton, QDial, QComboBox, QFontComboBox
+    )
     from PyQt5.QtCore import Qt, QTranslator, QCoreApplication, QLocale
     from PyQt5.QtGui import QIcon
 
 from persepolis.gui.customized_widgets import MyQDateTimeEdit
-from persepolis.gui import resources
+from persepolis.gui import resources # noqa: F401
 
 class KeyCapturingWindow_Ui(QWidget):
     def __init__(self, persepolis_setting):
         super().__init__()
-        icon = QIcon()
-
         self.persepolis_setting = persepolis_setting
 
         # add support for other languages
@@ -85,7 +89,6 @@ class KeyCapturingWindow_Ui(QWidget):
 class Setting_Ui(QWidget):
     def __init__(self, persepolis_setting):
         super().__init__()
-        icon = QIcon()
 
         self.persepolis_setting = persepolis_setting
 
@@ -556,44 +559,71 @@ class Setting_Ui(QWidget):
         self.setWindowTitle(QCoreApplication.translate("setting_ui_tr", "Preferences"))
 
         self.tries_label.setToolTip(
-            QCoreApplication.translate("setting_ui_tr", "<html><head/><body><p>Set number of tries if download failed.</p></body></html>"))
+            QCoreApplication.translate(
+                "setting_ui_tr", "<html><head/><body><p>Set number of tries if download failed.</p></body></html>"
+            )
+        )
         self.tries_label.setText(QCoreApplication.translate("setting_ui_tr", "Number of tries: "))
         self.tries_spinBox.setToolTip(
-            QCoreApplication.translate("setting_ui_tr", "<html><head/><body><p>Set number of tries if download failed.</p></body></html>"))
+            QCoreApplication.translate(
+                "setting_ui_tr", "<html><head/><body><p>Set number of tries if download failed.</p></body></html>"
+            )
+        )
 
         self.wait_label.setToolTip(
-            QCoreApplication.translate("setting_ui_tr", "<html><head/><body><p>Set the seconds to wait between retries. Download manager will  retry  downloads  when  the  HTTP  server  returns  a  503 response.</p></body></html>"))
+            QCoreApplication.translate("setting_ui_tr", "<html><head/><body><p>Set the seconds to wait between retries. Download manager will  retry  downloads  when  the  HTTP  server  returns  a  503 response.</p></body></html>"))  # noqa: E501
         self.wait_label.setText(QCoreApplication.translate("setting_ui_tr", "Wait period between retries (seconds): "))
         self.wait_spinBox.setToolTip(
-            QCoreApplication.translate("setting_ui_tr", "<html><head/><body><p>Set the seconds to wait between retries. Download manager will  retry  downloads  when  the  HTTP  server  returns  a  503 response.</p></body></html>"))
+            QCoreApplication.translate("setting_ui_tr", "<html><head/><body><p>Set the seconds to wait between retries. Download manager will  retry  downloads  when  the  HTTP  server  returns  a  503 response.</p></body></html>"))  # noqa: E501
 
         self.time_out_label.setToolTip(
-            QCoreApplication.translate("setting_ui_tr", "<html><head/><body><p>Set timeout in seconds. </p></body></html>"))
+            QCoreApplication.translate(
+                "setting_ui_tr", "<html><head/><body><p>Set timeout in seconds. </p></body></html>"
+            ))
         self.time_out_label.setText(QCoreApplication.translate("setting_ui_tr", "Timeout (seconds): "))
         self.time_out_spinBox.setToolTip(
-            QCoreApplication.translate("setting_ui_tr", "<html><head/><body><p>Set timeout in seconds. </p></body></html>"))
+            QCoreApplication.translate(
+                "setting_ui_tr", "<html><head/><body><p>Set timeout in seconds. </p></body></html>"
+            ))
 
         self.connections_label.setToolTip(
-            QCoreApplication.translate("setting_ui_tr", "<html><head/><body><p>Using multiple connections can help speed up your download.</p></body></html>"))
+            QCoreApplication.translate(
+                "setting_ui_tr",
+                "<html><head/><body><p>Using multiple connections can help speed up your download.</p></body></html>"
+            ))
         self.connections_label.setText(QCoreApplication.translate("setting_ui_tr", "Number of connections: "))
         self.connections_spinBox.setToolTip(
-            QCoreApplication.translate("setting_ui_tr", "<html><head/><body><p>Using multiple connections can help speed up your download.</p></body></html>"))
+            QCoreApplication.translate(
+                "setting_ui_tr",
+                "<html><head/><body><p>Using multiple connections can help speed up your download.</p></body></html>"
+            ))
 
         self.rpc_port_label.setText(QCoreApplication.translate("setting_ui_tr", "RPC port number: "))
         self.rpc_port_spinbox.setToolTip(
-            QCoreApplication.translate("setting_ui_tr", "<html><head/><body><p> Specify a port number for JSON-RPC/XML-RPC server to listen to. Possible Values: 1024 - 65535 Default: 6801 </p></body></html>"))
+            QCoreApplication.translate(
+                "setting_ui_tr",
+                "<html><head/><body><p> Specify a port number for JSON-RPC/XML-RPC server to listen to.\
+                Possible Values: 1024 - 65535 Default: 6801 </p></body></html>"
+            ))
 
         self.wait_queue_label.setText(QCoreApplication.translate(
             "setting_ui_tr", 'Wait period between each download in queue:'))
 
-        self.dont_check_certificate_checkBox.setText(QCoreApplication.translate("setting_ui_tr", "Don't use certificate to verify the peers"))
+        self.dont_check_certificate_checkBox.setText(
+            QCoreApplication.translate("setting_ui_tr", "Don't use certificate to verify the peers")
+        )
         self.dont_check_certificate_checkBox.setToolTip(
-                QCoreApplication.translate("setting_ui_tr", "<html><head/><body><p>This option avoids SSL/TLS handshake failure. But use it at your own risk!</p></body></html>"))
+                QCoreApplication.translate(
+                    "setting_ui_tr",
+                    "<html><head/><body><p>This option avoids SSL/TLS handshake failure.\
+                    But use it at your own risk!</p></body></html>"
+                ))
 
         self.aria2_path_checkBox.setText(QCoreApplication.translate("setting_ui_tr", 'Change Aria2 default path'))
         self.aria2_path_pushButton.setText(QCoreApplication.translate("setting_ui_tr", 'Change'))
         aria2_path_tooltip = QCoreApplication.translate(
-            "setting_ui_tr", "<html><head/><body><p>Attention: Wrong path may cause problems! Do it carefully or don't change default setting!</p></body></html>")
+            "setting_ui_tr", "<html><head/><body><p>Attention: Wrong path may cause problems!\
+            Do it carefully or don't change default setting!</p></body></html>")
         self.aria2_path_checkBox.setToolTip(aria2_path_tooltip)
         self.aria2_path_lineEdit.setToolTip(aria2_path_tooltip)
         self.aria2_path_pushButton.setToolTip(aria2_path_tooltip)
@@ -635,7 +665,11 @@ class Setting_Ui(QWidget):
         self.hide_window_checkBox.setText(QCoreApplication.translate(
             "setting_ui_tr", "Hide main window if close button clicked."))
         self.hide_window_checkBox.setToolTip(
-            QCoreApplication.translate("setting_ui_tr", "<html><head/><body><p>This feature may not work in your operating system.</p></body></html>"))
+            QCoreApplication.translate(
+                "setting_ui_tr",
+                "<html><head/><body><p>This feature may not work in your operating system.</p></body></html>"
+            )
+        )
 
         self.start_persepolis_if_browser_executed_checkBox.setText(
             QCoreApplication.translate('setting_ui_tr', 'If browser is opened, start Persepolis in system tray'))
@@ -655,8 +689,11 @@ class Setting_Ui(QWidget):
 
         self.keep_awake_checkBox.setText(QCoreApplication.translate("setting_ui_tr", "Keep system awake!"))
         self.keep_awake_checkBox.setToolTip(
-            QCoreApplication.translate("setting_ui_tr", "<html><head/><body><p>This option will prevent the system from going to sleep.\
-            It is necessary if your power manager is suspending the system automatically. </p></body></html>"))
+            QCoreApplication.translate(
+                "setting_ui_tr", "<html><head/><body><p>This option will prevent the system from going to sleep.\
+                It is necessary if your power manager is suspending the system automatically. </p></body></html>"
+            )
+        )
 
         self.wait_queue_time.setToolTip(
             QCoreApplication.translate("setting_ui_tr", "<html><head/><body><p>Format HH:MM</p></body></html>"))
@@ -679,14 +716,18 @@ class Setting_Ui(QWidget):
         self.column12_checkBox.setText(QCoreApplication.translate("setting_ui_tr", 'Category'))
 
         self.setting_tabWidget.setTabText(
-            self.setting_tabWidget.indexOf(self.columns_tab), QCoreApplication.translate("setting_ui_tr", "Columns Customization"))
+            self.setting_tabWidget.indexOf(self.columns_tab),
+            QCoreApplication.translate("setting_ui_tr", "Columns Customization")
+        )
 
 # Video Finder options tab
         self.setting_tabWidget.setTabText(self.setting_tabWidget.indexOf(
             self.video_finder_tab), QCoreApplication.translate("setting_ui_tr",  "Video Finder Options"))
 
-        self.max_links_label.setText(QCoreApplication.translate("setting_ui_tr", 'Maximum number of links to capture:<br/>'
-                                                                '<small>(If browser sends multiple video links at a time)</small>'))
+        self.max_links_label.setText(
+            QCoreApplication.translate("setting_ui_tr", 'Maximum number of links to capture:<br/>'
+                                        '<small>(If browser sends multiple video links at a time)</small>')
+        )
 
 # window buttons
         self.defaults_pushButton.setText(QCoreApplication.translate("setting_ui_tr", "Defaults"))

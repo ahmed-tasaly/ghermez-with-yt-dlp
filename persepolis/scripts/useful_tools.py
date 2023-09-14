@@ -14,7 +14,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 try:
     from PySide6.QtWidgets import QStyleFactory
-except:
+except ImportError:
     from PyQt5.QtWidgets import QStyleFactory
 
 from persepolis.constants.Os import OS
@@ -27,7 +27,7 @@ import os
 try:
     from persepolis.scripts import logger
     logger_availability = True
-except:
+except ImportError:
     logger_availability = False
 
 # find operating system
@@ -130,7 +130,7 @@ def convertToByte(file_size):
 def freeSpace(dir):
     try:
         import psutil
-    except:
+    except ImportError:
         if logger_availability:
             logger.sendToLog("psutil in not installed!", "ERROR")
 
@@ -240,18 +240,23 @@ def returnDefaultSettings():
     move_down_selection_shortcut = "Ctrl+Down"
 
     # Persepolis default setting
-    default_setting_dict = {'locale': 'en_US', 'toolbar_icon_size': 32, 'wait-queue': [0, 0], 'awake': 'no', 'custom-font': 'no', 'column0': 'yes',
-                            'column1': 'yes', 'column2': 'yes', 'column3': 'yes', 'column4': 'yes', 'column5': 'yes', 'column6': 'yes', 'column7': 'yes',
-                            'column10': 'yes', 'column11': 'yes', 'column12': 'yes', 'subfolder': 'yes', 'startup': 'no', 'show-progress': 'yes',
-                            'show-menubar': 'no', 'show-sidepanel': 'yes', 'rpc-port': 6801, 'notification': 'Native notification', 'after-dialog': 'yes',
-                            'tray-icon': 'yes', 'browser-persepolis': 'yes', 'hide-window': 'yes', 'max-tries': 5, 'retry-wait': 0, 'timeout': 60,
-                            'connections': 16, 'download_path_temp': download_path_temp, 'download_path': download_path, 'sound': 'yes', 'sound-volume': 100,
-                            'style': style, 'color-scheme': color_scheme, 'icons': icons, 'font': 'Ubuntu', 'font-size': 9, 'aria2_path': '',
-                            'video_finder/max_links': '3', 'shortcuts/delete_shortcut': delete_shortcut, 'shortcuts/remove_shortcut': remove_shortcut,
-                            'shortcuts/add_new_download_shortcut': add_new_download_shortcut, 'shortcuts/import_text_shortcut': import_text_shortcut,
-                            'shortcuts/video_finder_shortcut': video_finder_shortcut, 'shortcuts/quit_shortcut': quit_shortcut,
-                            'shortcuts/hide_window_shortcut': hide_window_shortcut, 'shortcuts/move_up_selection_shortcut': move_up_selection_shortcut,
-                            'shortcuts/move_down_selection_shortcut': move_down_selection_shortcut, 'dont-check-certificate': 'no'}
+    default_setting_dict = {
+        'locale': 'en_US', 'toolbar_icon_size': 32, 'wait-queue': [0, 0], 'awake': 'no', 'custom-font': 'no',
+        'column0': 'yes', 'column1': 'yes', 'column2': 'yes', 'column3': 'yes', 'column4': 'yes', 'column5': 'yes',
+        'column6': 'yes', 'column7': 'yes', 'column10': 'yes', 'column11': 'yes', 'column12': 'yes', 'subfolder': 'yes',
+        'startup': 'no', 'show-progress': 'yes', 'show-menubar': 'no', 'show-sidepanel': 'yes', 'rpc-port': 6801,
+        'notification': 'Native notification', 'after-dialog': 'yes', 'tray-icon': 'yes', 'browser-persepolis': 'yes',
+        'hide-window': 'yes', 'max-tries': 5, 'retry-wait': 0, 'timeout': 60, 'connections': 16,
+        'download_path_temp': download_path_temp, 'download_path': download_path, 'sound': 'yes', 'sound-volume': 100,
+        'style': style, 'color-scheme': color_scheme, 'icons': icons, 'font': 'Ubuntu', 'font-size': 9,
+        'aria2_path': '', 'video_finder/max_links': '3', 'shortcuts/delete_shortcut': delete_shortcut,
+        'shortcuts/remove_shortcut': remove_shortcut, 'shortcuts/add_new_download_shortcut': add_new_download_shortcut,
+        'shortcuts/import_text_shortcut': import_text_shortcut,
+        'shortcuts/video_finder_shortcut': video_finder_shortcut, 'shortcuts/quit_shortcut': quit_shortcut,
+        'shortcuts/hide_window_shortcut': hide_window_shortcut,
+        'shortcuts/move_up_selection_shortcut': move_up_selection_shortcut,
+        'shortcuts/move_down_selection_shortcut': move_down_selection_shortcut, 'dont-check-certificate': 'no'
+    }
 
     return default_setting_dict
 

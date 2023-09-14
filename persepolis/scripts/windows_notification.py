@@ -16,7 +16,7 @@
 """
 try:
     from PySide6.QtCore import Qt, QThread, Signal
-except:
+except ImportError:
     from PyQt5.QtCore import Qt, QThread
     from PyQt5.QtCore import pyqtSignal as Signal
 

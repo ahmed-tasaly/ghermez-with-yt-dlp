@@ -191,6 +191,7 @@ def browserIntegration(browser):
     else:
         native_done = None
         import winreg
+        from builtins import WindowsError
         # add the key to the windows registry
         if browser in BROWSER.CHROME_FAMILY:
             try:
@@ -199,7 +200,10 @@ def browserIntegration(browser):
                                  "SOFTWARE\\Google\\Chrome\\NativeMessagingHosts\\com.persepolis.pdmchromewrapper")
                 # open a connection to pdmchromewrapper key
                 gintKey = winreg.OpenKey(
-                    winreg.HKEY_CURRENT_USER, "SOFTWARE\\Google\\Chrome\\NativeMessagingHosts\\com.persepolis.pdmchromewrapper", 0, winreg.KEY_ALL_ACCESS)
+                    winreg.HKEY_CURRENT_USER,
+                    "SOFTWARE\\Google\\Chrome\\NativeMessagingHosts\\com.persepolis.pdmchromewrapper",
+                    0, winreg.KEY_ALL_ACCESS
+                )
                 # set native_message_file as key value
                 winreg.SetValueEx(gintKey, '', 0, winreg.REG_SZ, native_message_file)
                 # close connection to pdmchromewrapper
@@ -218,7 +222,10 @@ def browserIntegration(browser):
                                  "SOFTWARE\\Mozilla\\NativeMessagingHosts\\com.persepolis.pdmchromewrapper")
                 # open a connection to pdmchromewrapper key for firefox
                 fintKey = winreg.OpenKey(
-                    winreg.HKEY_CURRENT_USER, "SOFTWARE\\Mozilla\\NativeMessagingHosts\\com.persepolis.pdmchromewrapper", 0, winreg.KEY_ALL_ACCESS)
+                    winreg.HKEY_CURRENT_USER,
+                    "SOFTWARE\\Mozilla\\NativeMessagingHosts\\com.persepolis.pdmchromewrapper",
+                    0, winreg.KEY_ALL_ACCESS
+                )
                 # set native_message_file as key value
                 winreg.SetValueEx(fintKey, '', 0, winreg.REG_SZ, native_message_file)
                 # close connection to pdmchromewrapper

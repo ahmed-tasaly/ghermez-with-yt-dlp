@@ -17,12 +17,12 @@ try:
     from PySide6.QtGui import QFont
     from PySide6.QtWidgets import QApplication, QStyleFactory
     from PySide6.QtCore import QFile, QTextStream, QCoreApplication, QSettings, Qt
-except:
+except ImportError:
     from PyQt5.QtGui import QFont
     from PyQt5.QtWidgets import QApplication, QStyleFactory
     from PyQt5.QtCore import QFile, QTextStream, QCoreApplication, QSettings, Qt
 
-from persepolis.gui import resources
+from persepolis.gui import resources # noqa: F401
 import traceback
 from persepolis.scripts.error_window import ErrorWindow
 from persepolis.gui.palettes import DarkFusionPalette, LightFusionPalette
@@ -85,7 +85,6 @@ else:  # for windows
     from win32event import CreateMutex
     from win32api import GetLastError
     from winerror import ERROR_ALREADY_EXISTS
-    from sys import exit
 
     handle = CreateMutex(None, 1, 'persepolis_download_manager')
 
@@ -96,7 +95,7 @@ else:  # for windows
 
 # run persepolis mainwindow
 if lock_file_validation:
-    from persepolis.scripts import initialization
+    from persepolis.scripts import initialization  # noqa: F401
     from persepolis.scripts.mainwindow import MainWindow
 
 # set "persepolis" name for this process in linux and bsd
@@ -104,7 +103,7 @@ if lock_file_validation:
         try:
             from setproctitle import setproctitle
             setproctitle("persepolis")
-        except:
+        except ImportError:
             from persepolis.scripts import logger
             logger.sendToLog('setproctitle is not installed!', "ERROR")
 
@@ -152,19 +151,23 @@ class PersepolisApplication(QApplication):
 
 # create  terminal arguments
 parser = argparse.ArgumentParser(description='Persepolis Download Manager')
-#parser.add_argument('chromium', nargs = '?', default = 'no', help='this switch is used for chrome native messaging in Linux and Mac')
+# parser.add_argument('chromium', nargs = '?', default = 'no',
+#                     help='this switch is used for chrome native messaging in Linux and Mac')
 parser.add_argument('--link', action='store', nargs=1, help='Download link.(Use "" for links)')
 parser.add_argument('--referer', action='store', nargs=1,
-                    help='Set an http referrer (Referer). This affects all http/https downloads.  If * is given, the download URI is also used as the referrer.')
+                    help='Set an http referrer (Referer). This affects all http/https downloads. \
+                    If * is given, the download URI is also used as the referrer.')
 parser.add_argument('--cookie', action='store', nargs=1, help='Cookie')
 parser.add_argument('--agent', action='store', nargs=1,
-                    help='Set user agent for HTTP(S) downloads.  Default: aria2/$VERSION, $VERSION is replaced by package version.')
+                    help='Set user agent for HTTP(S) downloads. \
+                        Default: aria2/$VERSION, $VERSION is replaced by package version.')
 parser.add_argument('--headers', action='store', nargs=1, help='Append HEADER to HTTP request header. ')
 parser.add_argument('--name', action='store', nargs=1, help='The  file  name  of  the downloaded file. ')
 parser.add_argument('--default', action='store_true', help='restore default setting')
 parser.add_argument('--clear', action='store_true', help='Clear download list and user setting!')
 parser.add_argument('--tray', action='store_true',
-                    help="Persepolis is starting in tray icon. It's useful when you want to put persepolis in system's startup.")
+                    help="Persepolis is starting in tray icon. \
+                        It's useful when you want to put persepolis in system's startup.")
 parser.add_argument('--parent-window', action='store', nargs=1,
                     help='this switch is used for chrome native messaging in Windows')
 parser.add_argument('--version', action='version', version='Persepolis Download Manager 3.2.0')
@@ -318,8 +321,10 @@ else:
 # when browsers plugin calls persepolis or user runs persepolis by terminal arguments,
 # then persepolis creates a request file in persepolis_tmp folder and link information added to
 # plugins_db.db file(see data_base.py for more information).
-# persepolis mainwindow checks persepolis_tmp for plugins request file every 2 seconds (see CheckingThread class in mainwindow.py)
-# when request received in CheckingThread, a popup window (AddLinkWindow) comes up and window gets additional download information
+# persepolis mainwindow checks persepolis_tmp for
+# plugins request file every 2 seconds (see CheckingThread class in mainwindow.py)
+# when request received in CheckingThread, a popup window (AddLinkWindow)
+# comes up and window gets additional download information
 # from user (port , proxy , ...) and download starts and request file deleted
 
 if ('link' in add_link_dictionary.keys()):
@@ -366,7 +371,8 @@ else:
 
 def main():
     # if lock_file is existed , it means persepolis is still running!
-    if lock_file_validation and (not((args.parent_window or unknownargs) and browser_url == False) or ((args.parent_window or unknownargs) and start_persepolis_if_browser_executed)):
+    if lock_file_validation and (not((args.parent_window or unknownargs) and browser_url is False) or \
+        ((args.parent_window or unknownargs) and start_persepolis_if_browser_executed)):
 
         # set QT_AUTO_SCREEN_SCALE_FACTOR to 1 for "high DPI displays"
         os.environ['QT_AUTO_SCREEN_SCALE_FACTOR'] = '1'
@@ -380,7 +386,7 @@ def main():
         # more information at: https://doc.qt.io/qt-5/highdpi.html
         try:
             QApplication.setAttribute(Qt.AA_EnableHighDpiScaling)
-        except:
+        except AttributeError:
             from persepolis.scripts import logger
 
             # write error_message in log file.
@@ -398,7 +404,7 @@ def main():
         try:
             if hasattr(QStyleFactory, 'AA_UseHighDpiPixmaps'):
                 persepolis_download_manager.setAttribute(Qt.AA_UseHighDpiPixmaps)
-        except:
+        except AttributeError:
             from persepolis.scripts import logger
 
             # write error_message in log file.

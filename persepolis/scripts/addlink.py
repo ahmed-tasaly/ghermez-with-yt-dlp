@@ -15,11 +15,11 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 try:
-    from PySide6.QtWidgets import QHBoxLayout, QApplication, QFileDialog, QCheckBox, QLineEdit, QPushButton
+    from PySide6.QtWidgets import QApplication, QFileDialog
     from PySide6.QtCore import Qt, QPoint, QSize, QDir, QThread, Signal
     from PySide6.QtGui import QIcon
-except:
-    from PyQt5.QtWidgets import QHBoxLayout, QApplication, QFileDialog, QCheckBox, QLineEdit, QPushButton
+except ImportError:
+    from PyQt5.QtWidgets import QApplication, QFileDialog
     from PyQt5.QtCore import Qt, QPoint, QSize, QDir, QThread
     from PyQt5.QtGui import QIcon
     from PyQt5.QtCore import pyqtSignal as Signal
@@ -244,35 +244,35 @@ class AddLinkWindow(AddLinkWindow_Ui):
 # active frames if checkBoxes are checked
     def proxyFrame(self, checkBox):
 
-        if self.proxy_checkBox.isChecked() == True:
+        if self.proxy_checkBox.isChecked():
             self.proxy_frame.setEnabled(True)
         else:
             self.proxy_frame.setEnabled(False)
 
     def downloadFrame(self, checkBox):
 
-        if self.download_checkBox.isChecked() == True:
+        if self.download_checkBox.isChecked():
             self.download_frame.setEnabled(True)
         else:
             self.download_frame.setEnabled(False)
 
     def limitFrame(self, checkBox):
 
-        if self.limit_checkBox.isChecked() == True:
+        if self.limit_checkBox.isChecked():
             self.limit_frame.setEnabled(True)
         else:
             self.limit_frame.setEnabled(False)
 
     def startFrame(self, checkBox):
 
-        if self.start_checkBox.isChecked() == True:
+        if self.start_checkBox.isChecked():
             self.start_frame.setEnabled(True)
         else:
             self.start_frame.setEnabled(False)
 
     def endFrame(self, checkBox):
 
-        if self.end_checkBox.isChecked() == True:
+        if self.end_checkBox.isChecked():
             self.end_frame.setEnabled(True)
         else:
             self.end_frame.setEnabled(False)
@@ -286,7 +286,8 @@ class AddLinkWindow(AddLinkWindow_Ui):
             self, 'Select a directory', download_path)
 
         if fname:
-            # Returns pathName with the '/' separators converted to separators that are appropriate for the underlying operating system.
+            # Returns pathName with the '/' separators converted
+            # to separators that are appropriate for the underlying operating system.
             # On Windows, toNativeSeparators("c:/winnt/system32") returns
             # "c:\winnt\system32".
             fname = QDir.toNativeSeparators(fname)
@@ -315,7 +316,7 @@ class AddLinkWindow(AddLinkWindow_Ui):
 
 # enable change_name_lineEdit if change_name_checkBox is checked.
     def changeName(self, checkBoxes):
-        if self.change_name_checkBox.isChecked() == True:
+        if self.change_name_checkBox.isChecked():
             self.change_name_lineEdit.setEnabled(True)
         else:
             self.change_name_lineEdit.setEnabled(False)
@@ -349,7 +350,7 @@ class AddLinkWindow(AddLinkWindow_Ui):
             'add_link_initialization/download_user', self.download_user_lineEdit.text())
 
         # Check 'Remember path' and change default path if needed
-        if self.folder_checkBox.isChecked() == True:
+        if self.folder_checkBox.isChecked():
             self.persepolis_setting.setValue(
                 'settings/download_path', self.download_folder_lineEdit.text())
 
@@ -446,11 +447,13 @@ class AddLinkWindow(AddLinkWindow_Ui):
         else:
             load_cookies = None
         # save information in a dictionary(add_link_dictionary).
-        self.add_link_dictionary = {'referer': referer, 'header': header, 'user_agent': user_agent, 'load_cookies': load_cookies,
-                                    'out': out, 'start_time': start_time, 'end_time': end_time, 'link': link, 'ip': ip,
-                                    'port': port, 'proxy_user': proxy_user, 'proxy_passwd': proxy_passwd,
-                                    'download_user': download_user, 'download_passwd': download_passwd,
-                                    'connections': connections, 'limit_value': limit, 'download_path': download_path}
+        self.add_link_dictionary = {
+            'referer': referer, 'header': header, 'user_agent': user_agent, 'load_cookies': load_cookies,
+            'out': out, 'start_time': start_time, 'end_time': end_time, 'link': link, 'ip': ip,
+            'port': port, 'proxy_user': proxy_user, 'proxy_passwd': proxy_passwd,
+            'download_user': download_user, 'download_passwd': download_passwd,
+            'connections': connections, 'limit_value': limit, 'download_path': download_path
+        }
 
         # get category of download
         category = str(self.add_queue_comboBox.currentText())

@@ -16,13 +16,12 @@
 try:
     from PySide6.QtCore import Qt, QSize, QPoint, QTranslator, QCoreApplication, QLocale
     from PySide6.QtGui import QIcon
-except:
+except ImportError:
     from PyQt5.QtCore import Qt, QSize, QPoint, QTranslator, QCoreApplication, QLocale
     from PyQt5.QtGui import QIcon
 
 
 from persepolis.gui.after_download_ui import AfterDownloadWindow_Ui
-from persepolis.scripts.play import playNotification
 from persepolis.scripts import osCommands
 import os
 

@@ -25,7 +25,8 @@ os_type = platform.system()
 
 if os_type == OS.WINDOWS:
     import winreg
-    from winreg import QueryValueEx, OpenKey, SetValueEx
+    # from winreg import QueryValueEx, OpenKey, SetValueEx
+    from builtins import WindowsError
 
 
 # check startup
@@ -52,7 +53,7 @@ def checkstartup():
         try:
             aKey = winreg.OpenKey(
                 winreg.HKEY_CURRENT_USER, "Software\\Microsoft\\Windows\\CurrentVersion\\Run", 0, winreg.KEY_ALL_ACCESS)
-            startupvalue = winreg.QueryValueEx(aKey, 'persepolis')
+            # startupvalue = winreg.QueryValueEx(aKey, 'persepolis')
             startup = True
         except WindowsError:
             startup = False

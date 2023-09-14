@@ -17,7 +17,7 @@ try:
     from PySide6.QtCore import Qt, QDir, QPoint, QSize, QThread, Signal
     from PySide6.QtWidgets import QTableWidgetItem, QFileDialog
     from PySide6.QtGui import QIcon
-except:
+except ImportError:
     from PyQt5.QtCore import Qt, QDir, QPoint, QSize, QThread
     from PyQt5.QtWidgets import QTableWidgetItem, QFileDialog
     from PyQt5.QtCore import pyqtSignal as Signal
@@ -259,7 +259,8 @@ class TextQueue(TextQueue_Ui):
             self, 'Select a directory', download_path)
 
         if fname:
-            # Returns pathName with the '/' separators converted to separators that are appropriate for the underlying operating system.
+            # Returns pathName with the '/' separators converted to
+            # separators that are appropriate for the underlying operating system.
             # On Windows, toNativeSeparators("c:/winnt/system32") returns
             # "c:\winnt\system32".
             fname = QDir.toNativeSeparators(fname)
@@ -279,7 +280,7 @@ class TextQueue(TextQueue_Ui):
             'add_link_initialization/download_user', self.download_user_lineEdit.text())
 
         # Check 'Remember path' and change default path if needed
-        if self.folder_checkBox.isChecked() == True:
+        if self.folder_checkBox.isChecked():
             self.persepolis_setting.setValue(
                 'settings/download_path', self.download_folder_lineEdit.text())
 

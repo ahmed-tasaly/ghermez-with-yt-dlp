@@ -25,7 +25,7 @@ def shutDown(parent, gid=None, category=None, password=None):
     # for queue >> gid = None
     # for single downloads >> category = None
     # change value of shutdown in data base
-    if category != None:
+    if category is not None:
         dict = {'category': category,
                 'shutdown': 'wait'}
 
@@ -45,7 +45,7 @@ def shutDown(parent, gid=None, category=None, password=None):
         sleep(5)
 
         # get shutdown status from data_base
-        if category != None:
+        if category is not None:
             dict = parent.temp_db.returnCategory(category)
         else:
             dict = parent.temp_db.returnGid(gid)

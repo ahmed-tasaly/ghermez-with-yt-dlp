@@ -15,15 +15,23 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 try:
-    from PySide6.QtWidgets import QHeaderView, QPushButton, QApplication, QWidget, QTabWidget, QVBoxLayout, QTableWidget, QAbstractItemView, QLabel, QLineEdit, QHBoxLayout, QSpinBox, QComboBox, QFrame, QCheckBox, QGridLayout
+    from PySide6.QtWidgets import (
+        QHeaderView, QPushButton, QWidget, QTabWidget, QVBoxLayout,
+        QTableWidget, QAbstractItemView, QLabel, QLineEdit, QHBoxLayout,
+        QSpinBox, QComboBox, QFrame, QCheckBox, QGridLayout
+    )
     from PySide6.QtCore import Qt, QTranslator, QCoreApplication, QLocale
     from PySide6.QtGui import QIcon
-except:
-    from PyQt5.QtWidgets import QHeaderView, QPushButton, QApplication, QWidget, QTabWidget, QVBoxLayout, QTableWidget, QAbstractItemView, QLabel, QLineEdit, QHBoxLayout, QSpinBox, QComboBox, QFrame, QCheckBox, QGridLayout
+except ImportError:
+    from PyQt5.QtWidgets import (
+        QHeaderView, QPushButton, QWidget, QTabWidget, QVBoxLayout,
+        QTableWidget, QAbstractItemView, QLabel, QLineEdit, QHBoxLayout,
+        QSpinBox, QComboBox, QFrame, QCheckBox, QGridLayout
+    )
     from PyQt5.QtCore import Qt, QTranslator, QCoreApplication, QLocale
     from PyQt5.QtGui import QIcon
 
-from persepolis.gui import resources
+from persepolis.gui import resources # noqa: F401
 
 class TextQueue_Ui(QWidget):
     def __init__(self, persepolis_setting):
@@ -273,7 +281,9 @@ class TextQueue_Ui(QWidget):
         self.queue_tabWidget.setTabText(
             self.queue_tabWidget.indexOf(self.links_tab), QCoreApplication.translate("text_ui_tr", 'Links'))
         self.queue_tabWidget.setTabText(
-            self.queue_tabWidget.indexOf(self.options_tab), QCoreApplication.translate("text_ui_tr", 'Download Options'))
+            self.queue_tabWidget.indexOf(self.options_tab),
+            QCoreApplication.translate("text_ui_tr", 'Download Options')
+        )
 
         self.select_all_pushButton.setText(QCoreApplication.translate("text_ui_tr", 'Select All'))
         self.deselect_all_pushButton.setText(QCoreApplication.translate("text_ui_tr", 'Deselect All'))

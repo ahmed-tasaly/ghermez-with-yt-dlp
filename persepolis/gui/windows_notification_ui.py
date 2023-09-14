@@ -17,7 +17,7 @@ try:
     from PySide6 import QtSvg
     from PySide6.QtWidgets import QDesktopWidget, QHBoxLayout, QVBoxLayout, QLabel, QWidget
     from PySide6.QtCore import Qt, QSize, QRect, QPoint
-except:
+except ImportError:
     from PyQt5 import QtSvg
     from PyQt5.QtWidgets import QDesktopWidget, QHBoxLayout, QVBoxLayout, QLabel, QWidget
     from PyQt5.QtCore import Qt, QSize, QRect, QPoint
@@ -52,8 +52,8 @@ class Windows_Notification_UI(QWidget):
         self.move(bottom_right_notification.topLeft())
 
         # get persepolis icon path
-        icons = ':/' + \
-            str(self.persepolis_setting.value('settings/icons')) + '/'
+        # icons = ':/' + \
+        #     str(self.persepolis_setting.value('settings/icons')) + '/'
 
         notification_horizontalLayout = QHBoxLayout(self)
 

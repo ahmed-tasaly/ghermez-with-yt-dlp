@@ -15,12 +15,12 @@
 try:
     from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton
     from PySide6.QtCore import Qt, QSize, QPoint, QTranslator, QCoreApplication, QLocale
-    from PySide6 import QtWidgets, QtCore
+    from PySide6 import QtCore
     from PySide6.QtGui import QIcon
-except:
+except ImportError:
     from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton
     from PyQt5.QtCore import Qt, QSize, QPoint, QTranslator, QCoreApplication, QLocale
-    from PyQt5 import QtWidgets, QtCore
+    from PyQt5 import QtCore
     from PyQt5.QtGui import QIcon
 
 
@@ -28,7 +28,6 @@ from persepolis.constants import OS
 from persepolis.scripts import osCommands
 import platform
 import requests
-import platform
 import ast
 
 # finding os_type
@@ -41,8 +40,8 @@ class checkupdate(QWidget):
 
 # defining UI
         self.persepolis_setting = persepolis_setting
-        icons = ':/' + \
-            str(self.persepolis_setting.value('settings/icons')) + '/'
+        # icons = ':/' + \
+        #     str(self.persepolis_setting.value('settings/icons')) + '/'
         self.setWindowIcon(QIcon.fromTheme('persepolis', QIcon(':/persepolis.svg')))
 
 # add support for other languages
@@ -148,7 +147,7 @@ class checkupdate(QWidget):
             elif float(server_version) < float(self.client_version):
                 self.status_label.setText(QCoreApplication.translate("update_src_ui_tr", 'You are using beta version'))
 
-        except Exception as e:
+        except Exception:
             self.status_label.setText(QCoreApplication.translate(
                 "update_src_ui_tr", 'An error occurred while checking for updates.'))
 

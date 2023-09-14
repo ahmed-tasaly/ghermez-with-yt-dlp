@@ -14,7 +14,7 @@
 
 try:
     from PySide6.QtCore import QSettings
-except:
+except ImportError:
     from PyQt5.QtCore import QSettings
 
 from persepolis.scripts import logger

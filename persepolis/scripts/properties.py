@@ -18,7 +18,7 @@ try:
     from PySide6.QtCore import Qt, QSize, QPoint, QDir, QTime, QCoreApplication
     from PySide6.QtWidgets import QLabel, QLineEdit, QFileDialog
     from PySide6.QtGui import QIcon
-except:
+except ImportError:
     from PyQt5.QtCore import Qt, QSize, QPoint, QDir, QTime, QCoreApplication
     from PyQt5.QtWidgets import QLabel, QLineEdit, QFileDialog
     from PyQt5.QtGui import QIcon
@@ -117,7 +117,8 @@ class PropertiesWindow(AddLinkWindow_Ui):
 # initialization
 # disable folder_frame when download is complete
         if self.video_finder_dictionary:
-            if self.video_finder_dictionary['video_completed'] == 'yes' or self.video_finder_dictionary['audio_completed'] == 'yes':
+            if self.video_finder_dictionary['video_completed'] == 'yes' or \
+                self.video_finder_dictionary['audio_completed'] == 'yes':
                 self.folder_frame.setEnabled(False)
         else:
             if self.download_table_dict_1['status'] == 'complete':
@@ -138,19 +139,19 @@ class PropertiesWindow(AddLinkWindow_Ui):
             try:
                 self.port_spinBox.setValue(
                     int(self.add_link_dictionary_1['port']))
-            except:
+            except ValueError:
                 pass
 # proxy user lineEdit initialization
             try:
                 self.proxy_user_lineEdit.setText(
                     self.add_link_dictionary_1['proxy_user'])
-            except:
+            except Exception:
                 pass
 # proxy pass lineEdit initialization
             try:
                 self.proxy_pass_lineEdit.setText(
                     self.add_link_dictionary_1['proxy_passwd'])
-            except:
+            except Exception:
                 pass
 
 
@@ -163,21 +164,21 @@ class PropertiesWindow(AddLinkWindow_Ui):
             try:
                 self.download_pass_lineEdit.setText(
                     self.add_link_dictionary_1['download_passwd'])
-            except:
+            except Exception:
                 pass
 
 # folder_path
         try:
             self.download_folder_lineEdit.setText(
                 self.add_link_dictionary_1['download_path'])
-        except:
+        except Exception:
             pass
 
 # connections
         try:
             self.connections_spinBox.setValue(
                 int(self.add_link_dictionary_1['connections']))
-        except:
+        except ValueError:
             pass
 
 # get categories name and add them to add_queue_comboBox
@@ -319,7 +320,8 @@ class PropertiesWindow(AddLinkWindow_Ui):
         fname = QFileDialog.getExistingDirectory(self, 'Open f', '/home')
 
         if fname:
-            # Returns pathName with the '/' separators converted to separators that are appropriate for the underlying operating system.
+            # Returns pathName with the '/' separators converted to separators that are appropriate
+            # for the underlying operating system.
             # On Windows, toNativeSeparators("c:/winnt/system32") returns
             # "c:\winnt\system32".
             fname = QDir.toNativeSeparators(fname)
@@ -348,7 +350,7 @@ class PropertiesWindow(AddLinkWindow_Ui):
 
     def okButtonPressed(self, button):
         # write user's new inputs in persepolis_setting for next time if needed
-        if self.folder_checkBox.isChecked() == True:
+        if self.folder_checkBox.isChecked():
             self.persepolis_setting.setValue(
                 'settings/download_path', self.download_folder_lineEdit.text())
 

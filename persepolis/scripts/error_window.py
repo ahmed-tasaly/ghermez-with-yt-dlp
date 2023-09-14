@@ -17,13 +17,13 @@ try:
     from PySide6.QtWidgets import QWidget, QTextEdit, QVBoxLayout, QHBoxLayout, QPushButton, QLabel
     from PySide6.QtGui import QIcon
     from PySide6.QtCore import Qt, QSize, QSettings
-except:
+except ImportError:
     from PyQt5.QtWidgets import QWidget, QTextEdit, QVBoxLayout, QHBoxLayout, QPushButton, QLabel
     from PyQt5.QtCore import Qt, QSize, QSettings
     from PyQt5.QtGui import QIcon
 
 from persepolis.scripts import osCommands
-from persepolis.gui import resources
+from persepolis.gui import resources # noqa: F401
 
 from ghermez import DataBase
 
@@ -46,7 +46,7 @@ class ErrorWindow(QWidget):
         verticalLayout.addWidget(self.text_edit)
 
         self.label2 = QLabel(self)
-        self.label2.setText('Reseting persepolis may solving problem.\nDo not panic!If you add your download links again,\npersepolis will resume your downloads\nPlease copy this error message and press "Report Issue" button\nand open a new issue in Github for it.\nWe answer you as soon as possible. \nreporting this issue help us to improve persepolis.\nThank you!')
+        self.label2.setText('Reseting persepolis may solving problem.\nDo not panic!If you add your download links again,\npersepolis will resume your downloads\nPlease copy this error message and press "Report Issue" button\nand open a new issue in Github for it.\nWe answer you as soon as possible. \nreporting this issue help us to improve persepolis.\nThank you!')  # noqa: E501
         verticalLayout.addWidget(self.label2)
 
         self.report_pushButton = QPushButton(self)

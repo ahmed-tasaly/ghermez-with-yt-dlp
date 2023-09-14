@@ -16,7 +16,6 @@
 from persepolis.scripts.useful_tools import humanReadableSize
 from requests.cookies import cookiejar_from_dict
 from http.cookies import SimpleCookie
-from requests import Session
 import requests
 
 
@@ -74,7 +73,7 @@ def spider(add_link_dictionary):
     try:
         response = requests_session.head(link)
         header = response.headers
-    except:
+    except Exception:
         header = {}
 
     filename = None
@@ -111,7 +110,7 @@ def spider(add_link_dictionary):
 def queueSpider(add_link_dictionary):
     # get download information from add_link_dictionary
     for i in ['link', 'header', 'out', 'user_agent', 'load_cookies', 'referer']:
-        if not (i in add_link_dictionary):
+        if i not in add_link_dictionary:
             add_link_dictionary[i] = None
 
     link = add_link_dictionary['link']
@@ -141,7 +140,7 @@ def queueSpider(add_link_dictionary):
     try:
         response = requests_session.head(link)
         header = response.headers
-    except:
+    except Exception:
         header = {}
     filename = None
     if 'Content-Disposition' in header.keys():  # checking if filename is available
@@ -161,7 +160,7 @@ def queueSpider(add_link_dictionary):
 def addLinkSpider(add_link_dictionary):
     # get user's download information from add_link_dictionary
     for i in ['link', 'header', 'out', 'user_agent', 'load_cookies', 'referer']:
-        if not (i in add_link_dictionary):
+        if i not in add_link_dictionary:
             add_link_dictionary[i] = None
 
     link = add_link_dictionary['link']
@@ -191,7 +190,7 @@ def addLinkSpider(add_link_dictionary):
     try:
         response = requests_session.head(link)
         header = response.headers
-    except:
+    except Exception:
         header = {}
 
     # find file size

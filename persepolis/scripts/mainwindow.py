@@ -16,15 +16,23 @@
 global pyside6_is_installed
 
 try:
-    from PySide6.QtWidgets import QCheckBox, QLineEdit, QAbstractItemView, QFileDialog, QSystemTrayIcon, QMenu, QApplication, QInputDialog, QMessageBox
-    from PySide6.QtCore import QDir, QTime, QCoreApplication, QRect, QSize, QPoint, QThread, Signal, Qt, QTranslator, QLocale
+    from PySide6.QtWidgets import (
+        QCheckBox, QLineEdit, QAbstractItemView, QFileDialog,
+        QSystemTrayIcon, QMenu, QApplication, QInputDialog, QMessageBox
+    )
+    from PySide6.QtCore import QDir, QTime, QCoreApplication, QSize, QPoint, QThread, Signal, Qt, QTranslator, QLocale
     from PySide6.QtGui import QFont, QIcon, QStandardItem, QCursor, QAction
     from PySide6 import __version__ as PYQT_VERSION_STR
-    from PySide6.QtCore import __version__ as QT_VERSION_STR 
+    from PySide6.QtCore import __version__ as QT_VERSION_STR
     pyside6_is_installed = True
-except:
-    from PyQt5.QtWidgets import QCheckBox, QLineEdit, QAbstractItemView, QAction, QFileDialog, QSystemTrayIcon, QMenu, QApplication, QInputDialog, QMessageBox
-    from PyQt5.QtCore import QDir, QTime, QCoreApplication, QRect, QSize, QPoint, QThread, Qt, QTranslator, QLocale, QT_VERSION_STR
+except ImportError:
+    from PyQt5.QtWidgets import (
+        QCheckBox, QLineEdit, QAbstractItemView, QAction, QFileDialog,
+        QSystemTrayIcon, QMenu, QApplication, QInputDialog, QMessageBox
+    )
+    from PyQt5.QtCore import (
+        QDir, QTime, QCoreApplication, QSize, QPoint, QThread, Qt, QTranslator, QLocale, QT_VERSION_STR
+    )
     from PyQt5.QtGui import QFont, QIcon, QStandardItem, QCursor
     from PyQt5.Qt import PYQT_VERSION_STR
     from PyQt5.QtCore import pyqtSignal as Signal
@@ -38,7 +46,6 @@ from persepolis.scripts.after_download import AfterDownloadWindow
 from persepolis.scripts.properties import PropertiesWindow
 from persepolis.scripts.setting import PreferencesWindow
 from persepolis.scripts.progress import ProgressWindow
-from persepolis.scripts.play import playNotification
 from persepolis.scripts.addlink import AddLinkWindow
 from persepolis.scripts.text_queue import TextQueue
 from persepolis.scripts.log_window import LogWindow
@@ -50,7 +57,7 @@ from persepolis.scripts import osCommands
 from persepolis.scripts import download
 from persepolis.scripts import logger
 from persepolis.scripts import spider
-from persepolis.gui import resources
+from persepolis.gui import resources # noqa: F401
 from persepolis.constants import OS
 from functools import partial
 from copy import deepcopy
@@ -190,7 +197,7 @@ class CheckVersionsThread(QThread):
             else:
                 ffmpeg_is_installed = False
                 ffmpeg_output = 'ffmpeg is not installed'
-        except:
+        except Exception:
             ffmpeg_is_installed = False
             ffmpeg_output = 'ffmpeg is not installed'
 
@@ -410,7 +417,7 @@ class CheckDownloadInfoThread(QThread):
                         update_data_base = False
                         update_data_base_counter = -1
 
-                except:
+                except Exception:
                     # continue the loop if any error occurred.
                     self.reconnectAria()
                     continue
@@ -464,7 +471,7 @@ class SpiderThread(QThread):
             # update table in MainWindow
             self.SPIDERSIGNAL.emit(dictionary)
 
-        except:
+        except Exception:
             # write ERROR message
             logger.sendToLog(
                 "Spider couldn't find download information", "ERROR")
@@ -485,7 +492,7 @@ class DownloadLink(QThread):
         # or update data base , if it was existed before
         try:
             self.parent.temp_db.insertInSingleTable(self.gid)
-        except:
+        except Exception:
             # release lock
             self.parent.temp_db.lock = False
             dictionary = {'gid': self.gid, 'status': 'active'}
@@ -494,7 +501,7 @@ class DownloadLink(QThread):
         # if request is not successful then persepolis is checking rpc
         # connection with download.aria2Version() function
         answer = download.downloadAria(self.gid, self.parent)
-        if answer == False:
+        if answer is False:
             version_answer = download.aria2Version()
 
             if version_answer == 'did not respond':
@@ -544,14 +551,14 @@ class VideoFinder(QThread):
             try:
                 video_finder_plus_gid = 'video_finder_' + str(video_gid)
                 self.parent.temp_db.insertInQueueTable(video_finder_plus_gid)
-            except:
+            except Exception:
                 # release lock
                 self.parent.temp_db.lock = False
 
             # check start time and end time
             add_link_dictionary = self.parent.persepolis_db.searchGidInAddLinkTable(video_gid)
             start_time = add_link_dictionary['start_time']
-            end_time = add_link_dictionary['end_time']
+            # end_time = add_link_dictionary['end_time']
 
             if self.video_completed == 'no' and start_time:
 
@@ -877,7 +884,8 @@ class Queue(QThread):
                                         video_finder_thread = self.parent.video_finder_threads_dict[video_gid]
 
                                         # check the video and audio and muxing_status
-                                        if video_finder_thread.video_completed == 'yes' and video_finder_thread.audio_completed == 'yes':
+                                        if video_finder_thread.video_completed == 'yes' and \
+                                        video_finder_thread.audio_completed == 'yes':
 
                                             # wait until end of muxing
                                             while video_finder_thread.active == 'yes':
@@ -935,7 +943,8 @@ class Queue(QThread):
                         if video_finder_dictionary:
 
                             # tell video finder thread to stop checking
-                            if video_finder_dictionary['video_completed'] == 'no' or video_finder_dictionary['audio_completed'] == 'no':
+                            if video_finder_dictionary['video_completed'] == 'no' or \
+                                video_finder_dictionary['audio_completed'] == 'no':
 
                                 video_finder_dictionary['checking'] = 'no'
                                 self.parent.persepolis_db.updateVideoFinderTable([video_finder_dictionary])
@@ -943,14 +952,17 @@ class Queue(QThread):
                                 video_finder_thread = self.parent.video_finder_threads_dict[video_gid]
                                 video_finder_thread.checking = 'no'
 
-                            elif not(self.stop) and self.after and video_finder_dictionary['muxing_status'] == 'started':
+                            elif not(self.stop) and self.after and \
+                                video_finder_dictionary['muxing_status'] == 'started':
                                 # downloads were completed and video finder started Muxing
                                 # wait until the end of muxing
                                 # don't turn of the computer.
                                 # video finder will be deleted from data base when muxing ended.
                                 # so check data base every second
 
-                                video_finder_thread = self.parent.video_finder_threads_dict[video_finder_dictionary['video_gid']]
+                                video_finder_thread = self.parent.video_finder_threads_dict[
+                                    video_finder_dictionary['video_gid']
+                                ]
 
                                 while video_finder_thread.active == 'yes':
                                     sleep(1)
@@ -1071,11 +1083,12 @@ class CheckingThread(QThread):
                 # plugin_links_checked is changed to True
                 plugin_links_checked = False
                 self.CHECKPLUGINDBSIGNAL.emit()  # notifying that we have browser_plugin request
-                while plugin_links_checked != True:  # wait for persepolis consideration!
+                while plugin_links_checked is not True:  # wait for persepolis consideration!
                     sleep(0.5)
 
 
-# if checking_flag is equal to 1, it means that user pressed remove or delete button or ... . so checking download information must be stopped until job is done!
+# if checking_flag is equal to 1, it means that user pressed remove or delete button or ... .
+# so checking download information must be stopped until job is done!
 # this thread checks checking_flag and when checking_flag changes to 2
 # QTABLEREADY signal is emitted
 class WaitThread(QThread):
@@ -1123,7 +1136,8 @@ class ShutDownThread(QThread):
 
 # this thread is keeping system awake! because if system sleeps , then internet connection is disconnected!
 # strategy is simple! a loop is checking mouse position every 20 seconds.
-# if mouse position didn't change, cursor is moved by QCursor.setPos() (see keepAwake method) ! so this is keeping system awake!
+# if mouse position didn't change, cursor is moved by QCursor.setPos() (see keepAwake method) !
+# so this is keeping system awake!
 #
 class KeepAwakeThread(QThread):
 
@@ -1186,7 +1200,8 @@ class MoveThread(QThread):
 
             # if moving is not successful, notify user.
             if not(self.move):
-                notifySend(str(self.file_name), QCoreApplication.translate("mainwindow_src_ui_tr", 'Operation was not successful!'),
+                notifySend(str(self.file_name),
+                           QCoreApplication.translate("mainwindow_src_ui_tr", 'Operation was not successful!'),
                            5000, 'warning', parent=self.parent)
             else:
                 new_file_path = os.path.join(self.new_folder_path, self.file_name)
@@ -1258,7 +1273,7 @@ class MainWindow(MainWindow_Ui):
         self.trayAction.setChecked(True)
 
         # check user preference for showing or hiding system_tray_icon
-        if self.persepolis_setting.value('settings/tray-icon') != 'yes' and start_in_tray == False:
+        if self.persepolis_setting.value('settings/tray-icon') != 'yes' and start_in_tray is False:
             self.minimizeAction.setEnabled(False)
             self.trayAction.setChecked(False)
             self.system_tray_icon.hide()
@@ -1371,7 +1386,7 @@ class MainWindow(MainWindow_Ui):
                 i = i + 1
 
         # get video_finder gids
-        self.all_video_finder_gid_list, self.all_video_finder_video_gid_list, self.all_video_finder_audio_gid_list = self.persepolis_db.returnVideoFinderGids()
+        self.all_video_finder_gid_list, self.all_video_finder_video_gid_list, self.all_video_finder_audio_gid_list = self.persepolis_db.returnVideoFinderGids()  # noqa: E501
 
         # defining some lists and dictionaries for running addlinkwindows and
         # propertieswindows and propertieswindows , ...
@@ -1624,7 +1639,8 @@ class MainWindow(MainWindow_Ui):
 
         elif message == 'try again':
             self.statusbar.showMessage(
-                QCoreApplication.translate("mainwindow_src_ui_tr", "Aria2 didn't respond! be patient! Persepolis tries again in 2 seconds!"))
+                QCoreApplication.translate("mainwindow_src_ui_tr",
+                                           "Aria2 didn't respond! be patient! Persepolis tries again in 2 seconds!"))
             logger.sendToLog(
                 "Aria2 didn't respond! be patient!Persepolis tries again in 2 seconds!",
                 "WARNING")
@@ -1694,7 +1710,7 @@ class MainWindow(MainWindow_Ui):
         # don't do anything if we haven't any active downloads
         if self.persepolis_setting.value('settings/awake') == 'yes' and self.ongoing_downloads != 0:
 
-            if add == True and self.keep_awake_checkBox.isChecked() == True:  # Moving mouse position one time +1 pixel and one time -1 pixel!
+            if add and self.keep_awake_checkBox.isChecked():  # Moving mouse position one time +1 pixel and one time -1 pixel!  # noqa: E501
                 QCursor.setPos(cursor_array[0] + 1, cursor_array[1] + 1)
             else:
                 QCursor.setPos(cursor_array[0] - 1, cursor_array[1] - 1)
@@ -1714,7 +1730,7 @@ class MainWindow(MainWindow_Ui):
 # this method updates download_table in MainWindow
 #
 # download_table_header = ['File Name', 'Status', 'Size', 'Downloaded', 'Percentage', 'Connections',
-#                       'Transfer rate', 'Estimated time left', 'Gid', 'Link', 'First try date', 'Last try date', 'Category']
+#                       'Transfer rate', 'Estimated time left', 'Gid', 'Link', 'First try date', 'Last try date', 'Category']  # noqa: E501
 
     def checkDownloadInfo(self, list):
 
@@ -1746,14 +1762,13 @@ class MainWindow(MainWindow_Ui):
                     systemtray_tooltip_text = systemtray_tooltip_text + '\n'\
                         + system_tray_file_name + ': '\
                         + dict['percent']
-            except:
+            except KeyError:
                 pass
 
             # Is the link related to VideoFinder?
             if gid in self.all_video_finder_gid_list:
 
                 video_finder_dictionary = self.persepolis_db.searchGidInVideoFinderTable(gid)
-                video_gid = video_finder_dictionary['video_gid']
 
                 video_finder_thread = self.video_finder_threads_dict[video_finder_dictionary['video_gid']]
                 video_finder_link = True
@@ -1797,7 +1812,7 @@ class MainWindow(MainWindow_Ui):
                 # find file size
                 file_size = dict['size']
 
-                if file_size != None:
+                if file_size is not None:
                     if file_size[-2:] != ' B':
                         unit = file_size[-3:]
                         try:
@@ -1805,17 +1820,17 @@ class MainWindow(MainWindow_Ui):
                                 size_value = float(file_size[:-4])
                             else:
                                 size_value = int(file_size[:-4])
-                        except:
+                        except ValueError:
                             size_value = None
                     else:
                         unit = None
 
                         try:
                             size_value = int(file_size)
-                        except:
+                        except ValueError:
                             size_value = None
 
-                    if free_space != None and size_value != None:
+                    if free_space is not None and size_value is not None:
                         if unit == 'TiB':
                             free_space = free_space/(1073741824*1024)
                             free_space = round(free_space, 2)
@@ -1855,9 +1870,11 @@ class MainWindow(MainWindow_Ui):
                     break
 
             # update download_table items
-            if row != None:
-                update_list = [dict['file_name'], dict['status'], dict['size'], dict['downloaded_size'], dict['percent'],
-                               dict['connections'], dict['rate'], dict['estimate_time_left'], dict['gid'], None, None, None, None]
+            if row is not None:
+                update_list = [dict['file_name'], dict['status'], dict['size'],
+                               dict['downloaded_size'], dict['percent'],
+                               dict['connections'], dict['rate'], dict['estimate_time_left'],
+                               dict['gid'], None, None, None, None]
                 for i in range(12):
 
                     # update download_table cell if update_list item in not None
@@ -1905,7 +1922,8 @@ class MainWindow(MainWindow_Ui):
                     else:
                         video_status = 'Not completed'
 
-                    video_status = QCoreApplication.translate("video_finder_progress_ui_tr", "<b>Video file status: </b>")\
+                    video_status = QCoreApplication.translate(
+                        "video_finder_progress_ui_tr", "<b>Video file status: </b>")\
                         + video_status
 
                     progress_window.video_status_label.setText(video_status)
@@ -1919,12 +1937,14 @@ class MainWindow(MainWindow_Ui):
                     else:
                         audio_status = 'Not completed'
 
-                    audio_status = QCoreApplication.translate("video_finder_progress_ui_tr", "<b>Audio file status: </b>")\
+                    audio_status = QCoreApplication.translate(
+                        "video_finder_progress_ui_tr", "<b>Audio file status: </b>")\
                         + audio_status
 
                     progress_window.audio_status_label.setText(audio_status)
 
-                    if video_finder_dictionary['video_completed'] == 'yes' and video_finder_dictionary['audio_completed'] == 'yes':
+                    if video_finder_dictionary['video_completed'] == 'yes' and \
+                        video_finder_dictionary['audio_completed'] == 'yes':
                         muxing_status = 'Started!'
                     else:
                         muxing_status = 'Not started!'
@@ -1945,11 +1965,11 @@ class MainWindow(MainWindow_Ui):
                 # downloaded
                 downloaded_size = dict['downloaded_size']
 
-                if downloaded_size == None:
+                if downloaded_size is None:
                     downloaded_size = 'None'
 
                 file_size = dict['size']
-                if file_size == None:
+                if file_size is None:
                     file_size = 'None'
 
                 downloaded = QCoreApplication.translate("mainwindow_src_ui_tr", "<b>Downloaded</b>: ") \
@@ -1966,8 +1986,9 @@ class MainWindow(MainWindow_Ui):
                 progress_window.rate_label.setText(rate)
 
                 # Estimate time left
-                estimate_time_left = QCoreApplication.translate("mainwindow_src_ui_tr", "<b>Estimated time left</b>: ") \
-                    + str(dict['estimate_time_left'])
+                estimate_time_left = QCoreApplication.translate("mainwindow_src_ui_tr",
+                                                                "<b>Estimated time left</b>: ") \
+                                                                + str(dict['estimate_time_left'])
 
                 progress_window.time_label.setText(estimate_time_left)
 
@@ -1986,7 +2007,7 @@ class MainWindow(MainWindow_Ui):
                     progress_window.setWindowTitle(windows_title)
                 try:
                     value = int(value[:-1])
-                except:
+                except ValueError:
                     value = 0
                 progress_window.download_progressBar.setValue(value)
 
@@ -2018,12 +2039,14 @@ class MainWindow(MainWindow_Ui):
 
                 # it means download has finished!
                 # lets do finishing jobs!
-                elif progress_window.status == "stopped" or progress_window.status == "error" or progress_window.status == "complete":
+                elif progress_window.status == "stopped" or \
+                     progress_window.status == "error" or \
+                     progress_window.status == "complete":
 
                     # close progress_window if download status is stopped or
                     # completed or error
                     # if window is related to video finder and download is completed, the don't close window
-                    if (video_finder_link == True and progress_window.status == 'complete'):
+                    if (video_finder_link and progress_window.status == 'complete'):
 
                         # disable stop and pause and push buttons
                         progress_window.resume_pushButton.setEnabled(False)
@@ -2066,7 +2089,8 @@ class MainWindow(MainWindow_Ui):
                         logger.sendToLog(error_message, 'ERROR')
 
                         # show notification
-                        notifySend(QCoreApplication.translate("mainwindow_src_ui_tr", "Error - ") + error, str(dict['file_name']),
+                        notifySend(QCoreApplication.translate("mainwindow_src_ui_tr", "Error - ") + error,
+                                   str(dict['file_name']),
                                    10000, 'fail', parent=self)
 
                     # set "None" for start_time and end_time and after_download value
@@ -2113,7 +2137,7 @@ class MainWindow(MainWindow_Ui):
 
                     # sync persepolis_setting before checking!
                     self.persepolis_setting.sync()
-                    if progress_window.status == "complete" and video_finder_link == False:
+                    if progress_window.status == "complete" and video_finder_link is False:
                         # write message in log file
                         complete_message = 'Download complete - GID : '\
                             + str(gid)
@@ -2168,7 +2192,6 @@ class MainWindow(MainWindow_Ui):
     # is reported and the download is not added.
     # gidGenerator generates GID for downloads
     def gidGenerator(self):
-        return_list = True
         # this loop repeats until we have a unique GID
         while True:
 
@@ -2182,7 +2205,7 @@ class MainWindow(MainWindow_Ui):
             category_dict = self.persepolis_db.searchCategoryInCategoryTable('All Downloads')
             gid_list = eval(category_dict['gid_list'])
 
-            if not(my_gid in gid_list):
+            if my_gid not in gid_list:
                 break
 
         return my_gid
@@ -2198,7 +2221,7 @@ class MainWindow(MainWindow_Ui):
 
             # sort list by number
             rows_list.sort()
-        except:
+        except Exception:
             rows_list = []
 
         return rows_list
@@ -2224,7 +2247,8 @@ class MainWindow(MainWindow_Ui):
             multi_items_selected = True
 
         # if any thing changed ...
-        if (multi_items_selected and not(self.multi_items_selected)) or (not(multi_items_selected) and self.multi_items_selected):
+        if (multi_items_selected and not(self.multi_items_selected)) or \
+            (not(multi_items_selected) and self.multi_items_selected):
             if multi_items_selected:
                 self.multi_items_selected = True
             else:
@@ -2429,7 +2453,8 @@ class MainWindow(MainWindow_Ui):
                         else:
                             video_finder_status = QCoreApplication.translate('mainwindow_ui_tr', 'Not Active')
 
-                            if video_finder_thread.video_completed == 'yes' and video_finder_thread.audio_completed == 'yes':
+                            if video_finder_thread.video_completed == 'yes' and \
+                                video_finder_thread.audio_completed == 'yes':
 
                                 # show muxing_pushButton
                                 self.muxing_pushButton.show()
@@ -2453,7 +2478,8 @@ class MainWindow(MainWindow_Ui):
                         video_finder_status = QCoreApplication.translate('mainwindow_ui_tr', 'Not Active')
                         muxing_status = QCoreApplication.translate('mainwindow_ui_tr', 'Not Active')
 
-                        if self.download_table.item(selected_row_return, 1).text() == 'complete' and self.download_table.item(row, 1).text() == 'complete':
+                        if self.download_table.item(selected_row_return, 1).text() == 'complete' and \
+                            self.download_table.item(row, 1).text() == 'complete':
 
                             # show muxing_pushButton
                             self.muxing_pushButton.show()
@@ -2576,8 +2602,9 @@ class MainWindow(MainWindow_Ui):
 
         if exists:
             self.msgBox = QMessageBox()
-            self.msgBox.setText(QCoreApplication.translate("mainwindow_src_ui_tr", "<b><center>This link has been added before!\
-                    Are you sure you want to add it again?</center></b>"))
+            self.msgBox.setText(QCoreApplication.translate("mainwindow_src_ui_tr",
+                                                           "<b><center>This link has been added before!\
+                                                            Are you sure you want to add it again?</center></b>"))
             self.msgBox.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
             self.msgBox.setIcon(QMessageBox.Warning)
             reply = self.msgBox.exec_()
@@ -2705,7 +2732,7 @@ class MainWindow(MainWindow_Ui):
         # find user's selected row
         selected_row_return = self.selectedRow()
 
-        if selected_row_return != None:
+        if selected_row_return is not None:
 
             # find download category
             category = self.download_table.item(selected_row_return, 12).text()
@@ -2766,7 +2793,8 @@ class MainWindow(MainWindow_Ui):
 
                     else:
                         # we already have an active tread for this download...
-                        notifySend(QCoreApplication.translate("mainwindow_src_ui_tr", "Download is in progress by video finder!"),
+                        notifySend(QCoreApplication.translate("mainwindow_src_ui_tr",
+                                                              "Download is in progress by video finder!"),
                                    QCoreApplication.translate("mainwindow_src_ui_tr", "be patient!"),
                                    10000, 'warning', parent=self)
 
@@ -2805,7 +2833,7 @@ class MainWindow(MainWindow_Ui):
         self.stopAction.setEnabled(False)
         selected_row_return = self.selectedRow()  # finding user's selected row
 
-        if selected_row_return != None:
+        if selected_row_return is not None:
             # find download category
             category = self.download_table.item(selected_row_return, 12).text()
 
@@ -2861,7 +2889,7 @@ class MainWindow(MainWindow_Ui):
         # find selected row
         selected_row_return = self.selectedRow()
 
-        if selected_row_return != None:
+        if selected_row_return is not None:
             # find download category
             category = self.download_table.item(selected_row_return, 12).text()
 
@@ -2902,7 +2930,7 @@ class MainWindow(MainWindow_Ui):
         self.propertiesAction.setEnabled(False)
         selected_row_return = self.selectedRow()  # finding user's selected row
 
-        if selected_row_return != None:
+        if selected_row_return is not None:
             # find gid of download
             gid = self.download_table.item(selected_row_return, 8).text()
 
@@ -2913,7 +2941,8 @@ class MainWindow(MainWindow_Ui):
                 if result_dictionary['checking'] == 'yes':
 
                     # this link is in downloading queue by video finder
-                    notifySend(QCoreApplication.translate("mainwindow_src_ui_tr", "Download is in progress by video finder!"),
+                    notifySend(QCoreApplication.translate("mainwindow_src_ui_tr",
+                                                          "Download is in progress by video finder!"),
                                QCoreApplication.translate("mainwindow_src_ui_tr", "be patient!"),
                                10000, 'warning', parent=self)
 
@@ -3000,7 +3029,7 @@ class MainWindow(MainWindow_Ui):
 
         # find user's selected row
         selected_row_return = self.selectedRow()
-        if selected_row_return != None:
+        if selected_row_return is not None:
             gid = self.download_table.item(selected_row_return, 8).text()
 
             # if gid is in self.progress_window_list_dict , it means that progress
@@ -3299,7 +3328,7 @@ class MainWindow(MainWindow_Ui):
         # find user's selected row
         selected_row_return = self.selectedRow()
 
-        if selected_row_return != None:
+        if selected_row_return is not None:
             # find gid
             gid = self.download_table.item(
                 selected_row_return, 8).text()
@@ -3315,7 +3344,8 @@ class MainWindow(MainWindow_Ui):
                 video_finder_dictionary = self.persepolis_db.searchGidInVideoFinderTable(gid)
                 if video_finder_dictionary:
 
-                    notifySend(QCoreApplication.translate("mainwindow_src_ui_tr", "Download is in progress by video finder!"),
+                    notifySend(QCoreApplication.translate("mainwindow_src_ui_tr",
+                                                          "Download is in progress by video finder!"),
                                QCoreApplication.translate("mainwindow_src_ui_tr", "be patient!"),
                                10000, 'warning', parent=self)
 
@@ -3331,8 +3361,8 @@ class MainWindow(MainWindow_Ui):
                     osCommands.xdgOpen(download_path, 'folder', 'file')
                 else:
                     # showing error message , if folder didn't existed
-                    notifySend(str(download_path), QCoreApplication.translate("mainwindow_src_ui_tr", 'Not Found'), 5000,
-                               'warning', parent=self)
+                    notifySend(str(download_path), QCoreApplication.translate("mainwindow_src_ui_tr", 'Not Found'),
+                               5000, 'warning', parent=self)
 
     # this method executes(opens) download file if download's progress was finished
 
@@ -3340,7 +3370,7 @@ class MainWindow(MainWindow_Ui):
         # find user's selected row
         selected_row_return = self.selectedRow()
 
-        if selected_row_return != None:
+        if selected_row_return is not None:
             # find gid
             gid = self.download_table.item(
                 selected_row_return, 8).text()
@@ -3357,7 +3387,8 @@ class MainWindow(MainWindow_Ui):
 
                 if video_finder_dictionary:
 
-                    notifySend(QCoreApplication.translate("mainwindow_src_ui_tr", "Download is in progress by video finder!"),
+                    notifySend(QCoreApplication.translate("mainwindow_src_ui_tr",
+                                                          "Download is in progress by video finder!"),
                                QCoreApplication.translate("mainwindow_src_ui_tr", "be patient!"),
                                10000, 'warning', parent=self)
 
@@ -3433,7 +3464,9 @@ class MainWindow(MainWindow_Ui):
                     # show error message
                     notifySend(QCoreApplication.translate("mainwindow_src_ui_tr", "Operation was not successful!"),
                                QCoreApplication.translate(
-                                   "mainwindow_src_ui_tr", "Operation was not successful! Please stop the following category first: ") + category,
+                                   "mainwindow_src_ui_tr",
+                                   "Operation was not successful! Please stop the following category first: ")
+                                   + category,
                                5000, 'fail', parent=self)
 
                     continue
@@ -3452,7 +3485,8 @@ class MainWindow(MainWindow_Ui):
 
                     if video_finder_thread.active == 'yes':
 
-                        notifySend(QCoreApplication.translate("mainwindow_src_ui_tr", "Download is in progress by video finder!"),
+                        notifySend(QCoreApplication.translate("mainwindow_src_ui_tr",
+                                                              "Download is in progress by video finder!"),
                                    QCoreApplication.translate("mainwindow_src_ui_tr", "be patient!"),
                                    10000, 'warning', parent=self)
 
@@ -3537,8 +3571,9 @@ class MainWindow(MainWindow_Ui):
 
         if delete_warning_message == 'yes':
             self.msgBox = QMessageBox()
-            self.msgBox.setText(QCoreApplication.translate("mainwindow_src_ui_tr", "<b><center>This operation will delete \
-                    downloaded files from your hard disk<br>PERMANENTLY!</center></b>"))
+            self.msgBox.setText(QCoreApplication.translate("mainwindow_src_ui_tr",
+                                            "<b><center>This operation will delete \
+                                            downloaded files from your hard disk<br>PERMANENTLY!</center></b>"))
             self.msgBox.setInformativeText(QCoreApplication.translate(
                 "mainwindow_src_ui_tr", "<center>Do you want to continue?</center>"))
             self.msgBox.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
@@ -3609,7 +3644,8 @@ class MainWindow(MainWindow_Ui):
 
                     if video_finder_thread.active == 'yes':
 
-                        notifySend(QCoreApplication.translate("mainwindow_src_ui_tr", "Download is in progress by video finder!"),
+                        notifySend(QCoreApplication.translate("mainwindow_src_ui_tr",
+                                                              "Download is in progress by video finder!"),
                                    QCoreApplication.translate("mainwindow_src_ui_tr", "be patient!"),
                                    10000, 'warning', parent=self)
 
@@ -3822,7 +3858,7 @@ class MainWindow(MainWindow_Ui):
                     size = size_int * 1024
                 else:  # Byte
                     size = size_int
-            except:
+            except ValueError:
                 size = 0
 
             # create a dictionary from gid and size of files in Bytes
@@ -4531,7 +4567,8 @@ class MainWindow(MainWindow_Ui):
         self.category_tree.category_tree_menu.clear()
 
         queueAction = QAction(QIcon(icons + 'add'), 'Single Downloads', self,
-                              statusTip="Add to Single Downloads", triggered=partial(self.addToQueue, 'Single Downloads'))
+                              statusTip="Add to Single Downloads",
+                              triggered=partial(self.addToQueue, 'Single Downloads'))
 
         # check if user checked selection mode
         if self.multi_items_selected:
@@ -4547,7 +4584,8 @@ class MainWindow(MainWindow_Ui):
         # add categories name to sendMenu
         for category_name in categories_list:
             if category_name != category and category_name != 'All Downloads':
-                queueAction = QAction(QIcon(icons + 'add_queue'), category_name, self, statusTip="Add to" + category_name,
+                queueAction = QAction(QIcon(icons + 'add_queue'), category_name, self,
+                                      statusTip="Add to" + category_name,
                                       triggered=partial(self.addToQueue, category_name))
 
                 self.download_table.sendMenu.addAction(queueAction)
@@ -4576,7 +4614,8 @@ class MainWindow(MainWindow_Ui):
             # add actions to download_table's context menu
             list = [self.openFileAction, self.openDownloadFolderAction, self.resumeAction,
                     self.pauseAction, self.stopAction, self.removeSelectedAction,
-                    self.deleteSelectedAction, self.propertiesAction, self.progressAction, self.moveSelectedDownloadsAction]
+                    self.deleteSelectedAction, self.propertiesAction,
+                    self.progressAction, self.moveSelectedDownloadsAction]
 
             for action in list:
                 self.download_table.tablewidget_menu.addAction(action)
@@ -4606,7 +4645,8 @@ class MainWindow(MainWindow_Ui):
             # add actions to download_table's context menu
             list = [self.openFileAction, self.openDownloadFolderAction, self.resumeAction,
                     self.pauseAction, self.stopAction, self.removeSelectedAction,
-                    self.deleteSelectedAction, self.propertiesAction, self.progressAction, self.moveSelectedDownloadsAction]
+                    self.deleteSelectedAction, self.propertiesAction,
+                    self.progressAction, self.moveSelectedDownloadsAction]
 
             for action in list:
                 self.download_table.tablewidget_menu.addAction(action)
@@ -4635,7 +4675,9 @@ class MainWindow(MainWindow_Ui):
             self.toolBar.addSeparator()
 
             # add actions to download_table's context menu
-            for action in [self.openFileAction, self.openDownloadFolderAction, self.removeSelectedAction, self.deleteSelectedAction, self.propertiesAction, self.moveSelectedDownloadsAction]:
+            for action in [self.openFileAction, self.openDownloadFolderAction,
+                           self.removeSelectedAction, self.deleteSelectedAction,
+                           self.propertiesAction, self.moveSelectedDownloadsAction]:
                 self.download_table.tablewidget_menu.addAction(action)
 
             # update category_tree_menu(right click menu for category_tree items)
@@ -4696,8 +4738,9 @@ class MainWindow(MainWindow_Ui):
 
         if remove_warning_message == 'yes':
             self.remove_queue_msgBox = QMessageBox()
-            self.remove_queue_msgBox.setText(QCoreApplication.translate("mainwindow_src_ui_tr", '<b><center>This operation will remove \
-                    all download items in this queue<br>from "All Downloads" list!</center></b>'))
+            self.remove_queue_msgBox.setText(QCoreApplication.translate("mainwindow_src_ui_tr",
+                                        '<b><center>This operation will remove \
+                                        all download items in this queue<br>from "All Downloads" list!</center></b>'))
 
             self.remove_queue_msgBox.setInformativeText(QCoreApplication.translate(
                 "mainwindow_src_ui_tr", "<center>Do you want to continue?</center>"))
@@ -4753,7 +4796,7 @@ class MainWindow(MainWindow_Ui):
         # create an item for this category in temp_db if not exists!
         try:
             self.temp_db.insertInQueueTable(current_category_tree_text)
-        except:
+        except Exception:
             # release lock
             self.temp_db.lock = False
 
@@ -4942,7 +4985,8 @@ class MainWindow(MainWindow_Ui):
 
         if send_message:
             # notify user that transfer was unsuccessful
-            notifySend(QCoreApplication.translate("mainwindow_src_ui_tr", "Some items didn't transferred successfully!"),
+            notifySend(QCoreApplication.translate("mainwindow_src_ui_tr",
+                                                  "Some items didn't transferred successfully!"),
                        QCoreApplication.translate("mainwindow_src_ui_tr", "Please stop download progress first."),
                        5000, 'no', parent=self)
 
@@ -5441,15 +5485,15 @@ class MainWindow(MainWindow_Ui):
 
         # if initializing_path is not available, so use default download_path.
         if not(initializing_path):
-            initializing = str(
-                self.persepolis_setting.value('settings/download_path'))
+            initializing_path = str(self.persepolis_setting.value('settings/download_path'))
 
         # open file manager and get new download path
         fname = QFileDialog.getExistingDirectory(
             self, 'Select a directory', initializing_path)
 
         if fname:
-            # Returns pathName with the '/' separators converted to separators that are appropriate for the underlying operating system.
+            # Returns pathName with the '/' separators converted to
+            # separators that are appropriate for the underlying operating system.
             # On Windows, toNativeSeparators("c:/winnt/system32") returns
             # "c:\winnt\system32".
             new_folder_path = QDir.toNativeSeparators(fname)
@@ -5468,7 +5512,7 @@ class MainWindow(MainWindow_Ui):
             status = self.download_table.item(row, 1).text()
 
             # find category
-            category = self.download_table.item(row, 12).text()
+            # category = self.download_table.item(row, 12).text()
 
             # only download items with "complete" can be moved.
             if (status == 'complete'):
@@ -5484,7 +5528,7 @@ class MainWindow(MainWindow_Ui):
                 # show error message
                 #TODO: no value for message2
                 notifySend(QCoreApplication.translate("mainwindow_src_ui_tr",
-                                                      message1='Operation was not successful! Following download must be completed first: '),
+                           message1='Operation was not successful! Following download must be completed first: '),
                            message2=file_name, time=5000, sound='fail', parent=self)
 
         # move files with MoveThread
@@ -5531,9 +5575,11 @@ class MainWindow(MainWindow_Ui):
                 break
 
         # update download_table items
-        if row != None:
-            update_list = [dict['file_name'], dict['status'], dict['size'], dict['downloaded_size'], dict['percent'],
-                           dict['connections'], dict['rate'], dict['estimate_time_left'], dict['gid'], None, None, None, None]
+        if row is not None:
+            update_list = [dict['file_name'], dict['status'], dict['size'],
+                           dict['downloaded_size'], dict['percent'],
+                           dict['connections'], dict['rate'], dict['estimate_time_left'],
+                           dict['gid'], None, None, None, None]
             for i in range(12):
 
                 # update download_table cell if update_list item in not None
@@ -5603,7 +5649,8 @@ class MainWindow(MainWindow_Ui):
             if not(input_dict):
                 input_dict = {}
             video_finder_addlink_window = VideoFinderAddLink(
-                parent=self, receiver_slot=self.videoFinderCallBack, settings=self.persepolis_setting, video_dict=input_dict)
+                parent=self, receiver_slot=self.videoFinderCallBack,
+                settings=self.persepolis_setting, video_dict=input_dict)
             self.addlinkwindows_list.append(video_finder_addlink_window)
             video_finder_addlink_window.show()
             video_finder_addlink_window.raise_()
@@ -5754,7 +5801,7 @@ class MainWindow(MainWindow_Ui):
 
             # notify user
             if not(add_link_dictionary_list[0]['start_time']):
-                message = QCoreApplication.translate("mainwindow_src_ui_tr", "Download Starts")
+                message = QCoreApplication.translate("mainwindow_src_ui_tr", "Download Starts")  # noqa: F841
             else:
                 # write name and size of download files in download's table
                 for add_link_dictionary in add_link_dictionary_list:
@@ -5834,10 +5881,10 @@ class MainWindow(MainWindow_Ui):
             video_file_path = video_add_link_dictionary['download_path']
 
             remove_answer = osCommands.remove(audio_file_path)
-            remove_answer = osCommands.remove(video_file_path)
+            remove_answer = osCommands.remove(video_file_path)  # noqa: F841
 
             # remove audio row from download_table
-            if row != None:
+            if row is not None:
                 self.download_table.removeRow(row)
 
             # remove download item from data base
@@ -5870,7 +5917,7 @@ class MainWindow(MainWindow_Ui):
                     row = i
                     break
 
-            if row != None:
+            if row is not None:
                 # create a QTableWidgetItem
                 item = QTableWidgetItem(str(video_download_table_dict['file_name']))
 
@@ -5929,7 +5976,7 @@ class MainWindow(MainWindow_Ui):
         # find user's selected row
         selected_row_return = self.selectedRow()
 
-        if selected_row_return != None:
+        if selected_row_return is not None:
 
             # find download category
             category = self.download_table.item(selected_row_return, 12).text()
@@ -5944,8 +5991,7 @@ class MainWindow(MainWindow_Ui):
 
             # find download gid
             gid = self.download_table.item(selected_row_return, 8).text()
-            download_status = self.download_table.item(
-                selected_row_return, 1).text()
+            # download_status = self.download_table.item(selected_row_return, 1).text()
 
             # read data from data base
             result_dictionary = self.persepolis_db.searchGidInVideoFinderTable(gid)
@@ -5968,8 +6014,17 @@ class MainWindow(MainWindow_Ui):
         global icons
         icons = ':/' + str(new_icons) + '/'
 
-        action_icon_dict = {self.stopAllAction: 'stop_all', self.minimizeAction: 'minimize', self.addlinkAction: 'add', self.addtextfileAction: 'file', self.resumeAction: 'play', self.pauseAction: 'pause', self.stopAction: 'stop', self.propertiesAction: 'setting', self.progressAction: 'window', self.openFileAction: 'file', self.openDownloadFolderAction: 'folder', self.openDefaultDownloadFolderAction: 'folder', self.exitAction: 'exit',
-                            self.createQueueAction: 'add_queue', self.removeQueueAction: 'remove_queue', self.startQueueAction: 'start_queue', self.stopQueueAction: 'stop_queue', self.preferencesAction: 'preferences', self.aboutAction: 'about', self.issueAction: 'about', self.updateAction: 'about', self.videoFinderAddLinkAction: 'video_finder', self.qmenu: 'menu'}
+        action_icon_dict = {self.stopAllAction: 'stop_all', self.minimizeAction: 'minimize',
+                            self.addlinkAction: 'add', self.addtextfileAction: 'file',
+                            self.resumeAction: 'play', self.pauseAction: 'pause', self.stopAction: 'stop',
+                            self.propertiesAction: 'setting', self.progressAction: 'window',
+                            self.openFileAction: 'file', self.openDownloadFolderAction: 'folder',
+                            self.openDefaultDownloadFolderAction: 'folder', self.exitAction: 'exit',
+                            self.createQueueAction: 'add_queue', self.removeQueueAction: 'remove_queue',
+                            self.startQueueAction: 'start_queue', self.stopQueueAction: 'stop_queue',
+                            self.preferencesAction: 'preferences', self.aboutAction: 'about',
+                            self.issueAction: 'about', self.updateAction: 'about',
+                            self.videoFinderAddLinkAction: 'video_finder', self.qmenu: 'menu'}
 
         for key in action_icon_dict.keys():
             key.setIcon(QIcon(icons + str(action_icon_dict[key])))

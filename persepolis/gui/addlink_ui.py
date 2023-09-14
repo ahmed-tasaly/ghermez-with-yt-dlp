@@ -15,17 +15,25 @@
 """
 
 try:
-    from PySide6.QtWidgets import QTabWidget, QDoubleSpinBox, QPushButton, QComboBox, QSpinBox, QVBoxLayout, QHBoxLayout, QLabel, QApplication, QWidget, QFileDialog, QMessageBox, QSizePolicy, QGridLayout, QCheckBox, QFrame, QLineEdit, QPushButton
+    from PySide6.QtWidgets import (
+        QTabWidget, QDoubleSpinBox, QPushButton, QComboBox,
+        QSpinBox, QVBoxLayout, QHBoxLayout, QLabel, QWidget,
+        QGridLayout, QCheckBox, QFrame, QLineEdit
+    )
     from PySide6.QtCore import Qt, QTranslator, QCoreApplication, QLocale
-    from PySide6 import QtCore, QtGui, QtWidgets
+    from PySide6 import QtCore
     from PySide6.QtGui import QIcon
-except:
-    from PyQt5.QtWidgets import QTabWidget, QDoubleSpinBox, QPushButton, QComboBox, QSpinBox, QVBoxLayout, QHBoxLayout, QLabel, QApplication, QWidget, QFileDialog, QMessageBox, QSizePolicy, QGridLayout, QCheckBox, QFrame, QLineEdit, QPushButton
+except ImportError:
+    from PyQt5.QtWidgets import (
+        QTabWidget, QDoubleSpinBox, QPushButton, QComboBox,
+        QSpinBox, QVBoxLayout, QHBoxLayout, QLabel, QWidget,
+        QGridLayout, QCheckBox, QFrame, QLineEdit
+    )
     from PyQt5.QtCore import Qt, QTranslator, QCoreApplication, QLocale
-    from PyQt5 import QtCore, QtGui, QtWidgets
+    from PyQt5 import QtCore
     from PyQt5.QtGui import QIcon
 
-from persepolis.gui import resources
+from persepolis.gui import resources # noqa: F401
 from persepolis.gui.customized_widgets import MyQDateTimeEdit
 
 class AddLinkWindow_Ui(QWidget):
@@ -416,7 +424,9 @@ class AddLinkWindow_Ui(QWidget):
 
         self.change_name_checkBox.setText(QCoreApplication.translate("addlink_ui_tr", "Change file name: "))
 
-        self.detect_proxy_pushButton.setText(QCoreApplication.translate("addlink_ui_tr", "Detect System Proxy Settings"))
+        self.detect_proxy_pushButton.setText(
+            QCoreApplication.translate("addlink_ui_tr", "Detect System Proxy Settings")
+        )
         self.proxy_checkBox.setText(QCoreApplication.translate("addlink_ui_tr", "Proxy"))
         self.proxy_pass_label.setText(QCoreApplication.translate("addlink_ui_tr", "Proxy password: "))
         self.ip_label.setText(QCoreApplication.translate("addlink_ui_tr", "IP: "))

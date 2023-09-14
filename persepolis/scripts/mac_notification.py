@@ -16,7 +16,6 @@
 # native notification on mac! needs Xcode (latest version) installed and pyobjc
 # library from pip
 import Foundation
-import AppKit
 import objc
 
 NSUserNotification = objc.lookUpClass('NSUserNotification')

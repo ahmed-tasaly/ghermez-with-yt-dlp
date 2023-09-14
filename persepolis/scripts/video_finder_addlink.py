@@ -14,18 +14,20 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 try:
-    from PySide6.QtWidgets import QCheckBox, QPushButton, QTextEdit, QFrame, QLabel, QComboBox, QHBoxLayout, QApplication
-    from PySide6.QtCore import Qt, QThread, Signal, QCoreApplication, QTranslator, QLocale
-except:
+    from PySide6.QtWidgets import (
+        QCheckBox, QPushButton, QTextEdit, QFrame, QLabel, QComboBox, QHBoxLayout, QApplication
+    )
+    from PySide6.QtCore import QThread, Signal, QCoreApplication, QTranslator, QLocale
+except ImportError:
     from PyQt5.QtWidgets import QCheckBox, QPushButton, QTextEdit, QFrame, QLabel, QComboBox, QHBoxLayout, QApplication
-    from PyQt5.QtCore import Qt, QThread, QCoreApplication, QTranslator, QLocale
+    from PyQt5.QtCore import QThread, QCoreApplication, QTranslator, QLocale
     from PyQt5.QtCore import pyqtSignal as Signal
 
 from persepolis.scripts.useful_tools import determineConfigFolder
 from persepolis.scripts.addlink import AddLinkWindow
 from persepolis.scripts import logger, osCommands
 from persepolis.scripts.spider import spider
-from time import time, sleep
+from time import time
 from functools import partial
 from random import random
 from copy import deepcopy
@@ -89,14 +91,14 @@ class MediaListFetcherThread(QThread):
                     ip_port = 'http://{}:{}@{}'.format(video_dict['proxy_user'], video_dict['proxy_passwd'], ip_port)
 
                 self.youtube_dl_options_dict['proxy'] = str(ip_port)
-            except:
+            except Exception:
                 pass
 
         if 'download_user' in video_dict.keys() and video_dict['download_user']:
             try:
                 self.youtube_dl_options_dict['username'] = str(video_dict['download_user'])
                 self.youtube_dl_options_dict['password'] = str(video_dict['download_passwd'])
-            except:
+            except Exception:
                 pass
 
         if 'link' in video_dict.keys() and video_dict['link']:
@@ -144,7 +146,7 @@ class MediaListFetcherThread(QThread):
                     key, val = c.split('=', 1)
                     cookies = cookies + '{}\tTRUE\t/\tFALSE\t{}\t{}\t{}\n'. \
                         format(host_name, int(time()) + 259200, key, val)  # Expires after 3 days.
-            except:
+            except Exception:
                 pass
 
         return cookies
@@ -312,7 +314,7 @@ class VideoFinderAddLink(AddLinkWindow):
     def getReadableSize(self, size):
         try:
             return '{:1.2f} MB'.format(int(size) / 1048576)
-        except:
+        except ValueError:
             return str(size)
 
     def getReadableDuration(self, seconds):
@@ -323,7 +325,7 @@ class VideoFinderAddLink(AddLinkWindow):
             minutes = seconds // 60
             seconds = seconds % 60
             return '{:02d}:{:02d}:{:02d}'.format(hours, minutes, seconds)
-        except:
+        except ValueError:
             return str(seconds)
 
     # Define native slots
@@ -396,28 +398,33 @@ class VideoFinderAddLink(AddLinkWindow):
                     if self.audio_format_selection_comboBox.currentText() != 'No audio':
                         self.change_name_lineEdit.setText(self.media_title)
                         self.extension_label.setText('.' +
-                                                     self.no_video_list[int(self.audio_format_selection_comboBox.currentIndex()) - 1]['ext'])
+                                self.no_video_list[int(self.audio_format_selection_comboBox.currentIndex()) - 1]['ext'])
 
                         self.change_name_checkBox.setChecked(True)
                     else:
                         self.change_name_lineEdit.setChecked(False)
 
             elif combobox == 'audio':
-                if self.audio_format_selection_comboBox.currentText() != 'No audio' and self.video_format_selection_comboBox.currentText() == 'No video':
+                if self.audio_format_selection_comboBox.currentText() != 'No audio' and \
+                    self.video_format_selection_comboBox.currentText() == 'No video':
                     self.change_name_lineEdit.setText(self.media_title)
                     self.extension_label.setText('.' +
                                                  self.no_video_list[index - 1]['ext'])
 
                     self.change_name_checkBox.setChecked(True)
 
-                elif (self.audio_format_selection_comboBox.currentText() == 'No audio' and self.video_format_selection_comboBox.currentText() != 'No video') or (self.audio_format_selection_comboBox.currentText() != 'No audio' and self.video_format_selection_comboBox.currentText() != 'No video'):
+                elif (self.audio_format_selection_comboBox.currentText() == 'No audio' and \
+                      self.video_format_selection_comboBox.currentText() != 'No video') or \
+                        (self.audio_format_selection_comboBox.currentText() != 'No audio' and \
+                         self.video_format_selection_comboBox.currentText() != 'No video'):
                     self.change_name_lineEdit.setText(self.media_title)
                     self.extension_label.setText('.' +
-                                                 self.no_audio_list[int(self.video_format_selection_comboBox.currentIndex()) - 1]['ext'])
+                                self.no_audio_list[int(self.video_format_selection_comboBox.currentIndex()) - 1]['ext'])
 
                     self.change_name_checkBox.setChecked(True)
 
-                elif self.audio_format_selection_comboBox.currentText() == 'No audio' and self.video_format_selection_comboBox.currentText() == 'No video':
+                elif self.audio_format_selection_comboBox.currentText() == 'No audio' and \
+                    self.video_format_selection_comboBox.currentText() == 'No video':
                     self.change_name_checkBox.setChecked(False)
 
         except Exception as ex:
@@ -607,26 +614,30 @@ class VideoFinderAddLink(AddLinkWindow):
         # separate audio format and video format is selected.
         if self.advanced_format_selection_checkBox.isChecked():
 
-            if self.video_format_selection_comboBox.currentText() == 'No video' and self.audio_format_selection_comboBox.currentText() != 'No audio':
+            if self.video_format_selection_comboBox.currentText() == 'No video' and \
+                self.audio_format_selection_comboBox.currentText() != 'No audio':
 
                 # only audio link must be added to the link_list
                 audio_link = self.no_video_list[self.audio_format_selection_comboBox.currentIndex() - 1]['url']
                 link_list.append(audio_link)
 
-            elif self.video_format_selection_comboBox.currentText() != 'No video' and self.audio_format_selection_comboBox.currentText() == 'No audio':
+            elif self.video_format_selection_comboBox.currentText() != 'No video' and \
+                self.audio_format_selection_comboBox.currentText() == 'No audio':
 
                 # only video link must be added to the link_list
                 video_link = self.no_audio_list[self.video_format_selection_comboBox.currentIndex() - 1]['url']
                 link_list.append(video_link)
 
-            elif self.video_format_selection_comboBox.currentText() != 'No video' and self.audio_format_selection_comboBox.currentText() != 'No audio':
+            elif self.video_format_selection_comboBox.currentText() != 'No video' and \
+                self.audio_format_selection_comboBox.currentText() != 'No audio':
 
                 # video and audio links must be added to the link_list
                 audio_link = self.no_video_list[self.audio_format_selection_comboBox.currentIndex() - 1]['url']
                 video_link = self.no_audio_list[self.video_format_selection_comboBox.currentIndex() - 1]['url']
                 link_list = [video_link, audio_link]
 
-            elif self.video_format_selection_comboBox.currentText() == 'No video' and self.audio_format_selection_comboBox.currentText() == 'No audio':
+            elif self.video_format_selection_comboBox.currentText() == 'No video' and \
+                self.audio_format_selection_comboBox.currentText() == 'No audio':
 
                 # no video and audio is selected! REALLY?!. user is DRUNK! close the window! :))
                 self.close()
@@ -766,26 +777,32 @@ class VideoFinderAddLink(AddLinkWindow):
         add_link_dictionary_list = []
         if len(link_list) == 1:
             # save information in a dictionary(add_link_dictionary).
-            add_link_dictionary = {'referer': referer, 'header': header, 'user_agent': user_agent, 'load_cookies': load_cookies,
-                                   'out': name_list[0], 'start_time': start_time, 'end_time': end_time, 'link': link_list[0], 'ip': ip,
-                                   'port': port, 'proxy_user': proxy_user, 'proxy_passwd': proxy_passwd,
-                                   'download_user': download_user, 'download_passwd': download_passwd,
-                                   'connections': connections, 'limit_value': limit, 'download_path': download_path}
+            add_link_dictionary = {
+                'referer': referer, 'header': header, 'user_agent': user_agent, 'load_cookies': load_cookies,
+                'out': name_list[0], 'start_time': start_time, 'end_time': end_time, 'link': link_list[0], 'ip': ip,
+                'port': port, 'proxy_user': proxy_user, 'proxy_passwd': proxy_passwd,
+                'download_user': download_user, 'download_passwd': download_passwd,
+                'connections': connections, 'limit_value': limit, 'download_path': download_path
+            }
 
             add_link_dictionary_list.append(add_link_dictionary)
 
         else:
-            video_add_link_dictionary = {'referer': referer, 'header': header, 'user_agent': user_agent, 'load_cookies': load_cookies,
-                                         'out': name_list[0], 'start_time': start_time, 'end_time': end_time, 'link': link_list[0], 'ip': ip,
-                                         'port': port, 'proxy_user': proxy_user, 'proxy_passwd': proxy_passwd,
-                                         'download_user': download_user, 'download_passwd': download_passwd,
-                                         'connections': connections, 'limit_value': limit, 'download_path': download_path}
+            video_add_link_dictionary = {
+                'referer': referer, 'header': header, 'user_agent': user_agent, 'load_cookies': load_cookies,
+                'out': name_list[0], 'start_time': start_time, 'end_time': end_time, 'link': link_list[0], 'ip': ip,
+                'port': port, 'proxy_user': proxy_user, 'proxy_passwd': proxy_passwd,
+                'download_user': download_user, 'download_passwd': download_passwd,
+                'connections': connections, 'limit_value': limit, 'download_path': download_path
+            }
 
-            audio_add_link_dictionary = {'referer': referer, 'header': header, 'user_agent': user_agent, 'load_cookies': load_cookies,
-                                         'out': name_list[1], 'start_time': None, 'end_time': end_time, 'link': link_list[1], 'ip': ip,
-                                         'port': port, 'proxy_user': proxy_user, 'proxy_passwd': proxy_passwd,
-                                         'download_user': download_user, 'download_passwd': download_passwd,
-                                         'connections': connections, 'limit_value': limit, 'download_path': download_path}
+            audio_add_link_dictionary = {
+                'referer': referer, 'header': header, 'user_agent': user_agent, 'load_cookies': load_cookies,
+                'out': name_list[1], 'start_time': None, 'end_time': end_time, 'link': link_list[1], 'ip': ip,
+                'port': port, 'proxy_user': proxy_user, 'proxy_passwd': proxy_passwd,
+                'download_user': download_user, 'download_passwd': download_passwd,
+                'connections': connections, 'limit_value': limit, 'download_path': download_path
+            }
 
             add_link_dictionary_list = [video_add_link_dictionary, audio_add_link_dictionary]
 

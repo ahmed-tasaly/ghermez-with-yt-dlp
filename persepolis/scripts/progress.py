@@ -16,11 +16,11 @@
 
 try:
     from PySide6.QtCore import Qt, QSize, QPoint, QThread, QTranslator, QCoreApplication, QLocale
-    from PySide6.QtWidgets import QLineEdit, QWidget, QSizePolicy,  QInputDialog
+    from PySide6.QtWidgets import QLineEdit, QInputDialog
     from PySide6.QtGui import QIcon
-except:
+except ImportError:
     from PyQt5.QtCore import Qt, QSize, QPoint, QThread, QTranslator, QCoreApplication, QLocale
-    from PyQt5.QtWidgets import QLineEdit, QWidget, QSizePolicy,  QInputDialog
+    from PyQt5.QtWidgets import QLineEdit, QInputDialog
     from PyQt5.QtGui import QIcon
 
 from persepolis.gui.progress_ui import ProgressWindow_Ui
@@ -30,7 +30,6 @@ from persepolis.scripts import download
 from persepolis.constants import OS
 import subprocess
 import platform
-import time
 
 os_type = platform.system()
 
@@ -127,10 +126,13 @@ class ProgressWindow(ProgressWindow_Ui):
                 version_answer = download.aria2Version()
                 if version_answer == 'did not respond':
                     self.parent.aria2Disconnected()
-                    notifySend(QCoreApplication.translate("progress_src_ui_tr", "Aria2 disconnected!"), QCoreApplication.translate("progress_src_ui_tr", "Persepolis is trying to connect! be patient!"),
+                    notifySend(QCoreApplication.translate("progress_src_ui_tr", "Aria2 disconnected!"),
+                               QCoreApplication.translate("progress_src_ui_tr",
+                                                          "Persepolis is trying to connect! be patient!"),
                                10000, 'warning', parent=self.parent)
                 else:
-                    notifySend(QCoreApplication.translate("progress_src_ui_tr", "Aria2 did not respond!"), QCoreApplication.translate("progress_src_ui_tr", "Please try again."), 10000,
+                    notifySend(QCoreApplication.translate("progress_src_ui_tr", "Aria2 did not respond!"),
+                               QCoreApplication.translate("progress_src_ui_tr", "Please try again."), 10000,
                                'warning', parent=self.parent)
 
     def pausePushButtonPressed(self, button):
@@ -149,7 +151,8 @@ class ProgressWindow(ProgressWindow_Ui):
                     notifySend("Aria2 disconnected!", "Persepolis is trying to connect! be patient!",
                                10000, 'warning', parent=self.parent)
                 else:
-                    notifySend(QCoreApplication.translate("progress_src_ui_tr", "Aria2 did not respond!"), QCoreApplication.translate("progress_src_ui_tr", "Try again!"), 10000,
+                    notifySend(QCoreApplication.translate("progress_src_ui_tr", "Aria2 did not respond!"),
+                               QCoreApplication.translate("progress_src_ui_tr", "Try again!"), 10000,
                                'critical', parent=self.parent)
 
     def stopPushButtonPressed(self, button):
@@ -168,13 +171,15 @@ class ProgressWindow(ProgressWindow_Ui):
             version_answer = download.aria2Version()
             if version_answer == 'did not respond':
                 self.parent.aria2Disconnected()
-                notifySend(QCoreApplication.translate("progress_src_ui_tr", "Aria2 disconnected!"), QCoreApplication.translate("progress_src_ui_tr", "Persepolis is trying to connect! be patient!"),
+                notifySend(QCoreApplication.translate("progress_src_ui_tr", "Aria2 disconnected!"),
+                           QCoreApplication.translate("progress_src_ui_tr",
+                                                      "Persepolis is trying to connect! be patient!"),
                            10000, 'warning', parent=self.parent)
 
     def limitCheckBoxToggled(self, checkBoxes):
 
         # user checked limit_checkBox
-        if self.limit_checkBox.isChecked() == True:
+        if self.limit_checkBox.isChecked():
             self.limit_frame.setEnabled(True)
             self.limit_pushButton.setEnabled(True)
 
@@ -253,7 +258,7 @@ class ProgressWindow(ProgressWindow_Ui):
                         ok = False
                         break
 
-                if ok != False:
+                if ok is not False:
 
                     # if user selects shutdown option after download progress,
                     # value of 'shutdown' will changed in temp_db for this gid

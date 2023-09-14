@@ -18,7 +18,7 @@ try:
     from PySide6.QtCore import Qt, QPoint, QSize, QThread, Signal, QDir
     from PySide6.QtWidgets import QTableWidgetItem, QFileDialog
     from PySide6.QtGui import QIcon
-except:
+except ImportError:
     from PyQt5.QtCore import Qt, QPoint, QSize, QThread, QDir
     from PyQt5.QtWidgets import QTableWidgetItem, QFileDialog
     from PyQt5.QtCore import pyqtSignal as Signal
@@ -263,7 +263,8 @@ class BrowserPluginQueue(TextQueue_Ui):
             self, 'Select a directory', download_path)
 
         if fname:
-            # Returns pathName with the '/' separators converted to separators that are appropriate for the underlying operating system.
+            # Returns pathName with the '/' separators converted
+            # to separators that are appropriate for the underlying operating system.
             # On Windows, toNativeSeparators("c:/winnt/system32") returns
             # "c:\winnt\system32".
             fname = QDir.toNativeSeparators(fname)

@@ -25,14 +25,13 @@ import traceback
 import platform
 import time
 import ast
-import sys
 import os
 
 import ghermez
 
 try:
     from PySide6.QtCore import QSettings
-except:
+except ImportError:
     from PyQt5.QtCore import QSettings
 
 # Before reading this file, please read this link!
@@ -78,7 +77,7 @@ def startAria():
 def aria2Version():
     try:
         answer = server.aria2.getVersion()
-    except:
+    except Exception:
         # write ERROR messages in terminal and log
         logger.sendToLog("Aria2 didn't respond!", "ERROR")
         answer = "did not respond"
@@ -129,7 +128,7 @@ def downloadAria(gid, parent):
         limit = str(limit_number) + limit_unit
 
 # create header list
-    if header != None:
+    if header is not None:
         semicolon_split_header = header.split('; ')
         for i in semicolon_split_header:
             equal_split_header = i.split('=', 1)
@@ -259,7 +258,7 @@ def downloadAria(gid, parent):
             if end_time:
                 endTime(end_time, gid, parent)
 
-        except:
+        except Exception:
 
             # write error status in data_base
             dict = {'gid': gid, 'status': 'error'}
@@ -281,8 +280,9 @@ def tellActive():
     # get download information from aria2
     try:
         downloads_status = server.aria2.tellActive(
-            ['gid', 'status', 'connections', 'errorCode', 'errorMessage', 'downloadSpeed', 'connections', 'dir', 'totalLength', 'completedLength', 'files'])
-    except:
+            ['gid', 'status', 'connections', 'errorCode', 'errorMessage', 'downloadSpeed',
+             'connections', 'dir', 'totalLength', 'completedLength', 'files'])
+    except Exception:
         return None, None
 
     download_status_list = []
@@ -308,9 +308,10 @@ def tellStatus(gid, parent):
     # get download status from aria2
     try:
         download_status = server.aria2.tellStatus(
-            gid, ['status', 'connections', 'errorCode', 'errorMessage', 'downloadSpeed', 'connections', 'dir', 'totalLength', 'completedLength', 'files'])
+            gid, ['status', 'connections', 'errorCode', 'errorMessage', 'downloadSpeed',
+                  'connections', 'dir', 'totalLength', 'completedLength', 'files'])
         download_status['gid'] = str(gid)
-    except:
+    except Exception:
         return None
 
     # convert download_status in desired format
@@ -347,7 +348,7 @@ def tellStatus(gid, parent):
         # find file_size
         try:
             file_size = int(download_status['totalLength'])
-        except:
+        except ValueError:
             file_size = None
 
         # if file is related to VideoFinder thread, don't move it from temp folder...
@@ -392,7 +393,7 @@ def convertDownloadInformation(download_status):
         uri = uris[0]
         link = uri['uri']
 
-    except:
+    except Exception:
 
         file_name = None
         link = None
@@ -404,17 +405,17 @@ def convertDownloadInformation(download_status):
     # find file_size
     try:
         file_size = float(download_status['totalLength'])
-    except:
+    except ValueError:
         file_size = None
 
     # find downloaded size
     try:
         downloaded = float(download_status['completedLength'])
-    except:
+    except ValueError:
         downloaded = None
 
     # convert file_size and downloaded_size to KiB and MiB and GiB
-    if (downloaded != None and file_size != None and file_size != 0):
+    if (downloaded is not None and file_size is not None and file_size != 0):
         file_size_back = file_size
 
         # converting file_size to KiB or MiB or GiB
@@ -436,12 +437,12 @@ def convertDownloadInformation(download_status):
     # find download_speed
     try:
         download_speed = int(download_status['downloadSpeed'])
-    except:
+    except ValueError:
         download_speed = 0
 
     # convert download_speed to desired units.
     # and find estimate_time_left
-    if (downloaded != None and download_speed != 0):
+    if (downloaded is not None and download_speed != 0):
         estimate_time_left = int((file_size - downloaded)/download_speed)
 
         # converting file_size to KiB or MiB or GiB
@@ -469,13 +470,13 @@ def convertDownloadInformation(download_status):
     # find number of connections
     try:
         connections_str = str(download_status['connections'])
-    except:
+    except UnicodeEncodeError:
         connections_str = None
 
     # find status of download
     try:
         status_str = str(download_status['status'])
-    except:
+    except UnicodeEncodeError:
         status_str = None
 
     # rename active status to downloading
@@ -543,7 +544,7 @@ def downloadCompleteAction(parent, path, download_path, file_name, file_size):
 
     free_space = freeSpace(download_path)
 
-    if free_space != None and file_size != None:
+    if free_space is not None and file_size is not None:
 
         # compare free disk space and file_size
         if free_space >= file_size:
@@ -593,8 +594,9 @@ def findDownloadPath(file_name, download_path, subfolder):
         file_extension = file_extension.split('?')[0]
 
     # audio formats
-    audio = ['act', 'aiff', 'aac', 'amr', 'ape', 'au', 'awb', 'dct', 'dss', 'dvf', 'flac', 'gsm', 'iklax', 'ivs', 'm4a',
-             'm4p', 'mmf', 'mp3', 'mpc', 'msv', 'ogg', 'oga', 'opus', 'ra', 'raw', 'sln', 'tta', 'vox', 'wav', 'wma', 'wv']
+    audio = ['act', 'aiff', 'aac', 'amr', 'ape', 'au', 'awb', 'dct', 'dss', 'dvf',
+             'flac', 'gsm', 'iklax', 'ivs', 'm4a', 'm4p', 'mmf', 'mp3', 'mpc', 'msv',
+             'ogg', 'oga', 'opus', 'ra', 'raw', 'sln', 'tta', 'vox', 'wav', 'wma', 'wv']
 
     # video formats
     video = ['3g2', '3gp', 'asf', 'avi', 'drc', 'flv', 'm4v', 'mkv', 'mng', 'mov', 'qt', 'mp4', 'm4p', 'mpg', 'mp2',
@@ -606,12 +608,12 @@ def findDownloadPath(file_name, download_path, subfolder):
 
     # compressed formats
     compressed = ['a', 'ar', 'cpio', 'shar', 'LBR', 'iso', 'lbr', 'mar', 'tar', 'bz2', 'F', 'gz', 'lz', 'lzma', 'lzo',
-                  'rz', 'sfark', 'sz', 'xz', 'Z', 'z', 'infl', '7z', 's7z', 'ace', 'afa', 'alz', 'apk', 'arc', 'arj', 'b1',
-                  'ba', 'bh', 'cab', 'cfs', 'cpt', 'dar', 'dd', 'dgc', 'dmg', 'ear', 'gca', 'ha', 'hki', 'ice', 'jar', 'kgb',
-                  'lzh', 'lha', 'lzx', 'pac', 'partimg', 'paq6', 'paq7', 'paq8', 'pea', 'pim', 'pit', 'qda', 'rar', 'rk', 'sda',
-                  'sea', 'sen', 'sfx', 'sit', 'sitx', 'sqx', 'tar.gz', 'tgz', 'tar.Z', 'tar.bz2', 'tbz2', 'tar.lzma', 'tlz', 'uc',
-                  'uc0', 'uc2', 'ucn', 'ur2', 'ue2', 'uca', 'uha', 'war', 'wim', 'xar', 'xp3', 'yz1', 'zip', 'zipx', 'zoo', 'zpaq',
-                  'zz', 'ecc', 'par', 'par2']
+                  'rz', 'sfark', 'sz', 'xz', 'Z', 'z', 'infl', '7z', 's7z', 'ace', 'afa', 'alz', 'apk', 'arc', 'arj',
+                  'b1', 'ba', 'bh', 'cab', 'cfs', 'cpt', 'dar', 'dd', 'dgc', 'dmg', 'ear', 'gca', 'ha', 'hki', 'ice',
+                  'jar', 'kgb', 'lzh', 'lha', 'lzx', 'pac', 'partimg', 'paq6', 'paq7', 'paq8', 'pea', 'pim', 'pit',
+                  'qda', 'rar', 'rk', 'sda', 'sea', 'sen', 'sfx', 'sit', 'sitx', 'sqx', 'tar.gz', 'tgz', 'tar.Z',
+                  'tar.bz2', 'tbz2', 'tar.lzma', 'tlz', 'uc', 'uc0', 'uc2', 'ucn', 'ur2', 'ue2', 'uca', 'uha', 'war',
+                  'wim', 'xar', 'xp3', 'yz1', 'zip', 'zipx', 'zoo', 'zpaq', 'zz', 'ecc', 'par', 'par2']
 
     # return download_path
     if str(subfolder) == 'yes':
@@ -640,7 +642,7 @@ def shutDown():
         answer = server.aria2.shutdown()
         logger.sendToLog("Aria2 Shutdown : " + str(answer), "INFO")
         return True
-    except:
+    except Exception:
         logger.sendToLog("Aria2 Shutdown Error", "ERROR")
         return False
 
@@ -664,7 +666,7 @@ def downloadStop(gid, parent):
             answer = server.aria2.remove(gid)
             if status == 'downloading':
                 server.aria2.removeDownloadResult(gid)
-        except:
+        except Exception:
             answer = "None"
 
         # write a messages in log and terminal
@@ -694,7 +696,7 @@ def downloadPause(gid):
     # send pause request to aria2 .
     try:
         answer = server.aria2.pause(gid)
-    except:
+    except Exception:
         answer = None
 
     logger.sendToLog(str(answer) + " paused", "INFO")
@@ -706,7 +708,7 @@ def downloadUnpause(gid):
     try:
         # send unpause request to aria2
         answer = server.aria2.unpause(gid)
-    except:
+    except Exception:
         answer = None
 
     logger.sendToLog(str(answer) + " unpaused", "INFO")
@@ -734,7 +736,7 @@ def limitSpeed(gid, limit):
         server.aria2.changeOption(gid, {'max-download-limit': limit})
         logger.sendToLog("Download speed limit  value is changed", "INFO")
 
-    except:
+    except Exception:
         logger.sendToLog("Speed limitation was unsuccessful", "ERROR")
 
 
@@ -742,7 +744,7 @@ def limitSpeed(gid, limit):
 def activeDownloads():
     try:
         answer = server.aria2.tellActive(['gid'])
-    except:
+    except Exception:
         answer = []
 
     active_gids = []

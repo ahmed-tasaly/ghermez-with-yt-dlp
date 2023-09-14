@@ -172,7 +172,7 @@ def remove(file_path):
             os.remove(file_path)
             return 'ok'
 
-        except:
+        except OSError:
             # function returns this, if operation was not successful
             return 'cant'
 
@@ -190,7 +190,7 @@ def removeDir(folder_path):
             shutil.rmtree(folder_path)
             return 'ok'
 
-        except:
+        except OSError:
             # return 'cant' if removing was not successful
             return 'cant'
     else:
@@ -267,35 +267,23 @@ def makeTempDownloadDir(path):
 
 # move downloaded file to another destination.
 def moveFile(old_file_path, new_path, new_path_type='folder'):
-
     # new_path_type can be file or folder
     # if it's folder so we have folder path
     # else we have new file path that includes file name
     if os.path.isfile(old_file_path):
-
         if new_path_type == 'folder':
-
             # check availability of directory
             check_path = os.path.isdir(new_path)
-
         else:
-
             check_path = True
-
         if check_path:
-
             try:
                 # move file to new_path
                 shutil.move(old_file_path, new_path)
                 return True
-
-            except:
-
+            except OSError:
                 return False
         else:
-
             return False
-
     else:
-
         return False

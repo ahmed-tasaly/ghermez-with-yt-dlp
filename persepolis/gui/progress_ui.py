@@ -16,15 +16,21 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 try:
-    from PySide6.QtWidgets import QCheckBox, QProgressBar, QFrame, QDoubleSpinBox, QComboBox, QWidget, QTabWidget, QVBoxLayout, QHBoxLayout, QPushButton, QLabel, QWidget, QSizePolicy
+    from PySide6.QtWidgets import (
+        QCheckBox, QProgressBar, QFrame, QDoubleSpinBox, QComboBox,
+        QWidget, QTabWidget, QVBoxLayout, QHBoxLayout, QPushButton, QLabel
+    )
     from PySide6.QtCore import Qt, QTranslator, QCoreApplication, QLocale, QSize
     from PySide6.QtGui import QIcon
-except:
-    from PyQt5.QtWidgets import QCheckBox, QProgressBar, QFrame, QDoubleSpinBox, QComboBox, QWidget, QTabWidget, QVBoxLayout, QHBoxLayout, QPushButton, QLabel, QWidget, QSizePolicy
+except ImportError:
+    from PyQt5.QtWidgets import (
+        QCheckBox, QProgressBar, QFrame, QDoubleSpinBox, QComboBox,
+        QWidget, QTabWidget, QVBoxLayout, QHBoxLayout, QPushButton, QLabel
+    )
     from PyQt5.QtCore import Qt, QTranslator, QCoreApplication, QLocale, QSize
     from PyQt5.QtGui import QIcon
 
-from persepolis.gui import resources
+from persepolis.gui import resources # noqa: F401
 
 class ProgressWindow_Ui(QWidget):
     def __init__(self, persepolis_setting):
@@ -220,7 +226,9 @@ class ProgressWindow_Ui(QWidget):
         self.after_comboBox.setItemText(0,  QCoreApplication.translate("progress_ui_tr", "Shut Down"))
 
         self.progress_tabWidget.setTabText(
-            self.progress_tabWidget.indexOf(self.options_tab),  QCoreApplication.translate("progress_ui_tr", "Download Options"))
+            self.progress_tabWidget.indexOf(self.options_tab),
+            QCoreApplication.translate("progress_ui_tr", "Download Options")
+        )
         self.resume_pushButton.setText(QCoreApplication.translate("progress_ui_tr", "Resume"))
         self.pause_pushButton.setText(QCoreApplication.translate("progress_ui_tr", "Pause"))
         self.stop_pushButton.setText(QCoreApplication.translate("progress_ui_tr", "Stop"))

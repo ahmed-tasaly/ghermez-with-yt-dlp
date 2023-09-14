@@ -16,7 +16,7 @@
 try:
     from PySide6.QtGui import QPalette, QColor
     from PySide6.QtCore import Qt
-except:
+except ImportError:
     from PyQt5.QtGui import QPalette, QColor
     from PyQt5.QtCore import Qt
 
