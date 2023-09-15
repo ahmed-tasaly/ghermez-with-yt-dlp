@@ -16,11 +16,13 @@
 
 # THIS FILE CONTAINING SOME VARIABLES , ... THAT USING FOR INITIALIZING PERSEPOLIS
 
-from persepolis.scripts.useful_tools import determineConfigFolder, returnDefaultSettings
+from persepolis.scripts.useful_tools import returnDefaultSettings
 from persepolis.scripts.browser_integration import browserIntegration
 from persepolis.scripts import osCommands
 import time
 import os
+
+from ghermez import determineConfigFolder
 
 try:
     from PySide6.QtCore import QSettings

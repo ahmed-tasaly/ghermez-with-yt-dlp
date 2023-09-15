@@ -38,7 +38,7 @@ except ImportError:
     from PyQt5.QtCore import pyqtSignal as Signal
     pyside6_is_installed = False
 
-from persepolis.scripts.useful_tools import muxer, freeSpace, determineConfigFolder, osAndDesktopEnvironment
+from persepolis.scripts.useful_tools import muxer, freeSpace
 from persepolis.scripts.video_finder_progress import VideoFinderProgressWindow
 from persepolis.gui.mainwindow_ui import MainWindow_Ui, QTableWidgetItem
 from persepolis.scripts.browser_plugin_queue import BrowserPluginQueue
@@ -71,6 +71,7 @@ import sys
 import os
 
 from ghermez import PluginsDB, DataBase, TempDB
+from ghermez import determineConfigFolder, osAndDesktopEnvironment
 
 global youtube_dl_is_installed
 try:

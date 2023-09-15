@@ -24,6 +24,8 @@ import platform
 import sys
 import os
 
+import ghermez
+
 try:
     from persepolis.scripts import logger
     logger_availability = True
@@ -150,113 +152,11 @@ def freeSpace(dir):
 
 
 def returnDefaultSettings():
-    os_type, desktop_env = osAndDesktopEnvironment()
-
-    # persepolis temporary download folder
-    if os_type != OS.WINDOWS:
-        download_path_temp = home_address + '/.persepolis'
-    else:
-        download_path_temp = os.path.join(
-            home_address, 'AppData', 'Local', 'persepolis')
-
-    # user download folder path
-    download_path = os.path.join(home_address, 'Downloads', 'Persepolis')
-
     # find available styles(It's depends on operating system and desktop environments).
     available_styles = QStyleFactory.keys()
-    style = 'Fusion'
-    color_scheme = 'Dark Fusion'
-    icons = 'Breeze-Dark'
-    if os_type in OS.UNIX_LIKE:
-        if desktop_env == 'KDE':
-            if 'Breeze' in available_styles:
-                style = 'Breeze'
-                color_scheme = 'System'
-        else:
-            # finout user prefers dark theme or light theme :)
-            # read this links for more information:
-            # https://wiki.archlinux.org/index.php/GTK%2B#Basic_theme_configuration
-            # https://wiki.archlinux.org/index.php/GTK%2B#Dark_theme_variant
-
-            # find user gtk3 config file path.
-            gtk3_confing_file_path = os.path.join(home_address, '.config', 'gtk-3.0', 'settings.ini')
-            if not(os.path.isfile(gtk3_confing_file_path)):
-                if os.path.isfile('/etc/gtk-3.0/settings.ini'):
-                    gtk3_confing_file_path = '/etc/gtk-3.0/settings.ini'
-                else:
-                    gtk3_confing_file_path = None
-
-            # read this for more information:
-            dark_theme = False
-            if gtk3_confing_file_path:
-                with open(gtk3_confing_file_path) as f:
-                    for line in f:
-                        if "gtk-application-prefer-dark-theme" in line:
-                            if 'true' in line:
-                                dark_theme = True
-                            else:
-                                dark_theme = False
-
-            if dark_theme:
-                icons = 'Breeze-Dark'
-                if 'Adwaita-Dark' in available_styles:
-                    style = 'Adwaita-Dark'
-                    color_scheme = 'System'
-
-            else:
-                icons = 'Breeze'
-                if 'Adwaita' in available_styles:
-                    style = 'Adwaita'
-                    color_scheme = 'System'
-                else:
-                    style = 'Fusion'
-                    color_scheme = 'Light Fusion'
-
-    elif os_type == OS.OSX:
-        if 'macintosh' in available_styles:
-            style = 'macintosh'
-            color_scheme = 'System'
-            icons = 'Breeze'
-
-    elif os_type == OS.WINDOWS:
-        style = 'Fusion'
-        color_scheme = 'Dark Fusion'
-        icons = 'Breeze-Dark'
-
-    else:
-        style = 'Fusion'
-        color_scheme = 'Dark Fusion'
-        icons = 'Breeze-Dark'
-
-    # keyboard shortcuts
-    delete_shortcut = "Ctrl+D"
-    remove_shortcut = "Ctrl+R"
-    add_new_download_shortcut = "Ctrl+N"
-    import_text_shortcut = "Ctrl+O"
-    video_finder_shortcut = "Ctrl+V"
-    quit_shortcut = "Ctrl+Q"
-    hide_window_shortcut = "Ctrl+W"
-    move_up_selection_shortcut = "Ctrl+Up"
-    move_down_selection_shortcut = "Ctrl+Down"
 
     # Persepolis default setting
-    default_setting_dict = {
-        'locale': 'en_US', 'toolbar_icon_size': 32, 'wait-queue': [0, 0], 'awake': 'no', 'custom-font': 'no',
-        'column0': 'yes', 'column1': 'yes', 'column2': 'yes', 'column3': 'yes', 'column4': 'yes', 'column5': 'yes',
-        'column6': 'yes', 'column7': 'yes', 'column10': 'yes', 'column11': 'yes', 'column12': 'yes', 'subfolder': 'yes',
-        'startup': 'no', 'show-progress': 'yes', 'show-menubar': 'no', 'show-sidepanel': 'yes', 'rpc-port': 6801,
-        'notification': 'Native notification', 'after-dialog': 'yes', 'tray-icon': 'yes', 'browser-persepolis': 'yes',
-        'hide-window': 'yes', 'max-tries': 5, 'retry-wait': 0, 'timeout': 60, 'connections': 16,
-        'download_path_temp': download_path_temp, 'download_path': download_path, 'sound': 'yes', 'sound-volume': 100,
-        'style': style, 'color-scheme': color_scheme, 'icons': icons, 'font': 'Ubuntu', 'font-size': 9,
-        'aria2_path': '', 'video_finder/max_links': '3', 'shortcuts/delete_shortcut': delete_shortcut,
-        'shortcuts/remove_shortcut': remove_shortcut, 'shortcuts/add_new_download_shortcut': add_new_download_shortcut,
-        'shortcuts/import_text_shortcut': import_text_shortcut,
-        'shortcuts/video_finder_shortcut': video_finder_shortcut, 'shortcuts/quit_shortcut': quit_shortcut,
-        'shortcuts/hide_window_shortcut': hide_window_shortcut,
-        'shortcuts/move_up_selection_shortcut': move_up_selection_shortcut,
-        'shortcuts/move_down_selection_shortcut': move_down_selection_shortcut, 'dont-check-certificate': 'no'
-    }
+    default_setting_dict = ghermez.returnDefaultSettings(available_styles)
 
     return default_setting_dict
 

@@ -12,7 +12,7 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
-from persepolis.scripts.useful_tools import determineConfigFolder
+from ghermez import determineConfigFolder
 from persepolis.gui.log_window_ui import LogWindow_Ui
 from persepolis.scripts import osCommands
 import os

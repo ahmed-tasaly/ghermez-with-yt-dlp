@@ -23,7 +23,7 @@ except ImportError:
     from PyQt5.QtCore import QThread, QCoreApplication, QTranslator, QLocale
     from PyQt5.QtCore import pyqtSignal as Signal
 
-from persepolis.scripts.useful_tools import determineConfigFolder
+from ghermez import determineConfigFolder
 from persepolis.scripts.addlink import AddLinkWindow
 from persepolis.scripts import logger, osCommands
 from persepolis.scripts.spider import spider

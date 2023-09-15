@@ -17,7 +17,7 @@ import re
 import subprocess
 import urllib
 import os
-from persepolis.scripts.useful_tools import osAndDesktopEnvironment
+from ghermez import osAndDesktopEnvironment
 from persepolis.scripts import logger
 from persepolis.constants import OS
 

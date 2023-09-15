@@ -30,7 +30,7 @@ import json
 import struct
 import argparse
 from persepolis.scripts import osCommands
-from persepolis.scripts.useful_tools import osAndDesktopEnvironment, determineConfigFolder
+from ghermez import osAndDesktopEnvironment, determineConfigFolder
 from persepolis.constants import OS
 from copy import deepcopy
 import sys

@@ -13,7 +13,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-from persepolis.scripts.useful_tools import determineConfigFolder
+from ghermez import determineConfigFolder
 from persepolis.scripts import osCommands
 from persepolis.constants import OS, BROWSER
 import subprocess

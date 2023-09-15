@@ -13,7 +13,7 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from persepolis.scripts.useful_tools import humanReadableSize
+from ghermez import humanReadableSize
 from requests.cookies import cookiejar_from_dict
 from http.cookies import SimpleCookie
 import requests

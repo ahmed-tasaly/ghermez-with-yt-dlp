@@ -24,8 +24,8 @@ use aria2_ws::{Client, TaskOptions};
 static SERVER_URL: Lazy<RwLock<String>> = Lazy::new(|| RwLock::new(String::new()));
 
 #[pyfunction]
-#[pyo3(signature = (port, aria2_path=None))]
-pub fn startAria(port: u16, aria2_path: Option<String>) -> Option<String> {
+#[pyo3(signature = (port, _aria2_path=None))]
+pub fn startAria(port: u16, _aria2_path: Option<String>) -> Option<String> {
     Runtime::new().unwrap().handle().block_on(async {
         let mut tmp = SERVER_URL.write().await;
         *tmp = format!("ws://127.0.0.1:{port}/jsonrpc");
@@ -49,8 +49,8 @@ pub fn startAria(port: u16, aria2_path: Option<String>) -> Option<String> {
     #[cfg(target_os = "macos")]
     {
         let aria2d;
-        if aria2_path.is_none()
-            || aria2_path
+        if _aria2_path.is_none()
+            || _aria2_path
                 .as_ref()
                 .is_some_and(|x| x == "" || !Path::new(&x).is_file())
         {
@@ -62,7 +62,7 @@ pub fn startAria(port: u16, aria2_path: Option<String>) -> Option<String> {
                 .join("aria2c");
             aria2d = aria2.to_str().unwrap().to_string();
         } else {
-            aria2d = aria2_path.as_ref().unwrap().to_string();
+            aria2d = _aria2_path.as_ref().unwrap().to_string();
         }
         if !Path::new(&aria2d).exists() {
             error!("Aria2 does not exist in the current path!");
@@ -88,8 +88,8 @@ pub fn startAria(port: u16, aria2_path: Option<String>) -> Option<String> {
     #[cfg(target_os = "windows")]
     {
         let aria2d;
-        if aria2_path.is_none()
-            || aria2_path
+        if _aria2_path.is_none()
+            || _aria2_path
                 .as_ref()
                 .is_some_and(|x| x == "" || !Path::new(&x).is_file())
         {
@@ -101,7 +101,7 @@ pub fn startAria(port: u16, aria2_path: Option<String>) -> Option<String> {
                 .join("aria2c.exe");
             aria2d = aria2.to_str().unwrap().to_string();
         } else {
-            aria2d = aria2_path.as_ref().unwrap().to_string();
+            aria2d = _aria2_path.as_ref().unwrap().to_string();
         }
         if !Path::new(&aria2d).exists() {
             error!("Aria2 does not exist in the current path!");
