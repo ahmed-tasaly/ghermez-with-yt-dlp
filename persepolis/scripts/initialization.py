@@ -22,7 +22,7 @@ from persepolis.scripts import osCommands
 import time
 import os
 
-from ghermez import determineConfigFolder
+import ghermez
 
 try:
     from PySide6.QtCore import QSettings
@@ -31,58 +31,14 @@ except ImportError:
 
 # initialization
 
-# download manager config folder .
-config_folder = determineConfigFolder()
-
-# persepolis tmp folder path
-persepolis_tmp = os.path.join(config_folder, 'persepolis_tmp')
-
 # create folders
-for folder in [config_folder, persepolis_tmp]:
-    osCommands.makeDirs(folder)
+ghermez.init_create_folders()
 
 # persepolisdm.log file contains persepolis log.
 from persepolis.scripts import logger  # noqa: E402
 
 # refresh logs!
-log_file = os.path.join(str(config_folder), 'persepolisdm.log')
-
-# get current time
-current_time = time.strftime('%Y/%m/%d %H:%M:%S')
-
-# find number of lines in log_file.
-with open(log_file) as f:
-    lines = sum(1 for _ in f)
-
-# if number of lines in log_file is more than 300, then keep last 200 lines in log_file.
-if lines < 300:
-    f = open(log_file, 'a')
-    f.writelines('===================================================\n'
-                 + 'Persepolis Download Manager, '
-                 + current_time
-                 + '\n')
-    f.close()
-else:
-    # keep last 200 lines
-    line_num = lines - 200
-    f = open(log_file, 'r')
-    f_lines = f.readlines()
-    f.close()
-
-    line_counter = 1
-    f = open(log_file, 'w')
-    for line in f_lines:
-        if line_counter > line_num:
-            f.writelines(str(line))
-
-        line_counter = line_counter + 1
-    f.close()
-
-    f = open(log_file, 'a')
-    f.writelines('Persepolis Download Manager, '
-                 + current_time
-                 + '\n')
-    f.close()
+ghermez.init_log_file()
 
 from ghermez import DataBase, PluginsDB  # noqa: E402
 
