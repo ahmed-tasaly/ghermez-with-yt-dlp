@@ -3,6 +3,7 @@ use pyo3::prelude::*;
 mod aria2c;
 mod database;
 mod useful_tools;
+mod startup;
 
 use aria2c::{aria2Version, new_date, startAria};
 use database::{DataBase, PluginsDB, TempDB};
@@ -10,6 +11,7 @@ use useful_tools::{
     convertToByte, determineConfigFolder, humanReadableSize, osAndDesktopEnvironment,
     returnDefaultSettings,
 };
+use startup::{checkstartup, addstartup, removestartup};
 
 #[pymodule]
 fn ghermez(_py: Python, m: &PyModule) -> PyResult<()> {
@@ -28,6 +30,10 @@ fn ghermez(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(convertToByte, m)?)?;
     m.add_function(wrap_pyfunction!(osAndDesktopEnvironment, m)?)?;
     m.add_function(wrap_pyfunction!(returnDefaultSettings, m)?)?;
+
+    m.add_function(wrap_pyfunction!(checkstartup, m)?)?;
+    m.add_function(wrap_pyfunction!(addstartup, m)?)?;
+    m.add_function(wrap_pyfunction!(removestartup, m)?)?;
 
     Ok(())
 }
