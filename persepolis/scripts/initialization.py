@@ -19,7 +19,6 @@
 from persepolis.scripts.useful_tools import returnDefaultSettings
 from persepolis.scripts.browser_integration import browserIntegration
 from persepolis.scripts import osCommands
-import time
 import os
 
 import ghermez

@@ -6,6 +6,7 @@ use std::{
 };
 
 use pyo3::prelude::*;
+use regex::Regex;
 use rusqlite::Connection;
 
 // This class manages TempDB
@@ -630,9 +631,45 @@ impl DataBase {
         drop(connection);
 
         if !list.is_empty() {
+            let dict = list.last().unwrap();
+
             // item must be inserted to gid_list of 'All Downloads' and gid_list of category
             // find download category and gid
-            todo!();
+            let category = dict.get("category").unwrap();
+
+            // get category_dict from data base
+            let mut category_dict = self.searchCategoryInCategoryTable(category).unwrap();
+
+            // get all_downloads_dict from data base
+            let mut all_downloads_dict =
+                self.searchCategoryInCategoryTable("All Downloads").unwrap();
+
+            // get gid_list
+            let re = Regex::new(r"\d+").unwrap();
+            let mut category_gid_list: Vec<_> = re
+                .find_iter(category_dict.get("gid_list").unwrap())
+                .map(|m| m.as_str())
+                .collect();
+            let mut all_downloads_gid_list: Vec<_> = re
+                .find_iter(all_downloads_dict.get("gid_list").unwrap())
+                .map(|m| m.as_str())
+                .collect();
+
+            for dict in list {
+                let gid = dict.get("gid").unwrap();
+
+                // add gid of item to gid_list
+                category_gid_list.push(gid);
+                all_downloads_gid_list.push(gid);
+            }
+
+            *category_dict.get_mut("gid_list").unwrap() = format!("{category_gid_list:?}");
+            *all_downloads_dict.get_mut("gid_list").unwrap() =
+                format!("{all_downloads_gid_list:?}");
+
+            // update category_db_table
+            self.updateCategoryTable(vec![all_downloads_dict]);
+            self.updateCategoryTable(vec![category_dict]);
         }
     }
 
@@ -1018,7 +1055,7 @@ impl DataBase {
     }
 
     // this method updates category_db_table
-    fn updateCategoryTable(&self, list: Vec<HashMap<&str, &str>>) {
+    fn updateCategoryTable(&self, list: Vec<HashMap<&str, String>>) {
         // lock data base
         let mut connection = self.connection.lock().unwrap();
         let transaction = connection.transaction().unwrap();
@@ -1042,7 +1079,7 @@ impl DataBase {
                 // if a key is missed in dict,
                 // then add this key to the dict and assign None value for the key.
                 if dict.get(key).is_none() {
-                    dict.insert(key, "NULL");
+                    dict.insert(key, "NULL".to_string());
                 }
             }
 
@@ -1535,11 +1572,18 @@ impl DataBase {
     // this method deletes all items in data_base
     fn resetDataBase(&self) {
         // update gid_list in categories with empty gid_list
-        let all_downloads_dict = HashMap::from([("category", "All Downloads"), ("gid_list", "[]")]);
-        let single_downloads_dict =
-            HashMap::from([("category", "Single Downloads"), ("gid_list", "[]")]);
-        let scheduled_downloads_dict =
-            HashMap::from([("category", "Scheduled Downloads"), ("gid_list", "[]")]);
+        let all_downloads_dict = HashMap::from([
+            ("category", "All Downloads".to_string()),
+            ("gid_list", "[]".to_string()),
+        ]);
+        let single_downloads_dict = HashMap::from([
+            ("category", "Single Downloads".to_string()),
+            ("gid_list", "[]".to_string()),
+        ]);
+        let scheduled_downloads_dict = HashMap::from([
+            ("category", "Scheduled Downloads".to_string()),
+            ("gid_list", "[]".to_string()),
+        ]);
 
         self.updateCategoryTable(vec![
             all_downloads_dict,

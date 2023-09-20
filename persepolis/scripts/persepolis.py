@@ -49,9 +49,6 @@ if os_type in (OS.UNIX_LIKE + [OS.OSX]):
 
 # initialization
 
-# find home address
-home_address = os.path.expanduser("~")
-
 # persepolis config_folder
 config_folder = determineConfigFolder()
 

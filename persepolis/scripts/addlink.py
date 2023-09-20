@@ -356,35 +356,35 @@ class AddLinkWindow(AddLinkWindow_Ui):
 
         # get proxy information
         if not(self.proxy_checkBox.isChecked()):
-            ip = None
-            port = None
-            proxy_user = None
-            proxy_passwd = None
+            ip = 'None'
+            port = 'None'
+            proxy_user = 'None'
+            proxy_passwd = 'None'
         else:
             ip = self.ip_lineEdit.text()
             if not(ip):
-                ip = None
+                ip = 'None'
             port = self.port_spinBox.value()
             if not(port):
-                port = None
+                port = 'None'
             proxy_user = self.proxy_user_lineEdit.text()
             if not(proxy_user):
-                proxy_user = None
+                proxy_user = 'None'
             proxy_passwd = self.proxy_pass_lineEdit.text()
             if not(proxy_passwd):
-                proxy_passwd = None
+                proxy_passwd = 'None'
 
         # get download username and password information
         if not(self.download_checkBox.isChecked()):
-            download_user = None
-            download_passwd = None
+            download_user = 'None'
+            download_passwd = 'None'
         else:
             download_user = self.download_user_lineEdit.text()
             if not(download_user):
-                download_user = None
+                download_user = 'None'
             download_passwd = self.download_pass_lineEdit.text()
             if not(download_passwd):
-                download_passwd = None
+                download_passwd = 'None'
 
         # check that if user limits download speed.
         if not(self.limit_checkBox.isChecked()):
@@ -397,13 +397,13 @@ class AddLinkWindow(AddLinkWindow_Ui):
 
         # get start time for download if user set that.
         if not(self.start_checkBox.isChecked()):
-            start_time = None
+            start_time = 'None'
         else:
             start_time = self.start_time_qDataTimeEdit.text()
 
         # get end time for download if user set that.
         if not(self.end_checkBox.isChecked()):
-            end_time = None
+            end_time = 'None'
         else:
             end_time = self.end_time_qDateTimeEdit.text()
 
@@ -412,7 +412,7 @@ class AddLinkWindow(AddLinkWindow_Ui):
             out = str(self.change_name_lineEdit.text())
             self.plugin_add_link_dictionary['out'] = out
         else:
-            out = None
+            out = 'None'
 
         # get download link
         link = self.link_lineEdit.text()
@@ -427,25 +427,25 @@ class AddLinkWindow(AddLinkWindow_Ui):
         if self.referer_lineEdit.text() != '':
             referer = self.referer_lineEdit.text()
         else:
-            referer = None
+            referer = 'None'
 
         # header
         if self.header_lineEdit.text() != '':
             header = self.header_lineEdit.text()
         else:
-            header = None
+            header = 'None'
 
         # user_agent
         if self.user_agent_lineEdit.text() != '':
             user_agent = self.user_agent_lineEdit.text()
         else:
-            user_agent = None
+            user_agent = 'None'
 
         # load_cookies
         if self.load_cookies_lineEdit.text() != '':
             load_cookies = self.load_cookies_lineEdit.text()
         else:
-            load_cookies = None
+            load_cookies = 'None'
         # save information in a dictionary(add_link_dictionary).
         self.add_link_dictionary = {
             'referer': referer, 'header': header, 'user_agent': user_agent, 'load_cookies': load_cookies,
