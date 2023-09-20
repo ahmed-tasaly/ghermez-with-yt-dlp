@@ -65,10 +65,9 @@ global lock_file_validation
 
 if os_type != OS.WINDOWS:
     import fcntl
-    user_name_split = home_address.split('/')
-    user_name = user_name_split[2]
+
 # persepolis lock file
-    lock_file = '/tmp/persepolis_exec_' + user_name + '.lock'
+    lock_file = '/tmp/persepolis_exec_' + os.getlogin() + '.lock'
 
 # create lock file
     fp = open(lock_file, 'w')
