@@ -26,24 +26,14 @@ static HOME_ADDRESS: Lazy<PathBuf> = Lazy::new(|| home_dir().unwrap());
 pub fn checkstartup() -> bool {
     // check if the startup exists
     #[cfg(any(target_os = "linux", target_os = "freebsd", target_os = "openbsd"))]
-    if HOME_ADDRESS
+    return HOME_ADDRESS
         .join("/.config/autostart/persepolis.desktop")
-        .is_file()
-    {
-        return true;
-    } else {
-        return false;
-    }
+        .is_file();
 
     #[cfg(target_os = "macos")]
-    if HOME_ADDRESS
+    return HOME_ADDRESS
         .join("/Library/LaunchAgents/com.persepolisdm.plist")
-        .is_file()
-    {
-        return true;
-    } else {
-        return false;
-    }
+        .is_file();
 
     #[cfg(target_os = "windows")]
     {

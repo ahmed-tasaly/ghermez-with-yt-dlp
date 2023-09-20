@@ -1,7 +1,7 @@
 use std::fs::{self, OpenOptions};
 use std::io::prelude::*;
 
-use chrono;
+use chrono::Local;
 use pyo3::prelude::*;
 
 use crate::useful_tools::determineConfigFolder;
@@ -25,9 +25,7 @@ pub fn init_log_file() {
     let log_file = config_folder.join("persepolisdm.log");
 
     // get current time
-    let current_time = chrono::Local::now()
-        .format("%Y/%m/%d , %H:%M:%S")
-        .to_string();
+    let current_time = Local::now().format("%Y/%m/%d , %H:%M:%S").to_string();
 
     // find number of lines in log_file
     let len = fs::read_to_string(log_file.clone())

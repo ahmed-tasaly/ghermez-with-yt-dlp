@@ -289,8 +289,7 @@ impl PluginsDB {
         let mut transaction = connection.transaction().unwrap();
 
         let transaction_size = 5;
-        let mut i = 0;
-        for dict in list {
+        for (i, dict) in list.into_iter().enumerate() {
             if i % transaction_size == 0 {
                 transaction.commit().unwrap();
                 transaction = connection.transaction().unwrap();
@@ -312,7 +311,6 @@ impl PluginsDB {
                     ],
                 )
                 .unwrap();
-            i += 1;
         }
         transaction.commit().unwrap();
     }
@@ -593,8 +591,7 @@ impl DataBase {
         let mut transaction = connection.transaction().unwrap();
 
         let transaction_size = 5;
-        let mut i = 0;
-        for dict in list.clone() {
+        for (i, dict) in list.clone().into_iter().enumerate() {
             if i % transaction_size == 0 {
                 transaction.commit().unwrap();
                 transaction = connection.transaction().unwrap();
@@ -623,7 +620,6 @@ impl DataBase {
                     ],
                 )
                 .unwrap();
-            i += 1;
         }
         transaction.commit().unwrap();
 
@@ -680,8 +676,7 @@ impl DataBase {
         let mut transaction = connection.transaction().unwrap();
 
         let transaction_size = 5;
-        let mut i = 0;
-        for dict in list.clone() {
+        for (i, dict) in list.clone().into_iter().enumerate() {
             if i % transaction_size == 0 {
                 transaction.commit().unwrap();
                 transaction = connection.transaction().unwrap();
@@ -720,7 +715,6 @@ impl DataBase {
                     ],
                 )
                 .unwrap();
-            i += 1;
         }
         transaction.commit().unwrap();
     }
@@ -731,8 +725,7 @@ impl DataBase {
         let mut transaction = connection.transaction().unwrap();
 
         let transaction_size = 5;
-        let mut i = 0;
-        for dict in list.clone() {
+        for (i, dict) in list.clone().into_iter().enumerate() {
             if i % transaction_size == 0 {
                 transaction.commit().unwrap();
                 transaction = connection.transaction().unwrap();
@@ -757,7 +750,6 @@ impl DataBase {
                     ],
                 )
                 .unwrap();
-            i += 1;
         }
         transaction.commit().unwrap();
     }
