@@ -65,7 +65,7 @@ impl TempDB {
         connection
             .execute(
                 "
-            INSERT INTO single_db_table VALUE (
+            INSERT INTO single_db_table VALUES (
                 NULL,
                 ?1,
                 'active',
@@ -83,7 +83,7 @@ impl TempDB {
         connection
             .execute(
                 "
-            INSERT INTO queue_db_table VALUE (
+            INSERT INTO queue_db_table VALUES (
                 NULL,
                 ?1,
                 NULL
@@ -388,7 +388,7 @@ impl DataBase {
         connection
             .lock()
             .unwrap()
-            .execute("pragma foreign_keys=ON", ())
+            .execute("PRAGMA foreign_keys = ON", ())
             .unwrap();
 
         Self { connection }
@@ -912,7 +912,10 @@ impl DataBase {
                 ("load_cookies".to_string(), row.get(16).unwrap()),
                 ("user_agent".to_string(), row.get(17).unwrap()),
                 ("header".to_string(), row.get(18).unwrap()),
-                ("after_download".to_string(), row.get(19).unwrap()),
+                (
+                    "after_download".to_string(),
+                    row.get(19).unwrap_or("NULL".to_string()),
+                ),
             ]));
         }
         None
@@ -979,6 +982,7 @@ impl DataBase {
         // lock data base
         let mut connection = self.connection.lock().unwrap();
         let transaction = connection.transaction().unwrap();
+        transaction.execute("PRAGMA foreign_keys = ON", ()).unwrap();
 
         let keys_list = [
             "file_name",
@@ -1532,20 +1536,36 @@ impl DataBase {
 
     // This method deletes a category from category_db_table
     fn deleteCategory(&self, category: &str) {
-        // TODO
-
         // delete gids of this category from gid_list of 'All Downloads'
-        // let category_dict = self.searchCategoryInCategoryTable(category).unwrap();
-        // let all_downloads_dict = self.searchCategoryInCategoryTable("All Downloads").unwrap();
+        let category_dict = self.searchCategoryInCategoryTable(category).unwrap();
+        let mut all_downloads_dict = self.searchCategoryInCategoryTable("All Downloads").unwrap();
 
         // get gid_list
-        // let category_gid_list = category_dict.get("gid_list").unwrap();
-        // let all_downloads_gid_list = all_downloads_dict.get("gid_list").unwrap();
+        let re = Regex::new(r"\d+").unwrap();
+        let category_gid_list: Vec<_> = re
+            .find_iter(category_dict.get("gid_list").unwrap())
+            .map(|m| m.as_str())
+            .collect();
+        let all_downloads_gid_list: Vec<_> = re
+            .find_iter(all_downloads_dict.get("gid_list").unwrap())
+            .map(|m| m.as_str())
+            .collect();
+        let mut new_all_downloads_gid_list = all_downloads_gid_list.clone();
 
         // delete item from all_downloads_gid_list
+        for gid in category_gid_list {
+            new_all_downloads_gid_list.remove(
+                new_all_downloads_gid_list
+                    .iter()
+                    .position(|x| *x == gid)
+                    .unwrap(),
+            );
+        }
 
         // update category_db_table
-        // self.updateCategoryTable([all_downloads_dict]);
+        *all_downloads_dict.get_mut("gid_list").unwrap() =
+            format!("{new_all_downloads_gid_list:?}");
+        self.updateCategoryTable(vec![all_downloads_dict]);
 
         // lock data base
         let connection = self.connection.lock().unwrap();
@@ -1602,7 +1622,7 @@ impl DataBase {
     }
 
     // This method deletes a download item from download_db_table
-    fn deleteItemInDownloadTable(&self, gid: &str, _category: &str) {
+    fn deleteItemInDownloadTable(&self, gid: &str, category: &str) {
         // lock data base
         let connection = self.connection.lock().unwrap();
 
@@ -1619,7 +1639,43 @@ impl DataBase {
         drop(connection);
 
         // delete item from gid_list in category and All Downloads
-        // TODO
+        for category_name in [category, "All Downloads"] {
+            let category_dict = self.searchCategoryInCategoryTable(category_name).unwrap();
+
+            // get gid_list
+            let re = Regex::new(r"\d+").unwrap();
+            let gid_list: Vec<_> = re
+                .find_iter(category_dict.get("gid_list").unwrap())
+                .map(|m| m.as_str())
+                .collect();
+            let mut new_gid_list = gid_list.clone();
+
+            // delete item
+            for gid in &gid_list {
+                new_gid_list.remove(new_gid_list.iter().position(|x| x == gid).unwrap());
+
+                // if gid is in video_finder_db_table, both of video_gid and audio_gid must be deleted from gid_list
+                let video_finder_dictionary = self.searchGidInVideoFinderTable(gid);
+
+                if let Some(video_finder_dictionary) = video_finder_dictionary {
+                    let video_gid = video_finder_dictionary.get("video_gid").unwrap();
+                    let audio_gid = video_finder_dictionary.get("audio_gid").unwrap();
+
+                    if gid == video_gid {
+                        new_gid_list
+                            .remove(new_gid_list.iter().position(|x| x == audio_gid).unwrap());
+                    } else {
+                        new_gid_list
+                            .remove(new_gid_list.iter().position(|x| x == video_gid).unwrap());
+                    }
+                }
+
+                // update category_db_table
+                let mut new_category_dict = category_dict.clone();
+                *new_category_dict.get_mut("gid_list").unwrap() = format!("{new_gid_list:?}");
+                self.updateCategoryTable(vec![new_category_dict]);
+            }
+        }
     }
 
     // this method replaces:
