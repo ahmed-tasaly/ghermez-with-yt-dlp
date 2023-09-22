@@ -171,6 +171,7 @@ def compatibility():
 
     # close connections
     # persepolis_db.closeConnections()
+    del persepolis_db
 
     # remove unwanted files and folders
     for file in [download_list_file, download_list_file_active]:

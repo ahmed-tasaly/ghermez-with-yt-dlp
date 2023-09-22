@@ -3168,8 +3168,9 @@ class MainWindow(MainWindow_Ui):
             sleep(0.1)
 
         # close data bases connections
-        # for db in self.persepolis_db, self.plugins_db, self.temp_db:
-        #     db.closeConnections()
+        for db in self.persepolis_db, self.plugins_db, self.temp_db:
+            # db.closeConnections()
+            del db
 
         QCoreApplication.instance().quit
         logger.sendToLog("Persepolis closed!", "INFO")

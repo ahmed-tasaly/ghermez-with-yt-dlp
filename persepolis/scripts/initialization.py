@@ -49,6 +49,7 @@ persepolis_db.createTables()
 
 # close connections
 # persepolis_db.closeConnections()
+del persepolis_db
 
 # create an object for PluginsDB
 plugins_db = PluginsDB()
@@ -61,6 +62,7 @@ plugins_db.deleteOldLinks()
 
 # close connections
 # plugins_db.closeConnections()
+del plugins_db
 
 
 # import persepolis_setting
@@ -160,6 +162,7 @@ if persepolis_version < 2.6:
 
         # close connections
         # persepolis_db.closeConnections()
+        del persepolis_db
 
         # write error in log
         logger.sendToLog(
@@ -178,6 +181,7 @@ if persepolis_version < 3.1:
 
     # close connections
     # persepolis_db.closeConnections()
+    del persepolis_db
 
     persepolis_version = 3.1
 

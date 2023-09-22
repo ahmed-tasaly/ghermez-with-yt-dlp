@@ -262,6 +262,7 @@ if args.clear:
 
     # close connections
     # persepolis_db.closeConnections()
+    del persepolis_db
 
     # Reset persepolis_setting
     persepolis_setting.clear()
@@ -347,6 +348,7 @@ if len(plugin_list) != 0:
 
     # Job is done! close connections.
     # plugins_db.closeConnections()
+    del plugins_db
 
     # notify that a link is added!
     plugin_ready = os.path.join(persepolis_tmp, 'persepolis-plugin-ready')
