@@ -468,6 +468,7 @@ class SpiderThread(QThread):
             # update data base
             dictionary = {'file_name': file_name, 'size': size, 'gid': self.add_link_dictionary['gid']}
             self.parent.persepolis_db.updateDownloadTable([dictionary])
+            dictionary = self.parent.persepolis_db.searchGidInDownloadTable(dictionary['gid'])
 
             # update table in MainWindow
             self.SPIDERSIGNAL.emit(dictionary)
@@ -1763,7 +1764,7 @@ class MainWindow(MainWindow_Ui):
                     systemtray_tooltip_text = systemtray_tooltip_text + '\n'\
                         + system_tray_file_name + ': '\
                         + dict['percent']
-            except KeyError:
+            except (KeyError, TypeError):
                 pass
 
             # Is the link related to VideoFinder?
@@ -2008,7 +2009,7 @@ class MainWindow(MainWindow_Ui):
                     progress_window.setWindowTitle(windows_title)
                 try:
                     value = int(value[:-1])
-                except ValueError:
+                except (ValueError, TypeError):
                     value = 0
                 progress_window.download_progressBar.setValue(value)
 
@@ -5160,6 +5161,10 @@ class MainWindow(MainWindow_Ui):
         # update queue panel widget items
         # read queue_info_dict from data base
         queue_info_dict = self.persepolis_db.searchCategoryInCategoryTable(category)
+
+        for key in queue_info_dict:
+            if queue_info_dict[key] == "None":
+                queue_info_dict[key] = None
 
         # check queue condition
         if str(category) in self.queue_list_dict.keys():

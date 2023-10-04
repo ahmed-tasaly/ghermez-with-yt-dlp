@@ -94,21 +94,9 @@ impl TempDB {
     }
 
     // this method updates single_db_table
-    fn updateSingleTable(&self, data: HashMap<&str, &str>) {
+    fn updateSingleTable(&self, dict: HashMap<&str, &str>) {
         // lock data base
         let connection = self.connection.lock().unwrap();
-
-        let mut dict = HashMap::new();
-        dict.clone_from(&data);
-
-        let key_list = ["gid", "shutdown", "status"];
-        key_list.map(|key| {
-            // if a key is missed in dict,
-            // then add this key to the dict and assign None value for the key.
-            if dict.get(&key).is_none() {
-                dict.insert(key, "NULL");
-            }
-        });
 
         // update data base if value for the keys is not None
         connection
@@ -119,31 +107,15 @@ impl TempDB {
                 status = coalesce(?2, status)
                 WHERE gid = ?3
                 ",
-                [
-                    dict.get(&"shutdown").unwrap(),
-                    dict.get(&"status").unwrap(),
-                    dict.get(&"gid").unwrap(),
-                ],
+                [dict.get(&"shutdown"), dict.get(&"status"), dict.get(&"gid")],
             )
             .unwrap();
     }
 
     // this method updates queue_db_table
-    fn updateQueueTable(&self, data: HashMap<&str, &str>) {
+    fn updateQueueTable(&self, dict: HashMap<&str, &str>) {
         // lock data base
         let connection = self.connection.lock().unwrap();
-
-        let mut dict = HashMap::new();
-        dict.clone_from(&data);
-
-        let key_list = ["category", "shutdown"];
-        key_list.map(|key| {
-            // if a key is missed in dict,
-            // then add this key to the dict and assign None value for the key.
-            if dict.get(&key).is_none() {
-                dict.insert(key, "NULL");
-            }
-        });
 
         // update data base if value for the keys is not None
         connection
@@ -153,10 +125,7 @@ impl TempDB {
                 shutdown = coalesce(?1, shutdown)
                 WHERE category = ?2
                 ",
-                [
-                    dict.get(&"shutdown").unwrap(),
-                    dict.get(&"category").unwrap(),
-                ],
+                [dict.get(&"shutdown"), dict.get(&"category")],
             )
             .unwrap();
     }
@@ -197,7 +166,10 @@ impl TempDB {
         let mut rows = stmt.query([gid]).unwrap();
         if let Some(row) = rows.next().unwrap() {
             return Some(HashMap::from([
-                ("shutdown".to_string(), row.get(0).unwrap()),
+                (
+                    "shutdown".to_string(),
+                    row.get(0).unwrap_or("NULL".to_string()),
+                ),
                 ("status".to_string(), row.get(1).unwrap()),
             ]));
         }
@@ -302,12 +274,12 @@ impl PluginsDB {
                     )
                 ",
                     [
-                        dict.get("link").unwrap(),
-                        dict.get("referer").unwrap(),
-                        dict.get("load_cookies").unwrap(),
-                        dict.get("user_agent").unwrap(),
-                        dict.get("header").unwrap(),
-                        dict.get("out").unwrap(),
+                        dict.get("link"),
+                        dict.get("referer"),
+                        dict.get("load_cookies"),
+                        dict.get("user_agent"),
+                        dict.get("header"),
+                        dict.get("out"),
                     ],
                 )
                 .unwrap();
@@ -384,12 +356,13 @@ impl DataBase {
     fn new() -> Self {
         let connection = Arc::new(Mutex::new(Connection::open("ghermez.db").unwrap()));
 
+        let mut cnn = connection.lock().unwrap();
+        cnn.trace(Some(|s| {
+            println!("{s}");
+        }));
         // turn FOREIGN KEY Support on!
-        connection
-            .lock()
-            .unwrap()
-            .execute("PRAGMA foreign_keys = ON", ())
-            .unwrap();
+        cnn.execute("PRAGMA foreign_keys = ON", ()).unwrap();
+        drop(cnn);
 
         Self { connection }
     }
@@ -515,7 +488,7 @@ impl DataBase {
                 ("start_time_enable", "no"),
                 ("start_time", "0:0"),
                 ("end_time_enable", "no"),
-                ("end_time", "no"),
+                ("end_time", "0:0"),
                 ("reverse", "no"),
                 ("limit_enable", "no"),
                 ("limit_value", "OK"),
@@ -527,7 +500,7 @@ impl DataBase {
                 ("start_time_enable", "no"),
                 ("start_time", "0:0"),
                 ("end_time_enable", "no"),
-                ("end_time", "no"),
+                ("end_time", "0:0"),
                 ("reverse", "no"),
                 ("limit_enable", "no"),
                 ("limit_value", "OK"),
@@ -546,7 +519,7 @@ impl DataBase {
                 ("start_time_enable", "no"),
                 ("start_time", "0:0"),
                 ("end_time_enable", "no"),
-                ("end_time", "no"),
+                ("end_time", "0:0"),
                 ("reverse", "no"),
                 ("limit_enable", "no"),
                 ("limit_value", "OK"),
@@ -569,16 +542,16 @@ impl DataBase {
             )
             ",
                 [
-                    dict.get("category").unwrap(),
-                    dict.get("start_time_enable").unwrap(),
-                    dict.get("start_time").unwrap(),
-                    dict.get("end_time_enable").unwrap(),
-                    dict.get("end_time").unwrap(),
-                    dict.get("reverse").unwrap(),
-                    dict.get("limit_enable").unwrap(),
-                    dict.get("limit_value").unwrap(),
-                    dict.get("after_download").unwrap(),
-                    dict.get("gid_list").unwrap(),
+                    dict.get("category"),
+                    dict.get("start_time_enable"),
+                    dict.get("start_time"),
+                    dict.get("end_time_enable"),
+                    dict.get("end_time"),
+                    dict.get("reverse"),
+                    dict.get("limit_enable"),
+                    dict.get("limit_value"),
+                    dict.get("after_download"),
+                    dict.get("gid_list"),
                 ],
             )
             .unwrap();
@@ -604,19 +577,19 @@ impl DataBase {
                 )
                 ",
                     [
-                        dict.get("file_name").unwrap(),
-                        dict.get("status").unwrap(),
-                        dict.get("size").unwrap(),
-                        dict.get("downloaded_size").unwrap(),
-                        dict.get("percent").unwrap(),
-                        dict.get("connections").unwrap(),
-                        dict.get("rate").unwrap(),
-                        dict.get("estimate_time_left").unwrap(),
-                        dict.get("gid").unwrap(),
-                        dict.get("link").unwrap(),
-                        dict.get("first_try_date").unwrap(),
-                        dict.get("last_try_date").unwrap(),
-                        dict.get("category").unwrap(),
+                        dict.get("file_name"),
+                        dict.get("status"),
+                        dict.get("size"),
+                        dict.get("downloaded_size"),
+                        dict.get("percent"),
+                        dict.get("connections"),
+                        dict.get("rate"),
+                        dict.get("estimate_time_left"),
+                        dict.get("gid"),
+                        dict.get("link"),
+                        dict.get("first_try_date"),
+                        dict.get("last_try_date"),
+                        dict.get("category"),
                     ],
                 )
                 .unwrap();
@@ -641,7 +614,7 @@ impl DataBase {
                 self.searchCategoryInCategoryTable("All Downloads").unwrap();
 
             // get gid_list
-            let re = Regex::new(r"\d+").unwrap();
+            let re = Regex::new(r"[\d\w]+").unwrap();
             let mut category_gid_list: Vec<_> = re
                 .find_iter(category_dict.get("gid_list").unwrap())
                 .map(|m| m.as_str())
@@ -694,24 +667,24 @@ impl DataBase {
                     )
                 ",
                     [
-                        dict.get("gid").unwrap(),
-                        dict.get("out").unwrap(),
-                        dict.get("start_time").unwrap(),
-                        dict.get("end_time").unwrap(),
-                        dict.get("link").unwrap(),
-                        dict.get("ip").unwrap(),
-                        dict.get("port").unwrap(),
-                        dict.get("proxy_user").unwrap(),
-                        dict.get("proxy_passwd").unwrap(),
-                        dict.get("download_user").unwrap(),
-                        dict.get("download_passwd").unwrap(),
-                        dict.get("connections").unwrap(),
-                        dict.get("limit_value").unwrap(),
-                        dict.get("download_path").unwrap(),
-                        dict.get("referer").unwrap(),
-                        dict.get("load_cookies").unwrap(),
-                        dict.get("user_agent").unwrap(),
-                        dict.get("header").unwrap(),
+                        dict.get("gid"),
+                        dict.get("out"),
+                        dict.get("start_time"),
+                        dict.get("end_time"),
+                        dict.get("link"),
+                        dict.get("ip"),
+                        dict.get("port"),
+                        dict.get("proxy_user"),
+                        dict.get("proxy_passwd"),
+                        dict.get("download_user"),
+                        dict.get("download_passwd"),
+                        dict.get("connections"),
+                        dict.get("limit_value"),
+                        dict.get("download_path"),
+                        dict.get("referer"),
+                        dict.get("load_cookies"),
+                        dict.get("user_agent"),
+                        dict.get("header"),
                     ],
                 )
                 .unwrap();
@@ -740,13 +713,13 @@ impl DataBase {
                         )
                     ",
                     [
-                        dict.get("video_gid").unwrap(),
-                        dict.get("audio_gid").unwrap(),
-                        dict.get("video_completed").unwrap(),
-                        dict.get("audio_completed").unwrap(),
-                        dict.get("muxing_status").unwrap(),
-                        dict.get("checking").unwrap(),
-                        dict.get("download_path").unwrap(),
+                        dict.get("video_gid"),
+                        dict.get("audio_gid"),
+                        dict.get("video_completed"),
+                        dict.get("audio_completed"),
+                        dict.get("muxing_status"),
+                        dict.get("checking"),
+                        dict.get("download_path"),
                     ],
                 )
                 .unwrap();
@@ -894,24 +867,63 @@ impl DataBase {
         let mut rows = stmt.query([gid]).unwrap();
         if let Some(row) = rows.next().unwrap() {
             return Some(HashMap::from([
-                ("gid".to_string(), row.get(1).unwrap()),
-                ("out".to_string(), row.get(2).unwrap()),
-                ("start_time".to_string(), row.get(3).unwrap()),
-                ("end_time".to_string(), row.get(4).unwrap()),
-                ("link".to_string(), row.get(5).unwrap()),
-                ("ip".to_string(), row.get(6).unwrap()),
-                ("port".to_string(), row.get(7).unwrap()),
-                ("proxy_user".to_string(), row.get(8).unwrap()),
-                ("proxy_passwd".to_string(), row.get(9).unwrap()),
-                ("download_user".to_string(), row.get(10).unwrap()),
-                ("download_passwd".to_string(), row.get(11).unwrap()),
-                ("connections".to_string(), row.get(12).unwrap()),
-                ("limit_value".to_string(), row.get(13).unwrap()),
-                ("download_path".to_string(), row.get(14).unwrap()),
-                ("referer".to_string(), row.get(15).unwrap()),
-                ("load_cookies".to_string(), row.get(16).unwrap()),
-                ("user_agent".to_string(), row.get(17).unwrap()),
-                ("header".to_string(), row.get(18).unwrap()),
+                ("gid".to_string(), row.get(1).unwrap_or("NULL".to_string())),
+                ("out".to_string(), row.get(2).unwrap_or("NULL".to_string())),
+                (
+                    "start_time".to_string(),
+                    row.get(3).unwrap_or("NULL".to_string()),
+                ),
+                (
+                    "end_time".to_string(),
+                    row.get(4).unwrap_or("NULL".to_string()),
+                ),
+                ("link".to_string(), row.get(5).unwrap_or("NULL".to_string())),
+                ("ip".to_string(), row.get(6).unwrap_or("NULL".to_string())),
+                ("port".to_string(), row.get(7).unwrap_or("NULL".to_string())),
+                (
+                    "proxy_user".to_string(),
+                    row.get(8).unwrap_or("NULL".to_string()),
+                ),
+                (
+                    "proxy_passwd".to_string(),
+                    row.get(9).unwrap_or("NULL".to_string()),
+                ),
+                (
+                    "download_user".to_string(),
+                    row.get(10).unwrap_or("NULL".to_string()),
+                ),
+                (
+                    "download_passwd".to_string(),
+                    row.get(11).unwrap_or("NULL".to_string()),
+                ),
+                (
+                    "connections".to_string(),
+                    row.get(12).unwrap_or("NULL".to_string()),
+                ),
+                (
+                    "limit_value".to_string(),
+                    row.get(13).unwrap_or("NULL".to_string()),
+                ),
+                (
+                    "download_path".to_string(),
+                    row.get(14).unwrap_or("NULL".to_string()),
+                ),
+                (
+                    "referer".to_string(),
+                    row.get(15).unwrap_or("NULL".to_string()),
+                ),
+                (
+                    "load_cookies".to_string(),
+                    row.get(16).unwrap_or("NULL".to_string()),
+                ),
+                (
+                    "user_agent".to_string(),
+                    row.get(17).unwrap_or("NULL".to_string()),
+                ),
+                (
+                    "header".to_string(),
+                    row.get(18).unwrap_or("NULL".to_string()),
+                ),
                 (
                     "after_download".to_string(),
                     row.get(19).unwrap_or("NULL".to_string()),
@@ -982,34 +994,8 @@ impl DataBase {
         // lock data base
         let mut connection = self.connection.lock().unwrap();
         let transaction = connection.transaction().unwrap();
-        transaction.execute("PRAGMA foreign_keys = ON", ()).unwrap();
 
-        let keys_list = [
-            "file_name",
-            "status",
-            "size",
-            "downloaded_size",
-            "percent",
-            "connections",
-            "rate",
-            "estimate_time_left",
-            "gid",
-            "link",
-            "first_try_date",
-            "last_try_date",
-            "category",
-        ];
-        for data in list {
-            let mut dict = HashMap::new();
-            dict.clone_from(&data);
-            for key in keys_list {
-                // if a key is missed in dict,
-                // then add this key to the dict and assign None value for the key.
-                if dict.get(key).is_none() {
-                    dict.insert(key, "NULL");
-                }
-            }
-
+        for dict in list {
             // update data base if value for the keys is not None
             transaction
                 .execute(
@@ -1030,19 +1016,19 @@ impl DataBase {
                 WHERE gid = ?13
             ",
                     [
-                        dict.get("file_name").unwrap(),
-                        dict.get("status").unwrap(),
-                        dict.get("size").unwrap(),
-                        dict.get("downloaded_size").unwrap(),
-                        dict.get("percent").unwrap(),
-                        dict.get("connections").unwrap(),
-                        dict.get("rate").unwrap(),
-                        dict.get("estimate_time_left").unwrap(),
-                        dict.get("link").unwrap(),
-                        dict.get("first_try_date").unwrap(),
-                        dict.get("last_try_date").unwrap(),
-                        dict.get("category").unwrap(),
-                        dict.get("gid").unwrap(),
+                        dict.get("file_name"),
+                        dict.get("status"),
+                        dict.get("size"),
+                        dict.get("downloaded_size"),
+                        dict.get("percent"),
+                        dict.get("connections"),
+                        dict.get("rate"),
+                        dict.get("estimate_time_left"),
+                        dict.get("link"),
+                        dict.get("first_try_date"),
+                        dict.get("last_try_date"),
+                        dict.get("category"),
+                        dict.get("gid"),
                     ],
                 )
                 .unwrap();
@@ -1056,29 +1042,7 @@ impl DataBase {
         let mut connection = self.connection.lock().unwrap();
         let transaction = connection.transaction().unwrap();
 
-        let keys_list = [
-            "category",
-            "start_time_enable",
-            "start_time",
-            "end_time_enable",
-            "end_time",
-            "reverse",
-            "limit_enable",
-            "limit_value",
-            "after_download",
-            "gid_list",
-        ];
-        for data in list {
-            let mut dict = HashMap::new();
-            dict.clone_from(&data);
-            for key in keys_list {
-                // if a key is missed in dict,
-                // then add this key to the dict and assign None value for the key.
-                if dict.get(key).is_none() {
-                    dict.insert(key, "NULL".to_string());
-                }
-            }
-
+        for dict in list {
             // update data base if value for the keys is not None
             transaction
                 .execute(
@@ -1096,16 +1060,16 @@ impl DataBase {
                     WHERE category = ?10
                     ",
                     [
-                        dict.get("start_time_enable").unwrap(),
-                        dict.get("start_time").unwrap(),
-                        dict.get("end_time_enable").unwrap(),
-                        dict.get("end_time").unwrap(),
-                        dict.get("reverse").unwrap(),
-                        dict.get("limit_enable").unwrap(),
-                        dict.get("limit_value").unwrap(),
-                        dict.get("after_download").unwrap(),
-                        dict.get("gid_list").unwrap(),
-                        dict.get("category").unwrap(),
+                        dict.get("start_time_enable"),
+                        dict.get("start_time"),
+                        dict.get("end_time_enable"),
+                        dict.get("end_time"),
+                        dict.get("reverse"),
+                        dict.get("limit_enable"),
+                        dict.get("limit_value"),
+                        dict.get("after_download"),
+                        dict.get("gid_list"),
+                        dict.get("category"),
                     ],
                 )
                 .unwrap();
@@ -1118,38 +1082,7 @@ impl DataBase {
         let mut connection = self.connection.lock().unwrap();
         let transaction = connection.transaction().unwrap();
 
-        let keys_list = [
-            "gid",
-            "out",
-            "start_time",
-            "end_time",
-            "link",
-            "ip",
-            "port",
-            "proxy_user",
-            "proxy_passwd",
-            "download_user",
-            "download_passwd",
-            "connections",
-            "limit_value",
-            "download_path",
-            "referer",
-            "load_cookies",
-            "user_agent",
-            "header",
-            "after_download",
-        ];
-        for data in list {
-            let mut dict = HashMap::new();
-            dict.clone_from(&data);
-            for key in keys_list {
-                // if a key is missed in dict,
-                // then add this key to the dict and assign None value for the key.
-                if dict.get(key).is_none() {
-                    dict.insert(key, "NULL");
-                }
-            }
-
+        for dict in list {
             // update data base if value for the keys is not None
             transaction
                 .execute(
@@ -1171,30 +1104,30 @@ impl DataBase {
                     referer = coalesce(?14, referer),
                     load_cookies = coalesce(?15, load_cookies),
                     user_agent = coalesce(?16, user_agent),
-                    header = coalesce(?16, header),
-                    after_download = coalesce(?17 , after_download)
-                    WHERE gid = ?18
+                    header = coalesce(?17, header),
+                    after_download = coalesce(?18 , after_download)
+                    WHERE gid = ?19
                     ",
                     [
-                        dict.get("out").unwrap(),
-                        dict.get("start_time").unwrap(),
-                        dict.get("end_time").unwrap(),
-                        dict.get("link").unwrap(),
-                        dict.get("ip").unwrap(),
-                        dict.get("port").unwrap(),
-                        dict.get("proxy_user").unwrap(),
-                        dict.get("proxy_passwd").unwrap(),
-                        dict.get("download_user").unwrap(),
-                        dict.get("download_passwd").unwrap(),
-                        dict.get("connections").unwrap(),
-                        dict.get("limit_value").unwrap(),
-                        dict.get("download_path").unwrap(),
-                        dict.get("referer").unwrap(),
-                        dict.get("load_cookies").unwrap(),
-                        dict.get("user_agent").unwrap(),
-                        dict.get("header").unwrap(),
-                        dict.get("after_download").unwrap(),
-                        dict.get("gid").unwrap(),
+                        dict.get("out"),
+                        dict.get("start_time"),
+                        dict.get("end_time"),
+                        dict.get("link"),
+                        dict.get("ip"),
+                        dict.get("port"),
+                        dict.get("proxy_user"),
+                        dict.get("proxy_passwd"),
+                        dict.get("download_user"),
+                        dict.get("download_passwd"),
+                        dict.get("connections"),
+                        dict.get("limit_value"),
+                        dict.get("download_path"),
+                        dict.get("referer"),
+                        dict.get("load_cookies"),
+                        dict.get("user_agent"),
+                        dict.get("header"),
+                        dict.get("after_download"),
+                        dict.get("gid"),
                     ],
                 )
                 .unwrap();
@@ -1207,26 +1140,8 @@ impl DataBase {
         let mut connection = self.connection.lock().unwrap();
         let transaction = connection.transaction().unwrap();
 
-        let keys_list = [
-            "video_gid",
-            "audio_gid",
-            "video_completed",
-            "audio_completed",
-            "muxing_status",
-            "checking",
-        ];
-        for data in list {
-            let mut dict = HashMap::new();
-            dict.clone_from(&data);
-            for key in keys_list {
-                // if a key is missed in dict,
-                // then add this key to the dict and assign None value for the key.
-                if dict.get(key).is_none() {
-                    dict.insert(key, "NULL");
-                }
-            }
-
-            if dict.get("video_gid").unwrap() == &"NULL" {
+        for dict in list {
+            if dict.get("video_gid").is_none() {
                 // update data base if value for the keys is not None
                 transaction
                     .execute(
@@ -1240,16 +1155,16 @@ impl DataBase {
                         WHERE video_gid = ?6
                         ",
                         [
-                            dict.get("video_completed").unwrap(),
-                            dict.get("audio_completed").unwrap(),
-                            dict.get("muxing_status").unwrap(),
-                            dict.get("checking").unwrap(),
-                            dict.get("download_path").unwrap(),
-                            dict.get("video_gid").unwrap(),
+                            dict.get("video_completed"),
+                            dict.get("audio_completed"),
+                            dict.get("muxing_status"),
+                            dict.get("checking"),
+                            dict.get("download_path"),
+                            dict.get("video_gid"),
                         ],
                     )
                     .unwrap();
-            } else if dict.get("audio_gid").unwrap() == &"NULL" {
+            } else if dict.get("audio_gid").is_none() {
                 // update data base if value for the keys is not None
                 transaction
                     .execute(
@@ -1263,12 +1178,12 @@ impl DataBase {
                         WHERE video_gid = ?6
                         ",
                         [
-                            dict.get("video_completed").unwrap(),
-                            dict.get("audio_completed").unwrap(),
-                            dict.get("muxing_status").unwrap(),
-                            dict.get("checking").unwrap(),
-                            dict.get("download_path").unwrap(),
-                            dict.get("video_gid").unwrap(),
+                            dict.get("video_completed"),
+                            dict.get("audio_completed"),
+                            dict.get("muxing_status"),
+                            dict.get("checking"),
+                            dict.get("download_path"),
+                            dict.get("video_gid"),
                         ],
                     )
                     .unwrap();
@@ -1541,7 +1456,7 @@ impl DataBase {
         let mut all_downloads_dict = self.searchCategoryInCategoryTable("All Downloads").unwrap();
 
         // get gid_list
-        let re = Regex::new(r"\d+").unwrap();
+        let re = Regex::new(r"[\d\w]+").unwrap();
         let category_gid_list: Vec<_> = re
             .find_iter(category_dict.get("gid_list").unwrap())
             .map(|m| m.as_str())

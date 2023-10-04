@@ -95,6 +95,10 @@ def downloadAria(gid, parent):
     # get information from data_base
     add_link_dictionary = parent.persepolis_db.searchGidInAddLinkTable(gid)
 
+    for key in add_link_dictionary:
+        if add_link_dictionary[key] == "None":
+            add_link_dictionary[key] = None
+
     link = add_link_dictionary['link']
     ip = add_link_dictionary['ip']
     port = add_link_dictionary['port']
