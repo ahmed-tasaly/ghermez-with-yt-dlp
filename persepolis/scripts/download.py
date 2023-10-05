@@ -96,7 +96,7 @@ def downloadAria(gid, parent):
     add_link_dictionary = parent.persepolis_db.searchGidInAddLinkTable(gid)
 
     for key in add_link_dictionary:
-        if add_link_dictionary[key] == "None":
+        if add_link_dictionary[key] == "NULL":
             add_link_dictionary[key] = None
 
     link = add_link_dictionary['link']
@@ -475,13 +475,13 @@ def convertDownloadInformation(download_status):
     # find number of connections
     try:
         connections_str = str(download_status['connections'])
-    except UnicodeEncodeError:
+    except (UnicodeEncodeError, KeyError):
         connections_str = None
 
     # find status of download
     try:
         status_str = str(download_status['status'])
-    except UnicodeEncodeError:
+    except (UnicodeEncodeError, KeyError):
         status_str = None
 
     # rename active status to downloading
