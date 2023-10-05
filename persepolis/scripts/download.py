@@ -27,6 +27,7 @@ import time
 import ast
 import os
 
+from persepolis.constants import ORG_NAME, APP_NAME
 import ghermez
 from ghermez import humanReadableSize
 
@@ -45,7 +46,7 @@ home_address = os.path.expanduser("~")
 os_type = platform.system()
 
 # persepolis setting
-persepolis_setting = QSettings('persepolis_download_manager', 'persepolis')
+persepolis_setting = QSettings(ORG_NAME, APP_NAME)
 
 # host is localhost
 host = 'localhost'

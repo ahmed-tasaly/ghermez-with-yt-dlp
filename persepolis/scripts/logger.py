@@ -14,6 +14,7 @@
 #
 
 from ghermez import determineConfigFolder
+from persepolis.constants import APP_NAME
 from persepolis.scripts.osCommands import touch
 import logging
 import os
@@ -26,13 +27,13 @@ if not os.path.exists(config_folder):
     os.makedirs(config_folder)
 
 # log file address
-log_file = os.path.join(str(config_folder), 'persepolisdm.log')
+log_file = os.path.join(str(config_folder), f'{APP_NAME}dm.log')
 
 if not os.path.isfile(log_file):
     touch(log_file)
 
 # define logging object
-logObj = logging.getLogger("Persepolis")
+logObj = logging.getLogger(APP_NAME.capitalize())
 logObj.setLevel(logging.INFO)
 
 # don't show log in console

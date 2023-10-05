@@ -33,6 +33,7 @@ except ImportError:
     from PyQt5 import QtCore
     from PyQt5.QtGui import QIcon
 
+from persepolis.constants import APP_NAME
 from persepolis.gui import resources # noqa: F401
 from persepolis.gui.customized_widgets import MyQDateTimeEdit
 
@@ -62,7 +63,7 @@ class AddLinkWindow_Ui(QWidget):
             str(self.persepolis_setting.value('settings/icons')) + '/'
 
         self.setMinimumSize(QtCore.QSize(520, 425))
-        self.setWindowIcon(QIcon.fromTheme('persepolis', QIcon(':/persepolis.svg')))
+        self.setWindowIcon(QIcon.fromTheme(APP_NAME, QIcon(':/ghermez.png')))
 
         # main layout
         window_verticalLayout = QVBoxLayout()

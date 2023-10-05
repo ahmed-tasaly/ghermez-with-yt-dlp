@@ -22,6 +22,7 @@ except ImportError:
     from PyQt5.QtCore import Qt, QSize, QSettings
     from PyQt5.QtGui import QIcon
 
+from persepolis.constants import ORG_NAME, APP_NAME, LONG_NAME, REPO_LINK
 from persepolis.scripts import osCommands
 from persepolis.gui import resources # noqa: F401
 
@@ -32,8 +33,8 @@ class ErrorWindow(QWidget):
         super().__init__()
 # finding windows_size
         self.setMinimumSize(QSize(363, 300))
-        self.setWindowIcon(QIcon.fromTheme('persepolis', QIcon(':/persepolis.svg')))
-        self.setWindowTitle('Persepolis Download Manager')
+        self.setWindowIcon(QIcon.fromTheme(APP_NAME, QIcon(':/ghermez.png')))
+        self.setWindowTitle(LONG_NAME)
 
         verticalLayout = QVBoxLayout(self)
         horizontalLayout = QHBoxLayout()
@@ -69,7 +70,7 @@ class ErrorWindow(QWidget):
         self.close_pushButton.clicked.connect(self.closePushButtonPressed)
 
     def reportPushButtonPressed(self, button):
-        osCommands.xdgOpen('https://github.com/persepolisdm/persepolis/issues')
+        osCommands.xdgOpen(f'{REPO_LINK}/issues')
 
     # close window with ESC key
     def keyPressEvent(self, event):
@@ -92,6 +93,6 @@ class ErrorWindow(QWidget):
         del persepolis_db
 
         # Reset persepolis_setting
-        persepolis_setting = QSettings('persepolis_download_manager', 'persepolis')
+        persepolis_setting = QSettings(ORG_NAME, APP_NAME)
         persepolis_setting.clear()
         persepolis_setting.sync()

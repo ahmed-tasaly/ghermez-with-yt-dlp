@@ -22,6 +22,7 @@ except ImportError:
     from PyQt5.QtCore import Qt, QTranslator, QCoreApplication, QLocale
     from PyQt5.QtGui import QIcon
 
+from persepolis.constants import APP_NAME
 from persepolis.gui import resources # noqa: F401
 
 class AfterDownloadWindow_Ui(QWidget):
@@ -48,7 +49,7 @@ class AfterDownloadWindow_Ui(QWidget):
 
         icons = ':/' + str(self.persepolis_setting.value('settings/icons')) + '/'
 
-        self.setWindowIcon(QIcon.fromTheme('persepolis', QIcon(':/persepolis.svg')))
+        self.setWindowIcon(QIcon.fromTheme(APP_NAME, QIcon(':/ghermez.png')))
         self.setWindowTitle(QCoreApplication.translate("after_download_ui_tr", "Persepolis Download Manager"))
 
         # complete_label

@@ -18,6 +18,7 @@
 
 from persepolis.scripts.useful_tools import returnDefaultSettings
 from persepolis.scripts.browser_integration import browserIntegration
+from persepolis.constants import ORG_NAME, APP_NAME
 from persepolis.scripts import osCommands
 import os
 
@@ -69,7 +70,7 @@ del plugins_db
 # persepolis is using QSettings for saving windows size and windows
 # position and program settings.
 
-persepolis_setting = QSettings('persepolis_download_manager', 'persepolis')
+persepolis_setting = QSettings(ORG_NAME, APP_NAME)
 
 persepolis_setting.beginGroup('settings')
 

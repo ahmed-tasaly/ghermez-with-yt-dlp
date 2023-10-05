@@ -24,7 +24,7 @@ except ImportError:
     from PyQt5.QtGui import QIcon
 
 
-from persepolis.constants import OS
+from persepolis.constants import OS, APP_NAME, LONG_NAME, VERSION, REPO_LINK
 from persepolis.scripts import osCommands
 import platform
 import requests
@@ -42,7 +42,7 @@ class checkupdate(QWidget):
         self.persepolis_setting = persepolis_setting
         # icons = ':/' + \
         #     str(self.persepolis_setting.value('settings/icons')) + '/'
-        self.setWindowIcon(QIcon.fromTheme('persepolis', QIcon(':/persepolis.svg')))
+        self.setWindowIcon(QIcon.fromTheme(APP_NAME, QIcon(':/ghermez.png')))
 
 # add support for other languages
         locale = str(self.persepolis_setting.value('settings/locale'))
@@ -58,18 +58,18 @@ class checkupdate(QWidget):
 
         # first line text
         self.update_label = QLabel(QCoreApplication.translate(
-            "update_src_ui_tr", "The newest is the best, we recommend to update Persepolis."))
+            "update_src_ui_tr", f"The newest is the best, we recommend to update {APP_NAME.capitalize()}."))
         self.update_label.setTextFormat(QtCore.Qt.RichText)
         self.update_label.setAlignment(QtCore.Qt.AlignCenter)
 
         # second line text
         self.version_label = QLabel(QCoreApplication.translate(
-            "update_src_ui_tr", 'This is Persepolis Download Manager version 3.2.0'))
+            "update_src_ui_tr", f'This is {LONG_NAME} version {VERSION}'))
         self.version_label.setAlignment(QtCore.Qt.AlignCenter)
 
         # release link
         self.link_label = QLabel(
-            '<a href=https://github.com/persepolisdm/persepolis/releases>https://github.com/persepolisdm/persepolis/releases</a>')
+            f'<a href={REPO_LINK}/releases>{REPO_LINK}/releases</a>')
         self.link_label.setAlignment(QtCore.Qt.AlignCenter)
         self.link_label.setOpenExternalLinks(True)
 
@@ -123,7 +123,7 @@ class checkupdate(QWidget):
             # Comparison
             if float(server_version) > float(self.client_version):
                 self.status_label.setText(QCoreApplication.translate(
-                    "update_src_ui_tr", 'A newer Persepolis release is available'))
+                    "update_src_ui_tr", f'A newer {APP_NAME.capitalize()} release is available'))
 
                 if os_type == OS.WINDOWS:
                     self.winUpdatedl()  # this function download latest release

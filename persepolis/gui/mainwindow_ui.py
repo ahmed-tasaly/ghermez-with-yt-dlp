@@ -31,6 +31,7 @@ except ImportError:
     from PyQt5.QtGui import QCursor, QIcon, QStandardItemModel
     from PyQt5.QtCore import QCoreApplication, QRect, Qt, QTranslator, QLocale
 
+from persepolis.constants import LONG_NAME
 from persepolis.gui import resources # noqa: F401
 from persepolis.gui.customized_widgets import MyQDateTimeEdit
 
@@ -233,8 +234,8 @@ class MainWindow_Ui(QMainWindow):
         icons = ':/' + \
             str(self.persepolis_setting.value('settings/icons')) + '/'
 
-        self.setWindowTitle(QCoreApplication.translate("mainwindow_ui_tr", "Persepolis Download Manager"))
-        self.setWindowIcon(QIcon.fromTheme('persepolis', QIcon(':/persepolis.svg')))
+        self.setWindowTitle(QCoreApplication.translate("mainwindow_ui_tr", LONG_NAME))
+        self.setWindowIcon(QIcon(':/ghermez.png'))
 
         self.centralwidget = QWidget(self)
         self.verticalLayout = QVBoxLayout(self.centralwidget)

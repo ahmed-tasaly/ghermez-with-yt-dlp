@@ -24,6 +24,7 @@ except ImportError:
     from PyQt5.QtGui import QIcon
     from PyQt5 import QtCore
 
+from persepolis.constants import APP_NAME
 from persepolis.gui import resources # noqa: F401
 
 class LogWindow_Ui(QWidget):
@@ -53,7 +54,7 @@ class LogWindow_Ui(QWidget):
 
         # finding windows_size
         self.setMinimumSize(QtCore.QSize(620, 300))
-        self.setWindowIcon(QIcon.fromTheme('persepolis', QIcon(':/persepolis.svg')))
+        self.setWindowIcon(QIcon.fromTheme(APP_NAME, QIcon(':/ghermez.png')))
 
         verticalLayout = QVBoxLayout(self)
         horizontalLayout = QHBoxLayout()

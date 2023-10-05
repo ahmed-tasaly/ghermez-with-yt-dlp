@@ -17,7 +17,7 @@ try:
 except ImportError:
     from PyQt5.QtWidgets import QStyleFactory
 
-from persepolis.constants.Os import OS
+from persepolis.constants import OS
 import urllib.parse
 import subprocess
 import platform

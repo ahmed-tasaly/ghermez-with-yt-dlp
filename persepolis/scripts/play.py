@@ -18,7 +18,7 @@ except ImportError:
     from PyQt5.QtCore import QSettings
 
 from persepolis.scripts import logger
-from persepolis.constants import OS
+from persepolis.constants import OS, ORG_NAME, APP_NAME
 import subprocess
 import platform
 
@@ -27,7 +27,7 @@ os_type = platform.system()
 
 def playNotification(file):
     # getting user setting from persepolis_setting
-    persepolis_setting = QSettings('persepolis_download_manager', 'persepolis')
+    persepolis_setting = QSettings(ORG_NAME, APP_NAME)
 
     # enabling or disabling notification sound in persepolis_setting
     enable_notification = str(persepolis_setting.value('settings/sound'))

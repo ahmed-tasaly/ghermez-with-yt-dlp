@@ -28,6 +28,7 @@ except ImportError:
     from PyQt5.QtCore import Qt, QTranslator, QCoreApplication, QLocale
     from PyQt5.QtGui import QIcon
 
+from persepolis.constants import APP_NAME
 from persepolis.gui.customized_widgets import MyQDateTimeEdit
 from persepolis.gui import resources # noqa: F401
 
@@ -43,7 +44,7 @@ class KeyCapturingWindow_Ui(QWidget):
         if self.translator.load(':/translations/locales/ui_' + locale, 'ts'):
             QCoreApplication.installTranslator(self.translator)
 
-        self.setWindowIcon(QIcon.fromTheme('persepolis', QIcon(':/persepolis.svg')))
+        self.setWindowIcon(QIcon.fromTheme(APP_NAME, QIcon(':/ghermez.png')))
         self.setWindowTitle(QCoreApplication.translate("setting_ui_tr", 'Preferences'))
 
         # set ui direction
@@ -99,7 +100,7 @@ class Setting_Ui(QWidget):
         if self.translator.load(':/translations/locales/ui_' + locale, 'ts'):
             QCoreApplication.installTranslator(self.translator)
 
-        self.setWindowIcon(QIcon.fromTheme('persepolis', QIcon(':/persepolis.svg')))
+        self.setWindowIcon(QIcon.fromTheme(APP_NAME, QIcon(':/ghermez.png')))
         self.setWindowTitle(QCoreApplication.translate("setting_ui_tr", 'Preferences'))
 
         # set ui direction

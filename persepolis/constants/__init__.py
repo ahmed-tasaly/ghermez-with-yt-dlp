@@ -19,3 +19,10 @@
 
 from .Os import OS
 from .Browser import BROWSER
+
+APP_NAME = "ghermez"
+ORG_NAME = "ghermez_download_manager"
+LONG_NAME = "Ghermez Download Manager"
+VERSION = "0.0.1"
+LICENSE = "GPL-v3"
+REPO_LINK = "https://github.com/IamRezaMousavi/ghermez"

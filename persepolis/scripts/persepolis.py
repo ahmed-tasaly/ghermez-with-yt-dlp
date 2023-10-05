@@ -31,7 +31,7 @@ import struct
 import argparse
 from persepolis.scripts import osCommands
 from ghermez import osAndDesktopEnvironment, determineConfigFolder
-from persepolis.constants import OS
+from persepolis.constants import OS, APP_NAME, LONG_NAME, ORG_NAME, VERSION
 from copy import deepcopy
 import sys
 import os
@@ -82,7 +82,7 @@ else:  # for windows
     from win32api import GetLastError
     from winerror import ERROR_ALREADY_EXISTS
 
-    handle = CreateMutex(None, 1, 'persepolis_download_manager')
+    handle = CreateMutex(None, 1, ORG_NAME)
 
     if GetLastError() == ERROR_ALREADY_EXISTS:
         lock_file_validation = False
@@ -98,14 +98,14 @@ if lock_file_validation:
     if os_type in OS.UNIX_LIKE:
         try:
             from setproctitle import setproctitle
-            setproctitle("persepolis")
+            setproctitle(APP_NAME)
         except ImportError:
             from persepolis.scripts import logger
             logger.sendToLog('setproctitle is not installed!', "ERROR")
 
 
 # load persepolis_settings
-persepolis_setting = QSettings('persepolis_download_manager', 'persepolis')
+persepolis_setting = QSettings(ORG_NAME, APP_NAME)
 
 
 class PersepolisApplication(QApplication):
@@ -146,7 +146,7 @@ class PersepolisApplication(QApplication):
 
 
 # create  terminal arguments
-parser = argparse.ArgumentParser(description='Persepolis Download Manager')
+parser = argparse.ArgumentParser(description=LONG_NAME)
 # parser.add_argument('chromium', nargs = '?', default = 'no',
 #                     help='this switch is used for chrome native messaging in Linux and Mac')
 parser.add_argument('--link', action='store', nargs=1, help='Download link.(Use "" for links)')
@@ -166,7 +166,7 @@ parser.add_argument('--tray', action='store_true',
                         It's useful when you want to put persepolis in system's startup.")
 parser.add_argument('--parent-window', action='store', nargs=1,
                     help='this switch is used for chrome native messaging in Windows')
-parser.add_argument('--version', action='version', version='Persepolis Download Manager 3.2.0')
+parser.add_argument('--version', action='version', version=f'{LONG_NAME} {VERSION}')
 
 
 # Clears unwanted args ( like args from Browers via NHM )
@@ -409,8 +409,8 @@ def main():
             logger.sendToLog('Qt.AA_UseHighDpiPixmaps is not available!', "ERROR")
 
         # set organization name and domain and application name
-        QCoreApplication.setOrganizationName('persepolis_download_manager')
-        QCoreApplication.setApplicationName('persepolis')
+        QCoreApplication.setOrganizationName(ORG_NAME)
+        QCoreApplication.setApplicationName(APP_NAME)
 
         # Persepolis setting
         persepolis_download_manager.setting = QSettings()

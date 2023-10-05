@@ -20,8 +20,10 @@ except ImportError:
     from PyQt5.QtWidgets import QDateTimeEdit
     from PyQt5.QtCore import QSettings, Qt
 
+from persepolis.constants import ORG_NAME, APP_NAME
+
 # import persepolis_setting
-persepolis_setting = QSettings('persepolis_download_manager', 'persepolis')
+persepolis_setting = QSettings(ORG_NAME, APP_NAME)
 
 # check ui_direction RTL or LTR
 ui_direction = persepolis_setting.value('ui_direction')

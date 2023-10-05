@@ -30,6 +30,7 @@ except ImportError:
     from PyQt5.QtCore import Qt, QTranslator, QCoreApplication, QLocale, QSize
     from PyQt5.QtGui import QIcon
 
+from persepolis.constants import APP_NAME, LONG_NAME
 from persepolis.gui import resources # noqa: F401
 
 class ProgressWindow_Ui(QWidget):
@@ -58,8 +59,8 @@ class ProgressWindow_Ui(QWidget):
 # window
         self.setMinimumSize(QSize(595, 284))
 
-        self.setWindowIcon(QIcon.fromTheme('persepolis', QIcon(':/persepolis.svg')))
-        self.setWindowTitle(QCoreApplication.translate("progress_ui_tr", "Persepolis Download Manager"))
+        self.setWindowIcon(QIcon.fromTheme(APP_NAME, QIcon(':/ghermez.png')))
+        self.setWindowTitle(QCoreApplication.translate("progress_ui_tr", LONG_NAME))
 
         verticalLayout = QVBoxLayout(self)
 

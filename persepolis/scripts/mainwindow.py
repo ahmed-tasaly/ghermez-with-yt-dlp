@@ -58,7 +58,7 @@ from persepolis.scripts import download
 from persepolis.scripts import logger
 from persepolis.scripts import spider
 from persepolis.gui import resources # noqa: F401
-from persepolis.constants import OS
+from persepolis.constants import OS, APP_NAME, REPO_LINK
 from functools import partial
 from copy import deepcopy
 from time import sleep
@@ -985,7 +985,7 @@ class Queue(QThread):
                         self.REFRESHTOOLBARSIGNAL.emit(self.category)
 
                     # show notification
-                    notifySend(QCoreApplication.translate("mainwindow_src_ui_tr", "Persepolis"),
+                    notifySend(QCoreApplication.translate("mainwindow_src_ui_tr", APP_NAME.capitalize()),
                                QCoreApplication.translate("mainwindow_src_ui_tr", "Queue Stopped!"),
                                10000, 'no', parent=self.parent)
 
@@ -1254,7 +1254,7 @@ class MainWindow(MainWindow_Ui):
 # system_tray_icon
         self.system_tray_icon = QSystemTrayIcon()
         self.system_tray_icon.setIcon(
-            QIcon.fromTheme('persepolis-tray', QIcon(':/persepolis-tray.svg')))
+            QIcon(':/ghermez.png'))
 
         # menu of system tray icon
         system_tray_menu = QMenu()
@@ -5272,11 +5272,11 @@ class MainWindow(MainWindow_Ui):
 
     # this method opens issues page in github
     def reportIssue(self, menu=None):
-        osCommands.xdgOpen('https://github.com/persepolisdm/persepolis/issues')
+        osCommands.xdgOpen(f'{REPO_LINK}/issues')
 
     # this method opens persepolis wiki page in github
     def persepolisHelp(self, menu=None):
-        osCommands.xdgOpen('https://github.com/persepolisdm/persepolis/wiki')
+        osCommands.xdgOpen(f'https://github.com/persepolisdm/persepolis/wiki')
 
     # this method opens update menu
 

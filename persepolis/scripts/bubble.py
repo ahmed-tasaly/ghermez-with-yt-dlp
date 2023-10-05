@@ -15,7 +15,7 @@
 
 from persepolis.scripts.play import playNotification
 from persepolis.gui import resources # noqa: F401
-from persepolis.constants import OS
+from persepolis.constants import OS, APP_NAME, ORG_NAME, LONG_NAME
 import subprocess
 import platform
 import os
@@ -71,7 +71,7 @@ def notifySend(message1, message2, time, sound, parent=None):
         playNotification(str(file))
 
     # load settings
-    persepolis_setting = QSettings('persepolis_download_manager', 'persepolis')
+    persepolis_setting = QSettings(ORG_NAME, APP_NAME)
 
     enable_notification = persepolis_setting.value('settings/notification')
 
@@ -86,8 +86,8 @@ def notifySend(message1, message2, time, sound, parent=None):
         )
     else:
         if os_type in OS.UNIX_LIKE:
-            subprocess.Popen(['notify-send', '--icon', 'persepolis',
-                              '--app-name', 'Persepolis Download Manager',
+            subprocess.Popen(['notify-send', '--icon', APP_NAME,
+                              '--app-name', LONG_NAME,
                               '--expire-time', time,
                               message1, message2],
                              stderr=subprocess.PIPE,
@@ -96,7 +96,7 @@ def notifySend(message1, message2, time, sound, parent=None):
                              shell=False)
 
         elif os_type == OS.OSX:
-            notifyMac("Persepolis Download Manager", message1, message2)
+            notifyMac(LONG_NAME, message1, message2)
 
         elif os_type == OS.WINDOWS:
             message = Windows_Notification(parent=parent, time=time, text1=message1,

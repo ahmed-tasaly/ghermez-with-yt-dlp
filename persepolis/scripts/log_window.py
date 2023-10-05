@@ -15,6 +15,7 @@
 from ghermez import determineConfigFolder
 from persepolis.gui.log_window_ui import LogWindow_Ui
 from persepolis.scripts import osCommands
+from persepolis.constants import REPO_LINK
 import os
 
 try:
@@ -89,7 +90,7 @@ class LogWindow(LogWindow_Ui):
         self.text_edit.insertPlainText(self.text)
 
     def reportPushButtonPressed(self, button):
-        osCommands.xdgOpen('https://github.com/persepolisdm/persepolis/issues')
+        osCommands.xdgOpen(f'{REPO_LINK}/issues')
 
     def closePushButtonPressed(self, button):
         self.close()

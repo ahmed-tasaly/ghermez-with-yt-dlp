@@ -31,6 +31,7 @@ except ImportError:
     from PyQt5.QtCore import Qt, QTranslator, QCoreApplication, QLocale
     from PyQt5.QtGui import QIcon
 
+from persepolis.constants import APP_NAME, LONG_NAME
 from persepolis.gui import resources # noqa: F401
 
 class TextQueue_Ui(QWidget):
@@ -57,7 +58,7 @@ class TextQueue_Ui(QWidget):
         elif ui_direction in 'ltr':
             self.setLayoutDirection(Qt.LeftToRight)
 
-        self.setWindowIcon(QIcon.fromTheme('persepolis', QIcon(':/persepolis.svg')))
+        self.setWindowIcon(QIcon.fromTheme(APP_NAME, QIcon(':/ghermez.png')))
         window_verticalLayout = QVBoxLayout()
         self.setLayout(window_verticalLayout)
 
@@ -276,7 +277,7 @@ class TextQueue_Ui(QWidget):
         window_verticalLayout.addLayout(buttons_horizontalLayout)
 
         # labels
-        self.setWindowTitle(QCoreApplication.translate("text_ui_tr", "Persepolis Download Manager"))
+        self.setWindowTitle(QCoreApplication.translate("text_ui_tr", LONG_NAME))
 
         self.queue_tabWidget.setTabText(
             self.queue_tabWidget.indexOf(self.links_tab), QCoreApplication.translate("text_ui_tr", 'Links'))
