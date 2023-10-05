@@ -356,10 +356,13 @@ impl DataBase {
     fn new() -> Self {
         let connection = Arc::new(Mutex::new(Connection::open("ghermez.db").unwrap()));
 
-        let mut cnn = connection.lock().unwrap();
-        cnn.trace(Some(|s| {
-            println!("{s}");
-        }));
+        let cnn = connection.lock().unwrap();
+
+        // To debuging
+        // cnn.trace(Some(|s| {
+        //     println!("{s}");
+        // }));
+
         // turn FOREIGN KEY Support on!
         cnn.execute("PRAGMA foreign_keys = ON", ()).unwrap();
         drop(cnn);
@@ -1141,7 +1144,7 @@ impl DataBase {
         let transaction = connection.transaction().unwrap();
 
         for dict in list {
-            if dict.get("video_gid").is_none() {
+            if dict.get("video_gid").is_some() {
                 // update data base if value for the keys is not None
                 transaction
                     .execute(
@@ -1164,7 +1167,7 @@ impl DataBase {
                         ],
                     )
                     .unwrap();
-            } else if dict.get("audio_gid").is_none() {
+            } else if dict.get("audio_gid").is_some() {
                 // update data base if value for the keys is not None
                 transaction
                     .execute(
@@ -1175,7 +1178,7 @@ impl DataBase {
                         muxing_status = coalesce(?3, muxing_status),
                         checking = coalesce(?4, checking),
                         download_path = coalesce(?5, download_path)
-                        WHERE video_gid = ?6
+                        WHERE audio_gid = ?6
                         ",
                         [
                             dict.get("video_completed"),
@@ -1183,7 +1186,7 @@ impl DataBase {
                             dict.get("muxing_status"),
                             dict.get("checking"),
                             dict.get("download_path"),
-                            dict.get("video_gid"),
+                            dict.get("audio_gid"),
                         ],
                     )
                     .unwrap();
