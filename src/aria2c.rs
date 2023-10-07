@@ -48,22 +48,16 @@ pub fn startAria(port: u16, _aria2_path: Option<String>) -> Option<String> {
 
     #[cfg(target_os = "macos")]
     {
-        let aria2d;
-        if _aria2_path.is_none()
+        let aria2d = if _aria2_path.is_none()
             || _aria2_path
                 .as_ref()
                 .is_some_and(|x| x == "" || !Path::new(&x).is_file())
         {
-            let args: Vec<String> = env::args().collect();
-            let current_directory = &args[0];
-            let aria2 = Path::new(current_directory)
-                .parent()
-                .unwrap()
-                .join("aria2c");
-            aria2d = aria2.to_str().unwrap().to_string();
+            let aria2 = env::current_dir().unwrap().join("aria2c.exe");
+            aria2.to_str().unwrap().to_string()
         } else {
-            aria2d = _aria2_path.as_ref().unwrap().to_string();
-        }
+            _aria2_path.as_ref().unwrap().to_string()
+        };
         if !Path::new(&aria2d).exists() {
             error!("Aria2 does not exist in the current path!");
             return None;
@@ -87,22 +81,17 @@ pub fn startAria(port: u16, _aria2_path: Option<String>) -> Option<String> {
 
     #[cfg(target_os = "windows")]
     {
-        let aria2d;
-        if _aria2_path.is_none()
+        let aria2d = if _aria2_path.is_none()
             || _aria2_path
                 .as_ref()
-                .is_some_and(|x| x == "" || !Path::new(&x).is_file())
+                .is_some_and(|x| x.is_empty() || !Path::new(&x).is_file())
         {
-            let args: Vec<String> = env::args().collect();
-            let current_directory = &args[0];
-            let aria2 = Path::new(current_directory)
-                .parent()
-                .unwrap()
-                .join("aria2c.exe");
-            aria2d = aria2.to_str().unwrap().to_string();
+            let aria2 = env::current_dir().unwrap().join("aria2c.exe");
+            aria2.to_str().unwrap().to_string()
         } else {
-            aria2d = _aria2_path.as_ref().unwrap().to_string();
-        }
+            _aria2_path.as_ref().unwrap().to_string()
+        };
+        println!("aria2d: {aria2d}");
         if !Path::new(&aria2d).exists() {
             error!("Aria2 does not exist in the current path!");
             return None;

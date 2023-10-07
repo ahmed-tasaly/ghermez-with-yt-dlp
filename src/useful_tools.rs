@@ -1,10 +1,10 @@
 #![allow(non_snake_case)]
+#![allow(unused_assignments)]
 
-use std::{
-    collections::HashMap,
-    env, fs,
-    path::{Path, PathBuf},
-};
+use std::{collections::HashMap, path::PathBuf};
+
+#[cfg(not(target_os = "windows"))]
+use std::{env, fs, path::Path};
 
 use home::home_dir;
 use once_cell::sync::Lazy;
@@ -16,17 +16,16 @@ static HOME_ADDRESS: Lazy<PathBuf> = Lazy::new(|| home_dir().unwrap());
 #[pyfunction]
 pub fn determineConfigFolder() -> PathBuf {
     #[cfg(target_os = "linux")]
-    let config_folder = HOME_ADDRESS.join(".config/persepolis_download_manager");
+    let config_folder = HOME_ADDRESS.join(".config/ghermez_download_manager");
 
     #[cfg(target_os = "macos")]
-    let config_folder =
-        HOME_ADDRESS.join("Library/Application Support/persepolis_download_manager");
+    let config_folder = HOME_ADDRESS.join("Library/Application Support/ghermez_download_manager");
 
     #[cfg(target_os = "windows")]
     let config_folder = HOME_ADDRESS
         .join("AppData")
         .join("Local")
-        .join("persepolis_download_manager");
+        .join("ghermez_download_manager");
 
     config_folder
 }
@@ -44,13 +43,13 @@ pub fn osAndDesktopEnvironment() -> (String, Option<String>) {
     {
         let os_type = "Darwin".to_string();
         let desktop_env = None;
-        return (os_type, desktop_env);
+        (os_type, desktop_env)
     }
     #[cfg(target_os = "windows")]
     {
         let os_type = "Windows".to_string();
         let desktop_env = None;
-        return (os_type, desktop_env);
+        (os_type, desktop_env)
     }
 }
 
@@ -121,20 +120,17 @@ fn round(x: f32, decimals: u32) -> f32 {
 }
 
 #[pyfunction]
-pub fn returnDefaultSettings(available_styles: Vec<&str>) -> HashMap<&str, String> {
-    let (_os_type, desktop_env) = osAndDesktopEnvironment();
+pub fn returnDefaultSettings(_available_styles: Vec<&str>) -> HashMap<&str, String> {
+    let (_os_type, _desktop_env) = osAndDesktopEnvironment();
 
     // persepolis temporary download folder
     #[cfg(not(target_os = "windows"))]
-    let download_path_temp = HOME_ADDRESS.join(".persepolis");
+    let download_path_temp = HOME_ADDRESS.join(".ghermez");
     #[cfg(target_os = "windows")]
-    let download_path_temp = HOME_ADDRESS
-        .join("AppData")
-        .join("Local")
-        .join("persepolis");
+    let download_path_temp = HOME_ADDRESS.join("AppData").join("Local").join("ghermez");
 
     // user download folder path
-    let download_path = HOME_ADDRESS.join("Downloads").join("Persepolis");
+    let download_path = HOME_ADDRESS.join("Downloads").join("Ghermez");
 
     // find available styles(It's depends on operating system and desktop environments).
     let mut style = "Fusion";
@@ -144,7 +140,7 @@ pub fn returnDefaultSettings(available_styles: Vec<&str>) -> HashMap<&str, Strin
     #[cfg(any(target_os = "linux", target_os = "freebsd", target_os = "openbsd"))]
     {
         if desktop_env.is_some_and(|x| x == "KDE") {
-            if available_styles.contains(&"Breeze") {
+            if _available_styles.contains(&"Breeze") {
                 style = "Breeze";
                 color_scheme = "System";
             } else {
@@ -184,13 +180,13 @@ pub fn returnDefaultSettings(available_styles: Vec<&str>) -> HashMap<&str, Strin
 
                 if dark_theme {
                     icons = "Breeze-Dark";
-                    if available_styles.contains(&"Adwaita-Dark") {
+                    if _available_styles.contains(&"Adwaita-Dark") {
                         style = "Adwaita-Dark";
                         color_scheme = "System";
                     }
                 } else {
                     icons = "Breeze";
-                    if available_styles.contains(&"Adwaita") {
+                    if _available_styles.contains(&"Adwaita") {
                         style = "Adwaita";
                         color_scheme = "System";
                     } else {
@@ -203,7 +199,7 @@ pub fn returnDefaultSettings(available_styles: Vec<&str>) -> HashMap<&str, Strin
     }
     #[cfg(target_os = "macos")]
     {
-        if available_styles.contains(&"macintosh") {
+        if _available_styles.contains(&"macintosh") {
             style = "macintosh";
             color_scheme = "System";
             icons = "Breeze";

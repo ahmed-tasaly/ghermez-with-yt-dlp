@@ -10,10 +10,10 @@ use crate::useful_tools::determineConfigFolder;
 pub fn init_create_folders() {
     // download manager config folder
     let config_folder = determineConfigFolder();
-    // persepolis tmp folder path
-    let persepolis_tmp = config_folder.join("persepolis_tmp");
+    // ghermez tmp folder path
+    let ghermez_tmp = config_folder.join("ghermez_tmp");
     // create folders
-    for folder in [config_folder, persepolis_tmp] {
+    for folder in [config_folder, ghermez_tmp] {
         fs::create_dir_all(folder).unwrap();
     }
 }
@@ -22,7 +22,7 @@ pub fn init_create_folders() {
 pub fn init_log_file() {
     // refresh logs!
     let config_folder = determineConfigFolder();
-    let log_file = config_folder.join("persepolisdm.log");
+    let log_file = config_folder.join("ghermezdm.log");
 
     // get current time
     let current_time = Local::now().format("%Y/%m/%d , %H:%M:%S").to_string();
@@ -38,7 +38,7 @@ pub fn init_log_file() {
         let content = format!(
             "
     ===================================================
-    Persepolis Download Manager, {}
+    Ghermez Download Manager, {}
     ",
             current_time
         );
@@ -56,7 +56,7 @@ pub fn init_log_file() {
             .append(true)
             .open(log_file.clone())
             .unwrap();
-        let content = format!("Persepolis Download Manager, {}", current_time);
+        let content = format!("Ghermez Download Manager, {}", current_time);
         file.write_all(content.as_bytes()).unwrap();
     }
 }

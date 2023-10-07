@@ -1,4 +1,11 @@
+#[cfg(not(target_os = "windows"))]
 use std::{fs, path::PathBuf};
+
+#[cfg(not(target_os = "windows"))]
+use home::home_dir;
+
+#[cfg(not(target_os = "windows"))]
+use once_cell::sync::Lazy;
 
 #[cfg(target_os = "linux")]
 use std::os::unix::prelude::PermissionsExt;
@@ -10,8 +17,6 @@ use std::path::Path;
 #[cfg(target_os = "macos")]
 use std::process::Command;
 
-use home::home_dir;
-use once_cell::sync::Lazy;
 use pyo3::prelude::*;
 
 #[cfg(target_os = "windows")]
@@ -19,6 +24,7 @@ use winreg::enums::*;
 #[cfg(target_os = "windows")]
 use winreg::RegKey;
 
+#[cfg(not(target_os = "windows"))]
 static HOME_ADDRESS: Lazy<PathBuf> = Lazy::new(|| home_dir().unwrap());
 
 // check startup
@@ -38,10 +44,8 @@ pub fn checkstartup() -> bool {
     #[cfg(target_os = "windows")]
     {
         let hklm = RegKey::predef(HKEY_CURRENT_USER);
-        match hklm.open_subkey("Software\\Microsoft\\Windows\\CurrentVersion\\Run") {
-            Ok(_) => return true,
-            Err(_) => return false,
-        }
+        hklm.open_subkey("Software\\Microsoft\\Windows\\CurrentVersion\\Run")
+            .is_ok()
     }
 }
 
@@ -120,7 +124,7 @@ pub fn addstartup() {
     #[cfg(target_os = "windows")]
     {
         let hklm = RegKey::predef(HKEY_CURRENT_USER);
-        let cur_ver = hklm
+        let _cur_ver = hklm
             .open_subkey("Software\\Microsoft\\Windows\\CurrentVersion\\Run")
             .unwrap();
         // TODO

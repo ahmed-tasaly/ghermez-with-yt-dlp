@@ -5163,7 +5163,7 @@ class MainWindow(MainWindow_Ui):
         queue_info_dict = self.persepolis_db.searchCategoryInCategoryTable(category)
 
         for key in queue_info_dict:
-            if queue_info_dict[key] == "NULL":
+            if queue_info_dict[key] in ["NULL", "None"]:
                 queue_info_dict[key] = None
 
         # check queue condition

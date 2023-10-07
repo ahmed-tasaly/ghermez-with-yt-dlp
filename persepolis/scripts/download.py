@@ -97,7 +97,7 @@ def downloadAria(gid, parent):
     add_link_dictionary = parent.persepolis_db.searchGidInAddLinkTable(gid)
 
     for key in add_link_dictionary:
-        if add_link_dictionary[key] == "NULL":
+        if add_link_dictionary[key] in ["NULL", "None"]:
             add_link_dictionary[key] = None
 
     link = add_link_dictionary['link']

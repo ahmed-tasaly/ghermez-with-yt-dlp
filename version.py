@@ -1,7 +1,7 @@
 VSVersionInfo(
   ffi=FixedFileInfo(
-    filevers=(3, 2, 0, 0),
-    prodvers=(3, 2, 0, 0),
+    filevers=(0, 0, 1, 0),
+    prodvers=(0, 0, 1, 0),
     mask=0x3f,
     flags=0x0,
     OS=0x40004,
@@ -16,12 +16,12 @@ VSVersionInfo(
         u'040904B0',
         [StringStruct(u'CompanyName', u'Reza Mousavi'),
         StringStruct(u'FileDescription', u'A Free Download Manager GUI for Aria2'),
-        StringStruct(u'FileVersion', u'3.2.0.0'),
+        StringStruct(u'FileVersion', u'0.0.1.0'),
         StringStruct(u'InternalName', u'Ghermez Download Manager'),
         StringStruct(u'LegalCopyright', u'\xa9 GNU General Public License v3.0'),
         StringStruct(u'OriginalFilename', u'Ghermez Download Manager.exe'),
         StringStruct(u'ProductName', u'Ghermez Download Manager'),
-        StringStruct(u'ProductVersion', u'3.2.0.0')])
+        StringStruct(u'ProductVersion', u'0.0.1.0')])
       ]),
     VarFileInfo([VarStruct(u'Translation', [1033, 1200])])
   ]

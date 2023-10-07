@@ -126,7 +126,7 @@ Now let's build ghermez!
 Build `ghermez` package:
 
 ```sh
-maturin build
+maturin develop --release
 ```
 
 run terminal and enter ghermez folder so build ghermez by pyinstaller with this command:

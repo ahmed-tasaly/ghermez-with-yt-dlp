@@ -9,6 +9,8 @@ use pyo3::prelude::*;
 use regex::Regex;
 use rusqlite::Connection;
 
+use crate::useful_tools::determineConfigFolder;
+
 // This class manages TempDB
 // TempDB contains gid of active downloads in every session.
 #[pyclass]
@@ -226,7 +228,9 @@ impl PluginsDB {
     #[new]
     fn new() -> Self {
         Self {
-            connection: Arc::new(Mutex::new(Connection::open("plugins.db").unwrap())),
+            connection: Arc::new(Mutex::new(
+                Connection::open(determineConfigFolder().join("plugins.db")).unwrap(),
+            )),
         }
     }
 
@@ -354,7 +358,9 @@ pub struct DataBase {
 impl DataBase {
     #[new]
     fn new() -> Self {
-        let connection = Arc::new(Mutex::new(Connection::open("ghermez.db").unwrap()));
+        let connection = Arc::new(Mutex::new(
+            Connection::open(determineConfigFolder().join("ghermez.db")).unwrap(),
+        ));
 
         let cnn = connection.lock().unwrap();
 
