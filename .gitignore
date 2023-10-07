@@ -11,6 +11,11 @@ man/persepolis.1.gz
 venv/
 resources.py
 
+# Pyinstaller
+dist/
+*.spec
+LICENSE.txt
+
 # Rust
 target/
 
