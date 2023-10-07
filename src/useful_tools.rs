@@ -139,7 +139,7 @@ pub fn returnDefaultSettings(_available_styles: Vec<&str>) -> HashMap<&str, Stri
 
     #[cfg(any(target_os = "linux", target_os = "freebsd", target_os = "openbsd"))]
     {
-        if desktop_env.is_some_and(|x| x == "KDE") {
+        if _desktop_env.is_some_and(|x| x == "KDE") {
             if _available_styles.contains(&"Breeze") {
                 style = "Breeze";
                 color_scheme = "System";

@@ -1254,7 +1254,8 @@ class MainWindow(MainWindow_Ui):
 # system_tray_icon
         self.system_tray_icon = QSystemTrayIcon()
         self.system_tray_icon.setIcon(
-            QIcon(':/ghermez.png'))
+            QIcon.fromTheme('ghermez-tray', QIcon(':/ghermez.png')),
+        )
 
         # menu of system tray icon
         system_tray_menu = QMenu()
