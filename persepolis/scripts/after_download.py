@@ -12,13 +12,15 @@
 #
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
+from __future__ import annotations
 try:
-    from PySide6.QtCore import Qt, QSize, QPoint, QTranslator, QCoreApplication, QLocale
-    from PySide6.QtGui import QIcon
+    from PySide6.QtCore import Qt, QSize, QPoint, QTranslator, QCoreApplication, QLocale, QSettings
+    from PySide6.QtWidgets import QWidget
+    from PySide6.QtGui import QIcon, QKeyEvent, QCloseEvent
 except ImportError:
-    from PyQt5.QtCore import Qt, QSize, QPoint, QTranslator, QCoreApplication, QLocale
-    from PyQt5.QtGui import QIcon
+    from PyQt5.QtCore import Qt, QSize, QPoint, QTranslator, QCoreApplication, QLocale, QSettings
+    from PyQt5.QtWidgets import QWidget
+    from PyQt5.QtGui import QIcon, QKeyEvent, QCloseEvent
 
 
 from persepolis.gui.after_download_ui import AfterDownloadWindow_Ui
@@ -27,7 +29,7 @@ import os
 
 
 class AfterDownloadWindow(AfterDownloadWindow_Ui):
-    def __init__(self, parent, dict, persepolis_setting):
+    def __init__(self, parent: QWidget, dict: dict[str, str], persepolis_setting: QSettings) -> None:
         super().__init__(persepolis_setting)
         self.persepolis_setting = persepolis_setting
         self.dict = dict
@@ -88,7 +90,7 @@ class AfterDownloadWindow(AfterDownloadWindow_Ui):
         self.resize(size)
         self.move(position)
 
-    def openFile(self):
+    def openFile(self) -> None:
         # execute file
         file_path = self.add_link_dict['download_path']
 
@@ -98,7 +100,7 @@ class AfterDownloadWindow(AfterDownloadWindow_Ui):
         # close window
         self.close()
 
-    def openFolder(self):
+    def openFolder(self) -> None:
         # open download folder
         download_path = self.add_link_dict['download_path']
 
@@ -116,7 +118,7 @@ class AfterDownloadWindow(AfterDownloadWindow_Ui):
         # close window
         self.close()
 
-    def okButtonPressed(self):
+    def okButtonPressed(self) -> None:
         if self.dont_show_checkBox.isChecked():
             self.persepolis_setting.setValue('settings/after-dialog', 'no')
             self.persepolis_setting.sync()
@@ -125,12 +127,12 @@ class AfterDownloadWindow(AfterDownloadWindow_Ui):
         self.close()
 
     # close window with ESC key
-    def keyPressEvent(self, event):
+    def keyPressEvent(self, event: QKeyEvent) -> None:
         if event.key() == Qt.Key_Escape:
             self.close()
 
 
-    def closeEvent(self, event):
+    def closeEvent(self, event: QCloseEvent) -> None:
         # saving window size and position
         self.persepolis_setting.setValue(
             'AfterDownloadWindow/size', self.size())
@@ -139,7 +141,7 @@ class AfterDownloadWindow(AfterDownloadWindow_Ui):
         self.persepolis_setting.sync()
         event.accept()
 
-    def changeIcon(self, icons):
+    def changeIcon(self, icons: str) -> None:
         icons = ':/' + str(icons) + '/'
         self.ok_pushButton.setIcon(QIcon(icons + 'ok'))
         self.open_folder_pushButtun.setIcon(QIcon(icons + 'folder'))

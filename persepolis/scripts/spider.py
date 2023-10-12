@@ -12,7 +12,7 @@
 #
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
+from __future__ import annotations
 from ghermez import humanReadableSize
 from requests.cookies import cookiejar_from_dict
 from http.cookies import SimpleCookie
@@ -24,7 +24,7 @@ import requests
 
 
 # spider function finds name of file and file size from header
-def spider(add_link_dictionary):
+def spider(add_link_dictionary: dict[str, str]) -> tuple[str, str | None]:
 
     # get user's download request from add_link_dictionary
     link = add_link_dictionary['link']
@@ -107,7 +107,7 @@ def spider(add_link_dictionary):
 
 
 # this function finds and returns file name for links.
-def queueSpider(add_link_dictionary):
+def queueSpider(add_link_dictionary: dict[str, str]) -> str:
     # get download information from add_link_dictionary
     for i in ['link', 'header', 'out', 'user_agent', 'load_cookies', 'referer']:
         if i not in add_link_dictionary:
@@ -157,7 +157,7 @@ def queueSpider(add_link_dictionary):
     return filename
 
 
-def addLinkSpider(add_link_dictionary):
+def addLinkSpider(add_link_dictionary: dict[str, str]) -> tuple[str | None, str | None]:
     # get user's download information from add_link_dictionary
     for i in ['link', 'header', 'out', 'user_agent', 'load_cookies', 'referer']:
         if i not in add_link_dictionary:

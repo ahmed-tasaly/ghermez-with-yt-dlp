@@ -15,12 +15,12 @@
 
 try:
     from PySide6.QtWidgets import QWidget, QTextEdit, QVBoxLayout, QHBoxLayout, QPushButton, QLabel
-    from PySide6.QtGui import QIcon
+    from PySide6.QtGui import QIcon, QKeyEvent
     from PySide6.QtCore import Qt, QSize, QSettings
 except ImportError:
     from PyQt5.QtWidgets import QWidget, QTextEdit, QVBoxLayout, QHBoxLayout, QPushButton, QLabel
     from PyQt5.QtCore import Qt, QSize, QSettings
-    from PyQt5.QtGui import QIcon
+    from PyQt5.QtGui import QIcon, QKeyEvent
 
 from persepolis.constants import ORG_NAME, APP_NAME, LONG_NAME, REPO_LINK
 from persepolis.scripts import osCommands
@@ -29,7 +29,7 @@ from persepolis.gui import resources # noqa: F401
 from ghermez import DataBase
 
 class ErrorWindow(QWidget):
-    def __init__(self, text):
+    def __init__(self, text: str) -> None:
         super().__init__()
 # finding windows_size
         self.setMinimumSize(QSize(363, 300))
@@ -69,19 +69,19 @@ class ErrorWindow(QWidget):
         self.report_pushButton.clicked.connect(self.reportPushButtonPressed)
         self.close_pushButton.clicked.connect(self.closePushButtonPressed)
 
-    def reportPushButtonPressed(self, button):
+    def reportPushButtonPressed(self, _button: QPushButton) -> None:
         osCommands.xdgOpen(f'{REPO_LINK}/issues')
 
     # close window with ESC key
-    def keyPressEvent(self, event):
+    def keyPressEvent(self, event: QKeyEvent) -> None:
         if event.key() == Qt.Key_Escape:
             self.close()
 
 
-    def closePushButtonPressed(self, button):
+    def closePushButtonPressed(self, _button: QPushButton) -> None:
         self.close()
 
-    def resetPushButtonPressed(self, button):
+    def resetPushButtonPressed(self, _button: QPushButton) -> None:
         # create an object for DataBase
         persepolis_db = DataBase()
 

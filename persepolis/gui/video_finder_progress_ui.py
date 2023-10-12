@@ -18,13 +18,13 @@ from persepolis.gui.progress_ui import ProgressWindow_Ui
 
 try:
     from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel
-    from PySide6.QtCore import QCoreApplication
+    from PySide6.QtCore import QCoreApplication, QSettings
 except ImportError:
     from PyQt5.QtWidgets import QWidget, QVBoxLayout, QLabel
-    from PyQt5.QtCore import QCoreApplication
+    from PyQt5.QtCore import QCoreApplication, QSettings
 
 class VideoFinderProgressWindow_Ui(ProgressWindow_Ui):
-    def __init__(self, persepolis_setting):
+    def __init__(self, persepolis_setting: QSettings) -> None:
         super().__init__(persepolis_setting)
 
         # status_tab

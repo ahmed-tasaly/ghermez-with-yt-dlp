@@ -13,15 +13,15 @@
 #
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
+from __future__ import annotations
 try:
-    from PySide6.QtCore import Qt, QSize, QPoint, QThread, QTranslator, QCoreApplication, QLocale
-    from PySide6.QtWidgets import QLineEdit, QInputDialog
-    from PySide6.QtGui import QIcon
+    from PySide6.QtCore import Qt, QSize, QPoint, QThread, QTranslator, QCoreApplication, QLocale, QSettings
+    from PySide6.QtWidgets import QLineEdit, QInputDialog, QWidget, QPushButton
+    from PySide6.QtGui import QIcon, QKeyEvent, QCloseEvent
 except ImportError:
-    from PyQt5.QtCore import Qt, QSize, QPoint, QThread, QTranslator, QCoreApplication, QLocale
-    from PyQt5.QtWidgets import QLineEdit, QInputDialog
-    from PyQt5.QtGui import QIcon
+    from PyQt5.QtCore import Qt, QSize, QPoint, QThread, QTranslator, QCoreApplication, QLocale, QSettings
+    from PyQt5.QtWidgets import QLineEdit, QInputDialog, QWidget, QPushButton
+    from PyQt5.QtGui import QIcon, QKeyEvent, QCloseEvent
 
 from persepolis.gui.progress_ui import ProgressWindow_Ui
 from persepolis.scripts.shutdown import shutDown
@@ -34,18 +34,18 @@ import platform
 os_type = platform.system()
 
 class ShutDownThread(QThread):
-    def __init__(self, parent, gid, password=None):
+    def __init__(self, parent: QWidget, gid: str, password: str | None=None) -> None:
         QThread.__init__(self)
         self.gid = gid
         self.password = password
         self.parent = parent
 
-    def run(self):
+    def run(self) -> None:
         shutDown(self.parent, gid=self.gid, password=self.password)
 
 
 class ProgressWindow(ProgressWindow_Ui):
-    def __init__(self, parent, gid, persepolis_setting):
+    def __init__(self, parent: QWidget, gid: str, persepolis_setting: QSettings) -> None:
         super().__init__(persepolis_setting)
         self.persepolis_setting = persepolis_setting
         self.parent = parent
@@ -101,12 +101,12 @@ class ProgressWindow(ProgressWindow_Ui):
         self.move(position)
 
     # close window with ESC key
-    def keyPressEvent(self, event):
+    def keyPressEvent(self, event: QKeyEvent) -> None:
         if event.key() == Qt.Key_Escape:
             self.close()
 
 
-    def closeEvent(self, event):
+    def closeEvent(self, _event: QCloseEvent) -> None:
         # save window size and position
         self.persepolis_setting.setValue('ProgressWindow/size', self.size())
         self.persepolis_setting.setValue('ProgressWindow/position', self.pos())
@@ -114,7 +114,7 @@ class ProgressWindow(ProgressWindow_Ui):
 
         self.hide()
 
-    def resumePushButtonPressed(self, button):
+    def resumePushButtonPressed(self, _button: QPushButton) -> None:
 
         if self.status == "paused":
             answer = download.downloadUnpause(self.gid)
@@ -135,7 +135,7 @@ class ProgressWindow(ProgressWindow_Ui):
                                QCoreApplication.translate("progress_src_ui_tr", "Please try again."), 10000,
                                'warning', parent=self.parent)
 
-    def pausePushButtonPressed(self, button):
+    def pausePushButtonPressed(self, _button: QPushButton) -> None:
 
         if self.status == "downloading":
             answer = download.downloadPause(self.gid)
@@ -155,7 +155,7 @@ class ProgressWindow(ProgressWindow_Ui):
                                QCoreApplication.translate("progress_src_ui_tr", "Try again!"), 10000,
                                'critical', parent=self.parent)
 
-    def stopPushButtonPressed(self, button):
+    def stopPushButtonPressed(self, _button: QPushButton) -> None:
 
         dict = {'gid': self.gid,
                 'shutdown': 'canceled'}
@@ -176,7 +176,7 @@ class ProgressWindow(ProgressWindow_Ui):
                                                       "Persepolis is trying to connect! be patient!"),
                            10000, 'warning', parent=self.parent)
 
-    def limitCheckBoxToggled(self, checkBoxes):
+    def limitCheckBoxToggled(self, _checkBoxes: bool) -> None:
 
         # user checked limit_checkBox
         if self.limit_checkBox.isChecked():
@@ -196,13 +196,13 @@ class ProgressWindow(ProgressWindow_Ui):
                 add_link_dictionary = {'gid': self.gid, 'limit_value': '0'}
                 self.parent.persepolis_db.updateAddLinkTable([add_link_dictionary])
 
-    def limitComboBoxChanged(self, connect):
+    def limitComboBoxChanged(self, _connect: str) -> None:
         self.limit_pushButton.setEnabled(True)
 
-    def afterComboBoxChanged(self, connect):
+    def afterComboBoxChanged(self, _connect: int) -> None:
         self.after_pushButton.setEnabled(True)
 
-    def afterCheckBoxToggled(self, checkBoxes):
+    def afterCheckBoxToggled(self, _checkBoxes: bool) -> None:
         if self.after_checkBox.isChecked():
             self.after_frame.setEnabled(True)
         else:
@@ -215,7 +215,7 @@ class ProgressWindow(ProgressWindow_Ui):
 
             self.parent.temp_db.updateSingleTable(dict)
 
-    def afterPushButtonPressed(self, button):
+    def afterPushButtonPressed(self, _button: QPushButton) -> None:
         self.after_pushButton.setEnabled(False)
 
         if os_type != OS.WINDOWS:  # For Linux and Mac OSX and FreeBSD and OpenBSD
@@ -281,7 +281,7 @@ class ProgressWindow(ProgressWindow_Ui):
             self.parent.threadPool.append(shutdown_enable)
             self.parent.threadPool[-1].start()
 
-    def limitPushButtonPressed(self, button):
+    def limitPushButtonPressed(self, _button: QPushButton) -> None:
         self.limit_pushButton.setEnabled(False)
         if self.limit_comboBox.currentText() == "KiB/s":
             limit_value = str(self.limit_spinBox.value()) + str("K")
@@ -298,7 +298,7 @@ class ProgressWindow(ProgressWindow_Ui):
             add_link_dictionary = {'gid': self.gid, 'limit_value': limit_value}
             self.parent.persepolis_db.updateAddLinkTable([add_link_dictionary])
 
-    def changeIcon(self, icons):
+    def changeIcon(self, icons: str) -> None:
         icons = ':/' + str(icons) + '/'
 
         self.resume_pushButton.setIcon(QIcon(icons + 'play'))

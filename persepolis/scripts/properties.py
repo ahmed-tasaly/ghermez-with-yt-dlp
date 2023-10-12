@@ -13,15 +13,16 @@
 #
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
+from __future__ import annotations
+from typing import Callable
 try:
-    from PySide6.QtCore import Qt, QSize, QPoint, QDir, QTime, QCoreApplication
-    from PySide6.QtWidgets import QLabel, QLineEdit, QFileDialog
-    from PySide6.QtGui import QIcon
+    from PySide6.QtCore import Qt, QSize, QPoint, QDir, QTime, QCoreApplication, QSettings
+    from PySide6.QtWidgets import QLabel, QLineEdit, QFileDialog, QWidget, QPushButton
+    from PySide6.QtGui import QIcon, QKeyEvent, QCloseEvent
 except ImportError:
-    from PyQt5.QtCore import Qt, QSize, QPoint, QDir, QTime, QCoreApplication
-    from PyQt5.QtWidgets import QLabel, QLineEdit, QFileDialog
-    from PyQt5.QtGui import QIcon
+    from PyQt5.QtCore import Qt, QSize, QPoint, QDir, QTime, QCoreApplication, QSettings
+    from PyQt5.QtWidgets import QLabel, QLineEdit, QFileDialog, QWidget, QPushButton
+    from PyQt5.QtGui import QIcon, QKeyEvent, QCloseEvent
 
 from persepolis.gui.addlink_ui import AddLinkWindow_Ui
 from persepolis.scripts.check_proxy import getProxy
@@ -29,7 +30,7 @@ import os
 
 
 class PropertiesWindow(AddLinkWindow_Ui):
-    def __init__(self, parent, callback, gid, persepolis_setting, video_finder_dictionary=None):
+    def __init__(self, parent: QWidget, callback: Callable[[dict, str, str, dict], None], gid: str, persepolis_setting: QSettings, video_finder_dictionary: dict[str, str] | None=None) -> None:
         super().__init__(persepolis_setting)
 
         self.parent = parent
@@ -281,42 +282,42 @@ class PropertiesWindow(AddLinkWindow_Ui):
 
 
 # activate frames if checkBoxes checked
-    def proxyFrame(self, checkBox):
+    def proxyFrame(self, _checkBox: bool) -> None:
 
         if self.proxy_checkBox.isChecked():
             self.proxy_frame.setEnabled(True)
         else:
             self.proxy_frame.setEnabled(False)
 
-    def downloadFrame(self, checkBox):
+    def downloadFrame(self, _checkBox: bool) -> None:
 
         if self.download_checkBox.isChecked():
             self.download_frame.setEnabled(True)
         else:
             self.download_frame.setEnabled(False)
 
-    def limitFrame(self, checkBox):
+    def limitFrame(self, _checkBox: bool) -> None:
 
         if self.limit_checkBox.isChecked():
             self.limit_frame.setEnabled(True)
         else:
             self.limit_frame.setEnabled(False)
 
-    def startFrame(self, checkBox):
+    def startFrame(self, _checkBox: bool) -> None:
 
         if self.start_checkBox.isChecked():
             self.start_frame.setEnabled(True)
         else:
             self.start_frame.setEnabled(False)
 
-    def endFrame(self, checkBox):
+    def endFrame(self, _checkBox: bool) -> None:
 
         if self.end_checkBox.isChecked():
             self.end_frame.setEnabled(True)
         else:
             self.end_frame.setEnabled(False)
 
-    def changeFolder(self, button):
+    def changeFolder(self, _button: QPushButton) -> None:
         fname = QFileDialog.getExistingDirectory(self, 'Open f', '/home')
 
         if fname:
@@ -329,13 +330,13 @@ class PropertiesWindow(AddLinkWindow_Ui):
         if os.path.isdir(fname):
             self.download_folder_lineEdit.setText(fname)
 
-    def linkLineChanged(self, lineEdit):
+    def linkLineChanged(self, _lineEdit: str) -> None:
         if str(self.link_lineEdit.text()) == '':
             self.ok_pushButton.setEnabled(False)
         else:
             self.ok_pushButton.setEnabled(True)
 
-    def queueChanged(self, combo):
+    def queueChanged(self, _combo: int) -> None:
         # if one of the queues selected by user , start time and end time must
         # be deactivated
         if self.add_queue_comboBox.currentIndex() != 0:
@@ -348,7 +349,7 @@ class PropertiesWindow(AddLinkWindow_Ui):
             self.start_checkBox.setEnabled(True)
             self.end_checkBox.setEnabled(True)
 
-    def okButtonPressed(self, button):
+    def okButtonPressed(self, _button: QPushButton) -> None:
         # write user's new inputs in persepolis_setting for next time if needed
         if self.folder_checkBox.isChecked():
             self.persepolis_setting.setValue(
@@ -525,12 +526,12 @@ class PropertiesWindow(AddLinkWindow_Ui):
         self.close()
 
     # close window with ESC key
-    def keyPressEvent(self, event):
+    def keyPressEvent(self, event: QKeyEvent) -> None:
         if event.key() == Qt.Key_Escape:
             self.close()
 
 
-    def closeEvent(self, event):
+    def closeEvent(self, event: QCloseEvent) -> None:
         # save window size and position
         self.persepolis_setting.setValue('PropertiesWindow/size', self.size())
         self.persepolis_setting.setValue(
@@ -539,7 +540,7 @@ class PropertiesWindow(AddLinkWindow_Ui):
 
         event.accept()
 
-    def changeIcon(self, icons):
+    def changeIcon(self, icons: str) -> None:
         icons = ':/' + str(icons) + '/'
 
         self.folder_pushButton.setIcon(QIcon(icons + 'folder'))

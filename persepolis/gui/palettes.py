@@ -21,7 +21,7 @@ except ImportError:
     from PyQt5.QtCore import Qt
 
 class DarkFusionPalette(QPalette):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self.setColor(QPalette.Window, QColor(56, 56, 56))
 
@@ -61,7 +61,7 @@ class DarkFusionPalette(QPalette):
 
 
 class LightFusionPalette(QPalette):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         # EFF0F1 
         self.setColor(QPalette.Window, QColor(239, 240, 241))

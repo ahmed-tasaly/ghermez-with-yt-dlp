@@ -11,17 +11,19 @@
 #
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
+
 try:
     from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton
-    from PySide6.QtCore import Qt, QSize, QPoint, QTranslator, QCoreApplication, QLocale
+    from PySide6.QtCore import Qt, QSize, QPoint, QTranslator, QCoreApplication, QLocale, QSettings
     from PySide6 import QtCore
     from PySide6.QtGui import QIcon
+    from PySide6.QtGui import QKeyEvent, QCloseEvent
 except ImportError:
     from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton
-    from PyQt5.QtCore import Qt, QSize, QPoint, QTranslator, QCoreApplication, QLocale
+    from PyQt5.QtCore import Qt, QSize, QPoint, QTranslator, QCoreApplication, QLocale, QSettings
     from PyQt5 import QtCore
     from PyQt5.QtGui import QIcon
+    from PyQt5.QtGui import QKeyEvent, QCloseEvent
 
 
 from persepolis.constants import OS, APP_NAME, LONG_NAME, VERSION, REPO_LINK
@@ -35,7 +37,7 @@ os_type = platform.system()
 
 
 class checkupdate(QWidget):
-    def __init__(self, persepolis_setting):
+    def __init__(self, persepolis_setting: QSettings) -> None:
         super().__init__()
 
 # defining UI
@@ -107,7 +109,7 @@ class checkupdate(QWidget):
         self.move(position)
 
     # checking methode
-    def updateCheck(self, button):
+    def updateCheck(self, _button: QPushButton) -> None:
         self.check_button.setText(QCoreApplication.translate("update_src_ui_tr", 'Checking...'))
 
         try:
@@ -154,12 +156,12 @@ class checkupdate(QWidget):
         self.check_button.setText(QCoreApplication.translate("update_src_ui_tr", 'Check for new update'))
 
     # close window with ESC key
-    def keyPressEvent(self, event):
+    def keyPressEvent(self, event: QKeyEvent) -> None:
         if event.key() == Qt.Key_Escape:
             self.close()
 
 
-    def closeEvent(self, event):
+    def closeEvent(self, event: QCloseEvent) -> None:
         # saving window size and position
         self.persepolis_setting.setValue(
             'checkupdate/size', self.size())

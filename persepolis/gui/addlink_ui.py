@@ -1,18 +1,16 @@
 # -*- coding: utf-8 -*-
-"""
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-"""
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 try:
     from PySide6.QtWidgets import (
@@ -20,7 +18,7 @@ try:
         QSpinBox, QVBoxLayout, QHBoxLayout, QLabel, QWidget,
         QGridLayout, QCheckBox, QFrame, QLineEdit
     )
-    from PySide6.QtCore import Qt, QTranslator, QCoreApplication, QLocale
+    from PySide6.QtCore import Qt, QTranslator, QCoreApplication, QLocale, QSettings
     from PySide6 import QtCore
     from PySide6.QtGui import QIcon
 except ImportError:
@@ -29,7 +27,7 @@ except ImportError:
         QSpinBox, QVBoxLayout, QHBoxLayout, QLabel, QWidget,
         QGridLayout, QCheckBox, QFrame, QLineEdit
     )
-    from PyQt5.QtCore import Qt, QTranslator, QCoreApplication, QLocale
+    from PyQt5.QtCore import Qt, QTranslator, QCoreApplication, QLocale, QSettings
     from PyQt5 import QtCore
     from PyQt5.QtGui import QIcon
 
@@ -38,7 +36,7 @@ from persepolis.gui import resources # noqa: F401
 from persepolis.gui.customized_widgets import MyQDateTimeEdit
 
 class AddLinkWindow_Ui(QWidget):
-    def __init__(self, persepolis_setting):
+    def __init__(self, persepolis_setting: QSettings) -> None:
         super().__init__()
         self.persepolis_setting = persepolis_setting
 

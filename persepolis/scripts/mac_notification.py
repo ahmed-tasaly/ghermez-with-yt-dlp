@@ -22,7 +22,7 @@ NSUserNotification = objc.lookUpClass('NSUserNotification')
 NSUserNotificationCenter = objc.lookUpClass('NSUserNotificationCenter')
 
 
-def notifyMac(title, subtitle, info_text, delay=0):
+def notifyMac(title: str, subtitle: str, info_text: str, delay: int=0) -> None:
     notification = NSUserNotification.alloc().init()
     notification.setTitle_(title)
     notification.setSubtitle_(subtitle)

@@ -19,8 +19,8 @@ try:
         QTableWidgetItem, QAbstractItemView, QToolBar, QMenuBar,
         QStatusBar, QTableWidget, QMainWindow, QWidget, QFrame, QCheckBox, QLabel
     )
-    from PySide6.QtGui import QShortcut, QAction, QCursor, QIcon, QStandardItemModel
-    from PySide6.QtCore import QCoreApplication, QRect, Qt, QTranslator, QLocale
+    from PySide6.QtGui import QShortcut, QAction, QCursor, QIcon, QStandardItemModel, QContextMenuEvent
+    from PySide6.QtCore import QCoreApplication, QRect, Qt, QTranslator, QLocale, QSettings
 except ImportError:
     from PyQt5.QtWidgets import (
         QHeaderView, QShortcut, QDoubleSpinBox, QPushButton, QComboBox,
@@ -28,8 +28,8 @@ except ImportError:
         QTableWidgetItem, QAbstractItemView, QToolBar, QMenuBar, QStatusBar,
         QTableWidget, QAction, QMainWindow, QWidget, QFrame, QCheckBox, QLabel
     )
-    from PyQt5.QtGui import QCursor, QIcon, QStandardItemModel
-    from PyQt5.QtCore import QCoreApplication, QRect, Qt, QTranslator, QLocale
+    from PyQt5.QtGui import QCursor, QIcon, QStandardItemModel, QContextMenuEvent
+    from PyQt5.QtCore import QCoreApplication, QRect, Qt, QTranslator, QLocale, QSettings
 
 from persepolis.constants import LONG_NAME
 from persepolis.gui import resources # noqa: F401
@@ -37,13 +37,13 @@ from persepolis.gui.customized_widgets import MyQDateTimeEdit
 
 # align center for items in download table
 class QTableWidgetItem(QTableWidgetItem):
-    def __init__(self, input):
+    def __init__(self, input) -> None:
         super().__init__(input)
         self.setTextAlignment(0x0004 | 0x0080)
 
 
 class MenuWidget(QPushButton):
-    def __init__(self, parent):
+    def __init__(self, parent: QWidget) -> None:
         super().__init__()
 
         self.parent = parent
@@ -161,7 +161,7 @@ class MenuWidget(QPushButton):
 # viewMenu submenus
 # DownloadTableWidget Class adds QMenu to QTableWidget Class
 class DownloadTableWidget(QTableWidget):
-    def __init__(self, parent):
+    def __init__(self, parent: QWidget) -> None:
         super().__init__()
 
         # set ui direction
@@ -180,13 +180,13 @@ class DownloadTableWidget(QTableWidget):
         # don't wrap items 
         self.setWordWrap(False)
 
-    def contextMenuEvent(self, event):
+    def contextMenuEvent(self, _event: QContextMenuEvent) -> None:
         self.tablewidget_menu.popup(QCursor.pos())
 
 
 # CategoryTreeView Class adds QMenu to QTreeView
 class CategoryTreeView(QTreeView):
-    def __init__(self, parent):
+    def __init__(self, parent: QWidget) -> None:
         super().__init__()
 
         # set ui direction
@@ -205,12 +205,12 @@ class CategoryTreeView(QTreeView):
         self.activated.connect(parent.categoryTreeSelected)
         self.pressed.connect(parent.categoryTreeSelected)
 
-    def contextMenuEvent(self, event):
+    def contextMenuEvent(self, _event: QContextMenuEvent) -> None:
         self.category_tree_menu.popup(QCursor.pos())
 
 
 class MainWindow_Ui(QMainWindow):
-    def __init__(self, persepolis_setting):
+    def __init__(self, persepolis_setting: QSettings) -> None:
         super().__init__()
         # MainWindow
         self.persepolis_setting = persepolis_setting

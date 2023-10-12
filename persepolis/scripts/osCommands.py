@@ -14,6 +14,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
+from typing import Literal
 from persepolis.constants import OS
 import subprocess
 import platform
@@ -25,7 +26,7 @@ home_address = os.path.expanduser("~")
 
 
 # this method finds file manager in linux
-def findFileManager():
+def findFileManager() -> str:
     pipe = subprocess.check_output(['xdg-mime',
                                     'query',
                                     'default',
@@ -35,13 +36,13 @@ def findFileManager():
     return file_manager
 
 
-def touch(file_path):
+def touch(file_path: str) -> None:
     if not(os.path.isfile(file_path)):
         f = open(file_path, 'w')
         f.close()
 
 # xdgOpen opens files or folders
-def xdgOpen(file_path, f_type='file', path='file'):
+def xdgOpen(file_path: str, f_type: str='file', path: str='file') -> None:
 
     # we have a file path and we want to open it's directory.
     # highlit(select) file in file manager after opening.
@@ -165,7 +166,7 @@ def xdgOpen(file_path, f_type='file', path='file'):
                              creationflags=CREATE_NO_WINDOW)
 
 # remove file with path of file_path
-def remove(file_path): 
+def remove(file_path: str) -> Literal['ok', 'cant', 'no']:
     if os.path.isfile(file_path):
         try:
             # function returns  ok, if operation was successful
@@ -181,7 +182,7 @@ def remove(file_path):
         return 'no'
 
 # removeDir removes folder : folder_path
-def removeDir(folder_path):
+def removeDir(folder_path: str) -> Literal['ok', 'cant', 'no']:
 
     # check folder_path existence
     if os.path.isdir(folder_path):
@@ -198,7 +199,7 @@ def removeDir(folder_path):
         return 'no'
 
 # make directory 
-def makeDirs(folder_path, hidden=False):
+def makeDirs(folder_path: str, hidden: bool=False) -> str:
 
     if hidden:
 
@@ -230,7 +231,7 @@ def makeDirs(folder_path, hidden=False):
     return folder_path
     
 # this function returns mount point
-def findMountPoint(path):
+def findMountPoint(path: str) -> str:
 
     while not os.path.ismount(path):
         path = os.path.dirname(path)
@@ -238,7 +239,7 @@ def findMountPoint(path):
     return path
 
 # this function creates temporary download folder in mount point of given path
-def makeTempDownloadDir(path):
+def makeTempDownloadDir(path: str) -> str:
 
     # if path and home_address are in the same partition,
     # create temp folder in default settings address.
@@ -266,7 +267,7 @@ def makeTempDownloadDir(path):
     return download_path_temp
 
 # move downloaded file to another destination.
-def moveFile(old_file_path, new_path, new_path_type='folder'):
+def moveFile(old_file_path: str, new_path: str, new_path_type: str='folder') -> bool:
     # new_path_type can be file or folder
     # if it's folder so we have folder path
     # else we have new file path that includes file name

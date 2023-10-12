@@ -12,7 +12,7 @@
 #
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
+from __future__ import annotations
 import platform
 import sys
 import os
@@ -30,7 +30,7 @@ if os_type == OS.WINDOWS:
 
 
 # check startup
-def checkstartup():
+def checkstartup() -> (bool | None):
     # check if it is linux
     if os_type in OS.UNIX_LIKE:
         # check if the startup exists
@@ -70,7 +70,7 @@ def checkstartup():
 # add startup file
 
 
-def addstartup():
+def addstartup() -> None:
     # check if it is linux
     if os_type in OS.UNIX_LIKE:
         entry = \
@@ -143,7 +143,7 @@ StartupWMClass=persepolis-download-Manager
 # remove startup file
 
 
-def removestartup():
+def removestartup() -> None:
     # check if it is linux
     if os_type in OS.BSD_FAMILY:
 

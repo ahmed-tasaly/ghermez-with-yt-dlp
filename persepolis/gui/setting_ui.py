@@ -18,14 +18,14 @@ try:
         QAbstractItemView, QTableWidget, QTableWidgetItem, QCheckBox, QVBoxLayout,QHBoxLayout,
         QFrame, QWidget, QLabel, QLineEdit, QTabWidget, QSpinBox, QPushButton, QDial, QComboBox, QFontComboBox
     )
-    from PySide6.QtCore import Qt, QTranslator, QCoreApplication, QLocale
+    from PySide6.QtCore import Qt, QTranslator, QCoreApplication, QLocale, QSettings
     from PySide6.QtGui import QIcon
 except ImportError:
     from PyQt5.QtWidgets import (
         QAbstractItemView, QTableWidget, QTableWidgetItem, QCheckBox, QVBoxLayout, QHBoxLayout,
         QFrame, QWidget, QLabel, QLineEdit, QTabWidget, QSpinBox, QPushButton, QDial, QComboBox, QFontComboBox
     )
-    from PyQt5.QtCore import Qt, QTranslator, QCoreApplication, QLocale
+    from PyQt5.QtCore import Qt, QTranslator, QCoreApplication, QLocale, QSettings
     from PyQt5.QtGui import QIcon
 
 from persepolis.constants import APP_NAME
@@ -33,7 +33,7 @@ from persepolis.gui.customized_widgets import MyQDateTimeEdit
 from persepolis.gui import resources # noqa: F401
 
 class KeyCapturingWindow_Ui(QWidget):
-    def __init__(self, persepolis_setting):
+    def __init__(self, persepolis_setting: QSettings) -> None:
         super().__init__()
         self.persepolis_setting = persepolis_setting
 
@@ -88,7 +88,7 @@ class KeyCapturingWindow_Ui(QWidget):
 
 
 class Setting_Ui(QWidget):
-    def __init__(self, persepolis_setting):
+    def __init__(self, persepolis_setting: QSettings) -> None:
         super().__init__()
 
         self.persepolis_setting = persepolis_setting

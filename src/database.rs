@@ -1249,10 +1249,7 @@ impl DataBase {
         }
     }
 
-    fn searchCategoryInCategoryTable(
-        &self,
-        category: &str,
-    ) -> Option<HashMap<&str, std::string::String>> {
+    fn searchCategoryInCategoryTable(&self, category: &str) -> Option<HashMap<&str, String>> {
         // lock data base
         let connection = self.connection.lock().unwrap();
 

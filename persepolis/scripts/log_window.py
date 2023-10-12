@@ -19,20 +19,20 @@ from persepolis.constants import REPO_LINK
 import os
 
 try:
-    from PySide6.QtCore import Qt, QPoint, QSize
-    from PySide6.QtGui import QIcon
-    from PySide6 import QtWidgets
+    from PySide6.QtCore import Qt, QPoint, QSize, QSettings
+    from PySide6.QtGui import QIcon, QKeyEvent, QCloseEvent
+    from PySide6.QtWidgets import QLayout, QPushButton
 except ImportError:
-    from PyQt5.QtCore import Qt, QPoint, QSize
-    from PyQt5.QtGui import QIcon
-    from PyQt5 import QtWidgets
+    from PyQt5.QtCore import Qt, QPoint, QSize, QSettings
+    from PyQt5.QtGui import QIcon, QKeyEvent, QCloseEvent
+    from PyQt5.QtWidgets import QLayout, QPushButton
 
 # config_folder
 config_folder = determineConfigFolder()
 
 
 class LogWindow(LogWindow_Ui):
-    def __init__(self, persepolis_setting):
+    def __init__(self, persepolis_setting: QSettings) -> None:
         super().__init__(persepolis_setting)
 
         self.persepolis_setting = persepolis_setting
@@ -80,7 +80,7 @@ class LogWindow(LogWindow_Ui):
 
         self.minimum_height = self.height()
 
-    def clearLogPushButtonPressed(self, button):
+    def clearLogPushButtonPressed(self, _button: QPushButton) -> None:
         f = open(self.log_file, 'w')
         f.close()
 
@@ -89,25 +89,25 @@ class LogWindow(LogWindow_Ui):
         self.text_edit.clear()
         self.text_edit.insertPlainText(self.text)
 
-    def reportPushButtonPressed(self, button):
+    def reportPushButtonPressed(self, _button: QPushButton) -> None:
         osCommands.xdgOpen(f'{REPO_LINK}/issues')
 
-    def closePushButtonPressed(self, button):
+    def closePushButtonPressed(self, _button: QPushButton) -> None:
         self.close()
 
-    def copyAvailableSignalHandler(self, signal):
+    def copyAvailableSignalHandler(self, signal: bool) -> None:
         if signal:
             self.copy_log_pushButton.setEnabled(True)
         else:
             self.copy_log_pushButton.setEnabled(False)
 
-    def copyPushButtonPressed(self, button):
+    def copyPushButtonPressed(self, _button: QPushButton) -> None:
         #         clipboard = QApplication.clipboard()
         #         clipboard.setText(self.text)
         self.text_edit.copy()
 
 # this method is refresh log messages in text_edit
-    def refreshLogPushButtonPressed(self, button):
+    def refreshLogPushButtonPressed(self, _button: QPushButton) -> None:
         f = open(self.log_file, 'r')
         f_lines = f.readlines()
         f.close()
@@ -120,13 +120,13 @@ class LogWindow(LogWindow_Ui):
         self.text_edit.insertPlainText(self.text)
 
     # close window with ESC key
-    def keyPressEvent(self, event):
+    def keyPressEvent(self, event: QKeyEvent) -> None:
         if event.key() == Qt.Key_Escape:
             self.close()
 
 
-    def closeEvent(self, event):
-        self.layout().setSizeConstraint(QtWidgets.QLayout.SetDefaultConstraint)
+    def closeEvent(self, event: QCloseEvent) -> None:
+        self.layout().setSizeConstraint(QLayout.SetDefaultConstraint)
         self.setMinimumSize(QSize(self.width(), self.minimum_height))
         self.resize(QSize(self.width(), self.minimum_height))
 
@@ -135,7 +135,7 @@ class LogWindow(LogWindow_Ui):
         self.persepolis_setting.sync()
         event.accept()
 
-    def changeIcon(self, icons):
+    def changeIcon(self, icons: str) -> None:
         icons = ':/' + str(icons) + '/'
 
         self.close_pushButton.setIcon(QIcon(icons + 'remove'))

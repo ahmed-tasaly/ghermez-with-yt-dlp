@@ -1,27 +1,27 @@
 # -*- coding: utf-8 -*-
 
-"""
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-"""
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+from __future__ import annotations
+from typing import Callable
 try:
-    from PySide6.QtWidgets import QApplication, QFileDialog
-    from PySide6.QtCore import Qt, QPoint, QSize, QDir, QThread, Signal
-    from PySide6.QtGui import QIcon
+    from PySide6.QtWidgets import QApplication, QFileDialog, QWidget, QPushButton
+    from PySide6.QtCore import Qt, QPoint, QSize, QDir, QThread, Signal, QSettings
+    from PySide6.QtGui import QIcon, QKeyEvent, QCloseEvent
 except ImportError:
-    from PyQt5.QtWidgets import QApplication, QFileDialog
-    from PyQt5.QtCore import Qt, QPoint, QSize, QDir, QThread
-    from PyQt5.QtGui import QIcon
+    from PyQt5.QtWidgets import QApplication, QFileDialog, QWidget, QPushButton
+    from PyQt5.QtCore import Qt, QPoint, QSize, QDir, QThread, QSettings
+    from PyQt5.QtGui import QIcon, QKeyEvent, QCloseEvent
     from PyQt5.QtCore import pyqtSignal as Signal
 
 from persepolis.gui.addlink_ui import AddLinkWindow_Ui
@@ -37,11 +37,11 @@ import os
 class AddLinkSpiderThread(QThread):
     ADDLINKSPIDERSIGNAL = Signal(dict)
 
-    def __init__(self, add_link_dictionary):
+    def __init__(self, add_link_dictionary: dict[str, str]) -> None:
         QThread.__init__(self)
         self.add_link_dictionary = add_link_dictionary
 
-    def run(self):
+    def run(self) -> None:
         try:
             # get file name and file size
             file_name, file_size = spider.addLinkSpider(self.add_link_dictionary)
@@ -66,7 +66,9 @@ class AddLinkSpiderThread(QThread):
 
 
 class AddLinkWindow(AddLinkWindow_Ui):
-    def __init__(self, parent, callback, persepolis_setting, plugin_add_link_dictionary={}):
+    def __init__(self, parent: QWidget, callback: Callable[[dict[str, str], bool, str], None], persepolis_setting: QSettings, plugin_add_link_dictionary: dict[str, str] | None=None) -> None:
+        if plugin_add_link_dictionary is None:
+            plugin_add_link_dictionary = {}
         super().__init__(persepolis_setting)
         self.callback = callback
         self.plugin_add_link_dictionary = plugin_add_link_dictionary
@@ -216,7 +218,7 @@ class AddLinkWindow(AddLinkWindow_Ui):
 # detect system proxy setting, and set ip_lineEdit and port_spinBox
 
 
-    def detectProxy(self, button):
+    def detectProxy(self, _button: QPushButton) -> None:
         # get system proxy information
         system_proxy_dict = getProxy()
 
@@ -242,42 +244,42 @@ class AddLinkWindow(AddLinkWindow_Ui):
 
 
 # active frames if checkBoxes are checked
-    def proxyFrame(self, checkBox):
+    def proxyFrame(self, _checkBox: bool) -> None:
 
         if self.proxy_checkBox.isChecked():
             self.proxy_frame.setEnabled(True)
         else:
             self.proxy_frame.setEnabled(False)
 
-    def downloadFrame(self, checkBox):
+    def downloadFrame(self, _checkBox: bool) -> None:
 
         if self.download_checkBox.isChecked():
             self.download_frame.setEnabled(True)
         else:
             self.download_frame.setEnabled(False)
 
-    def limitFrame(self, checkBox):
+    def limitFrame(self, _checkBox: bool) -> None:
 
         if self.limit_checkBox.isChecked():
             self.limit_frame.setEnabled(True)
         else:
             self.limit_frame.setEnabled(False)
 
-    def startFrame(self, checkBox):
+    def startFrame(self, _checkBox: bool) -> None:
 
         if self.start_checkBox.isChecked():
             self.start_frame.setEnabled(True)
         else:
             self.start_frame.setEnabled(False)
 
-    def endFrame(self, checkBox):
+    def endFrame(self, _checkBox: bool) -> None:
 
         if self.end_checkBox.isChecked():
             self.end_frame.setEnabled(True)
         else:
             self.end_frame.setEnabled(False)
 
-    def changeFolder(self, button):
+    def changeFolder(self, _button: QPushButton) -> None:
         # get download_path from lineEdit
         download_path = self.download_folder_lineEdit.text()
 
@@ -296,7 +298,7 @@ class AddLinkWindow(AddLinkWindow_Ui):
             self.download_folder_lineEdit.setText(fname)
 
 # enable when link_lineEdit is not empty and find size of file.
-    def linkLineChanged(self, lineEdit):
+    def linkLineChanged(self, _lineEdit: str) -> None:
         if str(self.link_lineEdit.text()) == '':
             self.ok_pushButton.setEnabled(False)
             self.download_later_pushButton.setEnabled(False)
@@ -315,13 +317,13 @@ class AddLinkWindow(AddLinkWindow_Ui):
             self.download_later_pushButton.setEnabled(True)
 
 # enable change_name_lineEdit if change_name_checkBox is checked.
-    def changeName(self, checkBoxes):
+    def changeName(self, _checkBoxes: bool) -> None:
         if self.change_name_checkBox.isChecked():
             self.change_name_lineEdit.setEnabled(True)
         else:
             self.change_name_lineEdit.setEnabled(False)
 
-    def queueChanged(self, combo):
+    def queueChanged(self, _combo: int) -> None:
         # if one of the queues selected by user , start time and end time must
         # be deactivated
         if self.add_queue_comboBox.currentIndex() != 0:
@@ -335,7 +337,7 @@ class AddLinkWindow(AddLinkWindow_Ui):
             self.start_checkBox.setEnabled(True)
             self.end_checkBox.setEnabled(True)
 
-    def okButtonPressed(self, download_later, button=None):
+    def okButtonPressed(self, download_later: bool, _button: QPushButton | None=None) -> None:
         # user submitted information by pressing ok_pushButton, so get information
         # from AddLinkWindow and return them to the mainwindow with callback!
 
@@ -471,19 +473,19 @@ class AddLinkWindow(AddLinkWindow_Ui):
         self.close()
 
     # close window with ESC key
-    def keyPressEvent(self, event):
+    def keyPressEvent(self, event: QKeyEvent) -> None:
         if event.key() == Qt.Key_Escape:
             self.close()
 
 
     # save size and position of window, when user closes the window.
-    def closeEvent(self, event):
+    def closeEvent(self, event: QCloseEvent) -> None:
         self.persepolis_setting.setValue('AddLinkWindow/size', self.size())
         self.persepolis_setting.setValue('AddLinkWindow/position', self.pos())
         self.persepolis_setting.sync()
         event.accept()
 
-    def changeIcon(self, icons):
+    def changeIcon(self, icons: str) -> None:
         icons = ':/' + str(icons) + '/'
 
         self.folder_pushButton.setIcon(QIcon(icons + 'folder'))

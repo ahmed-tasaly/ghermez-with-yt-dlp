@@ -20,21 +20,21 @@ try:
         QCheckBox, QProgressBar, QFrame, QDoubleSpinBox, QComboBox,
         QWidget, QTabWidget, QVBoxLayout, QHBoxLayout, QPushButton, QLabel
     )
-    from PySide6.QtCore import Qt, QTranslator, QCoreApplication, QLocale, QSize
+    from PySide6.QtCore import Qt, QTranslator, QCoreApplication, QLocale, QSize, QSettings
     from PySide6.QtGui import QIcon
 except ImportError:
     from PyQt5.QtWidgets import (
         QCheckBox, QProgressBar, QFrame, QDoubleSpinBox, QComboBox,
         QWidget, QTabWidget, QVBoxLayout, QHBoxLayout, QPushButton, QLabel
     )
-    from PyQt5.QtCore import Qt, QTranslator, QCoreApplication, QLocale, QSize
+    from PyQt5.QtCore import Qt, QTranslator, QCoreApplication, QLocale, QSize, QSettings
     from PyQt5.QtGui import QIcon
 
 from persepolis.constants import APP_NAME, LONG_NAME
 from persepolis.gui import resources # noqa: F401
 
 class ProgressWindow_Ui(QWidget):
-    def __init__(self, persepolis_setting):
+    def __init__(self, persepolis_setting: QSettings) -> None:
         super().__init__()
         self.persepolis_setting = persepolis_setting
         icons = ':/' + str(persepolis_setting.value('settings/icons')) + '/'

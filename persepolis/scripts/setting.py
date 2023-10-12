@@ -12,14 +12,17 @@
 #
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+from __future__ import annotations
+from typing import Callable
+
 try:
-    from PySide6.QtCore import Qt, QEvent, QTime, QSize, QPoint, QDir, QTranslator, QCoreApplication, QLocale
-    from PySide6.QtWidgets import QFileDialog, QStyleFactory, QMessageBox, QTableWidgetItem
-    from PySide6.QtGui import QFont, QKeySequence
+    from PySide6.QtCore import Qt, QEvent, QTime, QSize, QPoint, QDir, QTranslator, QCoreApplication, QLocale, QSettings, QObject
+    from PySide6.QtWidgets import QFileDialog, QStyleFactory, QMessageBox, QTableWidgetItem, QPushButton, QWidget
+    from PySide6.QtGui import QFont, QKeySequence, QCloseEvent, QKeyEvent
 except ImportError:
-    from PyQt5.QtCore import Qt, QEvent, QTime, QSize, QPoint, QDir, QTranslator, QCoreApplication, QLocale
-    from PyQt5.QtWidgets import QFileDialog, QStyleFactory, QMessageBox, QTableWidgetItem
-    from PyQt5.QtGui import QFont, QKeySequence
+    from PyQt5.QtCore import Qt, QEvent, QTime, QSize, QPoint, QDir, QTranslator, QCoreApplication, QLocale, QSettings, QObject
+    from PyQt5.QtWidgets import QFileDialog, QStyleFactory, QMessageBox, QTableWidgetItem, QPushButton, QWidget
+    from PyQt5.QtGui import QFont, QKeySequence, QCloseEvent, QKeyEvent
 
 
 from persepolis.constants import OS
@@ -36,7 +39,7 @@ os_type = platform.system()
 
 
 class KeyCapturingWindow(KeyCapturingWindow_Ui):
-    def __init__(self, callback, persepolis_setting):
+    def __init__(self, callback: Callable[[str], None], persepolis_setting: QSettings) -> None:
         super().__init__(persepolis_setting)
         self.persepolis_setting = persepolis_setting
         self.callback = callback
@@ -46,24 +49,24 @@ class KeyCapturingWindow(KeyCapturingWindow_Ui):
 
         self.installEventFilter(self)
 
-    def eventFilter(self, source, event):
+    def eventFilter(self, source: QObject, event: QEvent) -> bool:
         if event.type() == QEvent.KeyPress:
             if event.key():
                 # show new keys in window
                 self.capturedKeyLabel.setText(str(QKeySequence(event.modifiers() | event.key()).toString()))
         return super(KeyCapturingWindow, self).eventFilter(source, event)
 
-    def okPushButtonPressed(self, button):
+    def okPushButtonPressed(self, _button: QPushButton) -> None:
         # return new keys
         self.callback(self.capturedKeyLabel.text())
         self.close()
 
-    def closeEvent(self, event):
+    def closeEvent(self, event: QCloseEvent) -> None:
         event.accept()
 
 
 class PreferencesWindow(Setting_Ui):
-    def __init__(self, parent, persepolis_setting):
+    def __init__(self, parent: QWidget, persepolis_setting: QSettings) -> None:
         super().__init__(persepolis_setting)
         self.persepolis_setting = persepolis_setting
         self.parent = parent
@@ -422,7 +425,7 @@ class PreferencesWindow(Setting_Ui):
 
 
     # run this method if user doubleclicks on an item in shortcut_table
-    def showCaptureKeyboardWindow(self):
+    def showCaptureKeyboardWindow(self) -> None:
 
         # show KeyCapturingWindow
         keyboard_capture_window = KeyCapturingWindow(self.callBack, self.persepolis_setting)
@@ -430,7 +433,7 @@ class PreferencesWindow(Setting_Ui):
         self.parent.capturekeywindows_list.append(keyboard_capture_window)
         self.parent.capturekeywindows_list[-1].show()
 
-    def callBack(self, keys):
+    def callBack(self, keys: str) -> None:
         # do nothing if keys is empty
         if not(keys):
             return
@@ -460,7 +463,7 @@ class PreferencesWindow(Setting_Ui):
             self.shortcuts_list[selected_row] = keys
 
     # active color_comboBox only when user is select "Fusion" style.
-    def styleComboBoxChanged(self, index=None):
+    def styleComboBoxChanged(self, _index: int | None=None) -> None:
         # clear color_comboBox
         self.color_comboBox.clear()
 
@@ -503,7 +506,7 @@ class PreferencesWindow(Setting_Ui):
 
     # this method sets dark icons for dark color schemes
     # and light icons for light color schemes.
-    def setDarkLightIcon(self, index=None):
+    def setDarkLightIcon(self, _index: int | None=None) -> None:
 
         dark_theme = None
 
@@ -587,7 +590,7 @@ class PreferencesWindow(Setting_Ui):
             self.icon_comboBox.setCurrentIndex(current_icons_index)
 
 
-    def fontCheckBoxState(self, checkBox):
+    def fontCheckBoxState(self, _checkBox: int) -> None:
 
         # deactivate fontComboBox and font_size_spinBox if font_checkBox not checked!
         if self.font_checkBox.isChecked():
@@ -598,12 +601,12 @@ class PreferencesWindow(Setting_Ui):
             self.font_size_spinBox.setEnabled(False)
 
     # close window with ESC key
-    def keyPressEvent(self, event):
+    def keyPressEvent(self, event: QKeyEvent) -> None:
         if event.key() == Qt.Key_Escape:
             self.close()
 
 
-    def closeEvent(self, event):
+    def closeEvent(self, event: QCloseEvent) -> None:
 
         # saving window size and position
         self.persepolis_setting.setValue('PreferencesWindow/size', self.size())
@@ -616,21 +619,21 @@ class PreferencesWindow(Setting_Ui):
             self.parent.minMaxTray(event)
         self.close()
 
-    def soundFrame(self, checkBox):
+    def soundFrame(self, _checkBox: int) -> None:
 
         if self.enable_notifications_checkBox.isChecked():
             self.sound_frame.setEnabled(True)
         else:
             self.sound_frame.setEnabled(False)
 
-    def ariaCheckBoxToggled(self, checkBox):
+    def ariaCheckBoxToggled(self, _checkBox: int) -> None:
 
         if self.aria2_path_checkBox.isChecked():
             self.aria2_path_pushButton.setEnabled(True)
         else:
             self.aria2_path_pushButton.setEnabled(False)
 
-    def changeAria2Path(self, button):
+    def changeAria2Path(self, _button: QPushButton) -> None:
 
         cwd = sys.argv[0]
         cwd = os.path.dirname(cwd)
@@ -644,7 +647,7 @@ class PreferencesWindow(Setting_Ui):
         else:
             self.aria2_path_checkBox.setChecked(False)
 
-    def downloadFolderPushButtonClicked(self, button):
+    def downloadFolderPushButtonClicked(self, _button: QPushButton) -> None:
 
         download_path = str(
             self.persepolis_setting.value('settings/download_path'))
@@ -661,7 +664,7 @@ class PreferencesWindow(Setting_Ui):
             self.persepolis_setting.setValue(
                 'settings/download_path', str(fname))
 
-    def tempDownloadPushButtonClicked(self, button):
+    def tempDownloadPushButtonClicked(self, _button: QPushButton) -> None:
 
         download_path_temp = str(
             self.persepolis_setting.value('settings/download_path_temp'))
@@ -673,11 +676,11 @@ class PreferencesWindow(Setting_Ui):
             self.persepolis_setting.setValue(
                 'settings/download_path_temp', str(fname))
 
-    def dialChanged(self, dial):
+    def dialChanged(self, _dial: int) -> None:
 
         self.volume_label.setText('Volume : ' + str(self.volume_dial.value()))
 
-    def defaultsPushButtonPressed(self, button):
+    def defaultsPushButtonPressed(self, _button: QPushButton) -> None:
 
         self.persepolis_setting.beginGroup('settings')
 
@@ -827,7 +830,7 @@ class PreferencesWindow(Setting_Ui):
 
         self.persepolis_setting.endGroup()
 
-    def okPushButtonPressed(self, button):
+    def okPushButtonPressed(self, _button: QPushButton) -> None:
 
         self.persepolis_setting.beginGroup('settings')
 

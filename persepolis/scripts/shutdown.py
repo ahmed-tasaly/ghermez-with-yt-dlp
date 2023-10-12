@@ -12,6 +12,13 @@
 #
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+from __future__ import annotations
+
+try:
+    from PySide6.QtWidgets import QWidget
+except ImportError:
+    from PyQt5.QtWidgets import QWidget
+
 
 from persepolis.scripts import logger
 from persepolis.constants import OS
@@ -21,7 +28,7 @@ import platform
 
 os_type = platform.system()
 
-def shutDown(parent, gid=None, category=None, password=None):
+def shutDown(parent: QWidget, gid: str | None=None, category: str | None=None, password: str | None=None) -> None:
     # for queue >> gid = None
     # for single downloads >> category = None
     # change value of shutdown in data base

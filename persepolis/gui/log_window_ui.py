@@ -11,16 +11,15 @@
 #
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
 
 try:
     from PySide6.QtWidgets import QWidget, QTextEdit, QVBoxLayout, QHBoxLayout, QPushButton
-    from PySide6.QtCore import Qt, QTranslator, QCoreApplication, QLocale
+    from PySide6.QtCore import Qt, QTranslator, QCoreApplication, QLocale, QSettings
     from PySide6.QtGui import QIcon
     from PySide6 import QtCore
 except ImportError:
     from PyQt5.QtWidgets import QWidget, QTextEdit, QVBoxLayout, QHBoxLayout, QPushButton
-    from PyQt5.QtCore import Qt, QTranslator, QCoreApplication, QLocale
+    from PyQt5.QtCore import Qt, QTranslator, QCoreApplication, QLocale, QSettings
     from PyQt5.QtGui import QIcon
     from PyQt5 import QtCore
 
@@ -28,7 +27,7 @@ from persepolis.constants import APP_NAME
 from persepolis.gui import resources # noqa: F401
 
 class LogWindow_Ui(QWidget):
-    def __init__(self, persepolis_setting):
+    def __init__(self, persepolis_setting: QSettings) -> None:
         super().__init__()
 
         self.persepolis_setting = persepolis_setting

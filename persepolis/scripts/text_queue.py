@@ -13,15 +13,18 @@
 #
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+from __future__ import annotations
+from typing import Callable
+
 try:
-    from PySide6.QtCore import Qt, QDir, QPoint, QSize, QThread, Signal
-    from PySide6.QtWidgets import QTableWidgetItem, QFileDialog
-    from PySide6.QtGui import QIcon
+    from PySide6.QtCore import Qt, QDir, QPoint, QSize, QThread, Signal, QSettings
+    from PySide6.QtWidgets import QTableWidgetItem, QFileDialog, QWidget, QPushButton, QCheckBox
+    from PySide6.QtGui import QIcon, QKeyEvent, QCloseEvent
 except ImportError:
-    from PyQt5.QtCore import Qt, QDir, QPoint, QSize, QThread
-    from PyQt5.QtWidgets import QTableWidgetItem, QFileDialog
+    from PyQt5.QtCore import Qt, QDir, QPoint, QSize, QThread, QSettings
+    from PyQt5.QtWidgets import QTableWidgetItem, QFileDialog, QWidget, QPushButton, QCheckBox
     from PyQt5.QtCore import pyqtSignal as Signal
-    from PyQt5.QtGui import QIcon
+    from PyQt5.QtGui import QIcon, QKeyEvent, QCloseEvent
 
 from persepolis.gui.text_queue_ui import TextQueue_Ui
 from persepolis.scripts import logger
@@ -35,11 +38,11 @@ import os
 class QueueSpiderThread(QThread):
     QUEUESPIDERRETURNEDFILENAME = Signal(str)
 
-    def __init__(self, dict):
+    def __init__(self, dict: dict[str, str]) -> None:
         QThread.__init__(self)
         self.dict = dict
 
-    def run(self):
+    def run(self) -> None:
         try:
             filename = spider.queueSpider(self.dict)
             if filename:
@@ -57,7 +60,7 @@ class QueueSpiderThread(QThread):
 
 
 class TextQueue(TextQueue_Ui):
-    def __init__(self, parent, file_path, callback, persepolis_setting):
+    def __init__(self, parent: QWidget, file_path: str, callback: Callable[[list[dict], str], None], persepolis_setting: QSettings):
         super().__init__(persepolis_setting)
         self.persepolis_setting = persepolis_setting
         self.callback = callback
@@ -196,19 +199,19 @@ class TextQueue(TextQueue_Ui):
         self.move(position)
 
     # this method checks all check boxes
-    def selectAll(self, button):
+    def selectAll(self, _button: QPushButton) -> None:
         for i in range(self.links_table.rowCount()):
             item = self.links_table.item(i, 0)
             item.setCheckState(Qt.Checked)
 
     # this method deselect all check boxes
-    def deselectAll(self, button):
+    def deselectAll(self, _button: QPushButton) -> None:
         for i in range(self.links_table.rowCount()):
             item = self.links_table.item(i, 0)
             item.setCheckState(Qt.Unchecked)
 
     # this method is called, when user changes add_queue_comboBox
-    def queueChanged(self, combo):
+    def queueChanged(self, combo: int) -> None:
         if str(self.add_queue_comboBox.currentText()) == 'Create new queue':
             # if user want to create new queue, then call createQueue method from mainwindow(parent)
             new_queue = self.parent.createQueue(combo)
@@ -233,28 +236,28 @@ class TextQueue(TextQueue_Ui):
                 self.add_queue_comboBox.setCurrentIndex(0)
 
     # activate frames if checkBoxes checked
-    def proxyFrame(self, checkBox):
+    def proxyFrame(self, _checkBox: QCheckBox) -> None:
 
         if self.proxy_checkBox.isChecked():
             self.proxy_frame.setEnabled(True)
         else:
             self.proxy_frame.setEnabled(False)
 
-    def downloadFrame(self, checkBox):
+    def downloadFrame(self, _checkBox: QCheckBox) -> None:
 
         if self.download_checkBox.isChecked():
             self.download_frame.setEnabled(True)
         else:
             self.download_frame.setEnabled(False)
 
-    def limitFrame(self, checkBox):
+    def limitFrame(self, _checkBox: QCheckBox) -> None:
 
         if self.limit_checkBox.isChecked():
             self.limit_frame.setEnabled(True)
         else:
             self.limit_frame.setEnabled(False)
 
-    def changeFolder(self, button):
+    def changeFolder(self, _button: QPushButton) -> None:
         fname = QFileDialog.getExistingDirectory(
             self, 'Select a directory', download_path)
 
@@ -268,7 +271,7 @@ class TextQueue(TextQueue_Ui):
         if os.path.isdir(fname):
             self.download_folder_lineEdit.setText(fname)
 
-    def okButtonPressed(self, button):
+    def okButtonPressed(self, _button: QPushButton) -> None:
         # write user's input data to init file
         self.persepolis_setting.setValue(
             'add_link_initialization/ip', self.ip_lineEdit.text())
@@ -378,19 +381,19 @@ class TextQueue(TextQueue_Ui):
         self.close()
 
     # close window with ESC key
-    def keyPressEvent(self, event):
+    def keyPressEvent(self, event: QKeyEvent) -> None:
         if event.key() == Qt.Key_Escape:
             self.close()
 
 
-    def closeEvent(self, event):
+    def closeEvent(self, event: QCloseEvent) -> None:
         self.persepolis_setting.setValue('TextQueue/size', self.size())
         self.persepolis_setting.setValue('TextQueue/position', self.pos())
         self.persepolis_setting.sync()
 
         event.accept()
 
-    def changeIcon(self, icons):
+    def changeIcon(self, icons: str) -> None:
         icons = ':/' + str(icons) + '/'
 
         self.folder_pushButton.setIcon(QIcon(icons + 'folder'))

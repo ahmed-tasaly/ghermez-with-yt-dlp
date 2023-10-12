@@ -12,10 +12,12 @@
 #
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+from __future__ import annotations
+
 try:
-    from PySide6.QtWidgets import QStyleFactory
+    from PySide6.QtWidgets import QStyleFactory, QWidget
 except ImportError:
-    from PyQt5.QtWidgets import QStyleFactory
+    from PyQt5.QtWidgets import QStyleFactory, QWidget
 
 from persepolis.constants import OS
 import urllib.parse
@@ -68,7 +70,7 @@ def osAndDesktopEnvironment():
 
 
 # this function converts file_size to KiB or MiB or GiB
-def humanReadableSize(size, input_type='file_size'): 
+def humanReadableSize(size: float, input_type: str='file_size') -> str:
     labels = ['KiB', 'MiB', 'GiB', 'TiB']
     i = -1
     if size < 1024:
@@ -91,7 +93,7 @@ def humanReadableSize(size, input_type='file_size'):
 # this function converts human readable size to byte
 
 
-def convertToByte(file_size):
+def convertToByte(file_size: str) -> int:
 
     # if unit is not in Byte
     if file_size[-2:] != ' B':
@@ -129,7 +131,7 @@ def convertToByte(file_size):
 
 
 # this function checks free space in hard disk.
-def freeSpace(dir):
+def freeSpace(dir: str) -> (int | None):
     try:
         import psutil
     except ImportError:
@@ -151,7 +153,7 @@ def freeSpace(dir):
         return None
 
 
-def returnDefaultSettings():
+def returnDefaultSettings() -> dict[str, str]:
     # find available styles(It's depends on operating system and desktop environments).
     available_styles = QStyleFactory.keys()
 
@@ -161,7 +163,7 @@ def returnDefaultSettings():
     return default_setting_dict
 
 
-def muxer(parent, video_finder_dictionary):
+def muxer(parent: QWidget, video_finder_dictionary: dict[str, str]):
 
     result_dictionary = {'error': 'no_error',
                          'ffmpeg_error_message': None,

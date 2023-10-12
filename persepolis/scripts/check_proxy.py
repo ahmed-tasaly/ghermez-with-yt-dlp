@@ -11,8 +11,8 @@
 #
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
 
+from __future__ import annotations
 import re
 import subprocess
 import urllib
@@ -24,7 +24,7 @@ from persepolis.constants import OS
 # get proxy function
 
 
-def getProxy():
+def getProxy() -> dict[str, str]:
     socks_proxy = False
 
     # find os and desktop environment

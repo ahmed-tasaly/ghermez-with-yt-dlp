@@ -11,8 +11,8 @@
 #
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
 
+from __future__ import annotations
 from ghermez import determineConfigFolder
 from persepolis.scripts import osCommands
 from persepolis.constants import OS, BROWSER
@@ -31,7 +31,7 @@ config_folder = determineConfigFolder()
 # browser can be firefox or chromium or chrome
 
 
-def browserIntegration(browser):
+def browserIntegration(browser: str) -> (bool, bool):
     # for GNU/Linux
     if os_type == OS.LINUX:
         # find Persepolis execution path

@@ -13,6 +13,7 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from __future__ import annotations
 from persepolis.scripts.play import playNotification
 from persepolis.gui import resources # noqa: F401
 from persepolis.constants import OS, APP_NAME, ORG_NAME, LONG_NAME
@@ -22,9 +23,11 @@ import os
 
 try:
     from PySide6.QtCore import QSettings
+    from PySide6.QtWidgets import QWidget
     from PySide6.QtGui import QIcon
 except ImportError:
     from PyQt5.QtCore import QSettings
+    from PyQt5.QtWidgets import QWidget
     from PyQt5.QtGui import QIcon
 
 # platform
@@ -40,8 +43,7 @@ elif os_type == OS.WINDOWS:
 # and use playNotification function in play.py file for playing sound
 # notifications
 
-
-def notifySend(message1, message2, time, sound, parent=None):
+def notifySend(message1: str, message2: str, time: int, sound: str, parent: QWidget | None=None) -> None:
 
     if os_type == OS.LINUX:
         notifications_path = '/usr/share/sounds/freedesktop/stereo/'

@@ -109,15 +109,15 @@ persepolis_setting = QSettings(ORG_NAME, APP_NAME)
 
 
 class PersepolisApplication(QApplication):
-    def __init__(self, argv):
+    def __init__(self, argv) -> None:
         super().__init__(argv)
 
-    def setPersepolisStyle(self, style):
+    def setPersepolisStyle(self, style: str) -> None:
         # set style
         self.persepolis_style = style
         self.setStyle(style)
 
-    def setPersepolisFont(self, font, font_size, custom_font):
+    def setPersepolisFont(self, font: str, font_size: int, custom_font: bool) -> None:
         # font and font_size
         self.persepolis_font = font
         self.persepolis_font_size = font_size
@@ -126,7 +126,7 @@ class PersepolisApplication(QApplication):
             self.setFont(QFont(font, font_size))
 # color_scheme
 
-    def setPersepolisColorScheme(self, color_scheme):
+    def setPersepolisColorScheme(self, color_scheme: str) -> None:
         self.persepolis_color_scheme = color_scheme
         if color_scheme == 'Dark Fusion':
             dark_fusion = DarkFusionPalette()

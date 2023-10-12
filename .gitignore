@@ -11,6 +11,9 @@ man/persepolis.1.gz
 venv/
 resources.py
 
+# maturin lib
+*.so
+
 # Pyinstaller
 dist/
 *.spec

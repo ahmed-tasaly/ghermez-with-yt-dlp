@@ -25,7 +25,7 @@ import platform
 os_type = platform.system()
 
 
-def playNotification(file):
+def playNotification(file: str) -> None:
     # getting user setting from persepolis_setting
     persepolis_setting = QSettings(ORG_NAME, APP_NAME)
 

@@ -1,26 +1,25 @@
 # -*- coding: utf-8 -*-
-"""
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-"""
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+from __future__ import annotations
 try:
     from PySide6.QtWidgets import (
-        QCheckBox, QPushButton, QTextEdit, QFrame, QLabel, QComboBox, QHBoxLayout, QApplication
+        QCheckBox, QPushButton, QTextEdit, QFrame, QLabel, QComboBox, QHBoxLayout, QApplication, QWidget
     )
-    from PySide6.QtCore import QThread, Signal, QCoreApplication, QTranslator, QLocale
+    from PySide6.QtCore import QThread, Signal, QCoreApplication, QTranslator, QLocale, QSettings
 except ImportError:
-    from PyQt5.QtWidgets import QCheckBox, QPushButton, QTextEdit, QFrame, QLabel, QComboBox, QHBoxLayout, QApplication
-    from PyQt5.QtCore import QThread, QCoreApplication, QTranslator, QLocale
+    from PyQt5.QtWidgets import QCheckBox, QPushButton, QTextEdit, QFrame, QLabel, QComboBox, QHBoxLayout, QApplication, QWidget
+    from PyQt5.QtCore import QThread, QCoreApplication, QTranslator, QLocale, QSettings
     from PyQt5.QtCore import pyqtSignal as Signal
 
 from ghermez import determineConfigFolder
@@ -51,7 +50,7 @@ class MediaListFetcherThread(QThread):
     RESULT = Signal(dict)
     cookies = '# HTTP cookie file.\n'  # We shall write it in a file when thread starts.
 
-    def __init__(self, receiver_slot, video_dict, parent):
+    def __init__(self, receiver_slot: dict[str, str], video_dict: dict[str, str], parent: QWidget) -> None:
         super().__init__()
         self.RESULT.connect(receiver_slot)
         self.video_dict = video_dict
@@ -104,7 +103,7 @@ class MediaListFetcherThread(QThread):
         if 'link' in video_dict.keys() and video_dict['link']:
             self.youtube_link = str(video_dict['link'])
 
-    def run(self):
+    def run(self) -> None:
         ret_val = {}
 
         try:  # Create cookie file
@@ -136,7 +135,7 @@ class MediaListFetcherThread(QThread):
 
         self.RESULT.emit(ret_val)
 
-    def makeHttpCookie(self, raw_cookie, host_name='.youtube.com'):
+    def makeHttpCookie(self, raw_cookie: str, host_name: str='.youtube.com') -> str:
         cookies = '# HTTP cookie file.\n'
         if raw_cookie:
             try:
@@ -155,12 +154,12 @@ class MediaListFetcherThread(QThread):
 class FileSizeFetcherThread(QThread):
     FOUND = Signal(dict)
 
-    def __init__(self, dictionary, thread_key):
+    def __init__(self, dictionary: dict[str, str], thread_key: int) -> None:
         super().__init__()
         self.dictionary = dictionary
         self.key = thread_key
 
-    def run(self):
+    def run(self) -> None:
         spider_file_size = spider(self.dictionary)[1]
         self.FOUND.emit({'thread_key': self.key,
                          'file_size': spider_file_size})
@@ -170,7 +169,9 @@ class VideoFinderAddLink(AddLinkWindow):
     running_thread = None
     threadPool = {}
 
-    def __init__(self, parent, receiver_slot, settings, video_dict={}):
+    def __init__(self, parent: QWidget, receiver_slot: dict[str, str], settings: QSettings, video_dict: dict | None=None) -> None:
+        if video_dict is None:
+            video_dict = {}
         super().__init__(parent, receiver_slot, settings, video_dict)
         self.setWindowTitle(QCoreApplication.translate("ytaddlink_src_ui_tr", 'Video Finder'))
         self.size_label.hide()
@@ -299,7 +300,7 @@ class VideoFinderAddLink(AddLinkWindow):
 
             self.url_submit_pushButtontton.setEnabled(True)
 
-    def advancedFormatFrame(self, button):
+    def advancedFormatFrame(self, _button: QPushButton) -> None:
         if self.advanced_format_selection_checkBox.isChecked():
 
             self.advanced_format_selection_frame.setEnabled(True)
@@ -311,13 +312,13 @@ class VideoFinderAddLink(AddLinkWindow):
             self.format_selection_frame.setEnabled(True)
             self.mediaSelectionChanged('video_audio', int(self.media_comboBox.currentIndex()))
 
-    def getReadableSize(self, size):
+    def getReadableSize(self, size: int) -> str:
         try:
             return '{:1.2f} MB'.format(int(size) / 1048576)
         except ValueError:
             return str(size)
 
-    def getReadableDuration(self, seconds):
+    def getReadableDuration(self, seconds: int) -> str:
         try:
             seconds = int(seconds)
             hours = seconds // 3600
@@ -330,7 +331,7 @@ class VideoFinderAddLink(AddLinkWindow):
 
     # Define native slots
 
-    def urlChanged(self, value):
+    def urlChanged(self, value: str) -> None:
         if ' ' in value or value == '':
             self.url_submit_pushButtontton.setEnabled(False)
             self.url_submit_pushButtontton.setToolTip(QCoreApplication.translate(
@@ -339,7 +340,7 @@ class VideoFinderAddLink(AddLinkWindow):
             self.url_submit_pushButtontton.setEnabled(True)
             self.url_submit_pushButtontton.setToolTip('')
 
-    def submitClicked(self, button=None):
+    def submitClicked(self, _button: QPushButton | None=None) -> None:
         # Clear media list
         self.media_comboBox.clear()
         self.format_selection_frame.hide()
@@ -370,11 +371,11 @@ class VideoFinderAddLink(AddLinkWindow):
         self.parent.threadPool.append(fetcher_thread)
         self.parent.threadPool[-1].start()
 
-    def fileNameChanged(self, value):
+    def fileNameChanged(self, value: str) -> None:
         if value.strip() == '':
             self.ok_pushButton.setEnabled(False)
 
-    def mediaSelectionChanged(self, combobox, index):
+    def mediaSelectionChanged(self, combobox: str, index: int) -> None:
         try:
             if combobox == 'video_audio':
                 if self.media_comboBox.currentText() == 'Best quality':
@@ -430,7 +431,7 @@ class VideoFinderAddLink(AddLinkWindow):
         except Exception as ex:
             logger.sendToLog(ex, "ERROR")
 
-    def fetchedResult(self, media_dict):
+    def fetchedResult(self, media_dict: dict[str, str]) -> None:
 
         self.url_submit_pushButtontton.setEnabled(True)
         if 'error' in media_dict.keys():
@@ -571,7 +572,7 @@ class VideoFinderAddLink(AddLinkWindow):
             except Exception as ex:
                 logger.sendToLog(ex, "ERROR")
 
-    def findFileSize(self, result):
+    def findFileSize(self, result: dict[str, str]) -> None:
         try:
             item_id = self.threadPool[str(result['thread_key'])]['item_id']
             if result['file_size'] and result['file_size'] != '0':
@@ -580,14 +581,14 @@ class VideoFinderAddLink(AddLinkWindow):
         except Exception as ex:
             logger.sendToLog(ex, "ERROR")
 
-    def linkLineChangedHere(self, lineEdit):
+    def linkLineChangedHere(self, lineEdit: str) -> None:
         if str(lineEdit) == '':
             self.url_submit_pushButtontton.setEnabled(False)
         else:
             self.url_submit_pushButtontton.setEnabled(True)
 
     # This method collects additional information like proxy ip, user, password etc.
-    def collectMoreOptions(self):
+    def collectMoreOptions(self) -> dict[str, str | None]:
         options = {'ip': None, 'port': None, 'proxy_user': None, 'proxy_passwd': None, 'download_user': None,
                    'download_passwd': None}
         if self.proxy_checkBox.isChecked():
@@ -608,7 +609,7 @@ class VideoFinderAddLink(AddLinkWindow):
 
     # user submitted information by pressing ok_pushButton, so get information
     # from VideoFinderAddLink window and return them to the mainwindow with callback!
-    def okButtonPressed(self, download_later, button=None):
+    def okButtonPressed(self, download_later: bool, _button: QPushButton | None=None) -> None:
 
         link_list = []
         # separate audio format and video format is selected.

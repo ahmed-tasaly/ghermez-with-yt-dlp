@@ -1,23 +1,26 @@
 # -*- coding: utf-8 -*-
 
-"""
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-"""
 try:
-    from PySide6.QtCore import Qt, QThread, Signal
+    from PySide6.QtCore import Qt, QThread, Signal, QSettings
+    from PySide6.QtGui import QKeyEvent, QMouseEvent, QCloseEvent
+    from PySide6.QtWidgets import QWidget
 except ImportError:
-    from PyQt5.QtCore import Qt, QThread
+    from PyQt5.QtCore import Qt, QThread, QSettings
+    from PyQt5.QtGui import QKeyEvent, QMouseEvent, QCloseEvent
+    from PyQt5.QtWidgets import QWidget
     from PyQt5.QtCore import pyqtSignal as Signal
 
 from persepolis.gui.windows_notification_ui import Windows_Notification_UI
@@ -27,17 +30,17 @@ from time import sleep
 class TimerThread(QThread):
     TIMEISUP = Signal()
 
-    def __init__(self, time):
+    def __init__(self, time: str) -> None:
         QThread.__init__(self)
         self.time = float(int(time)/1000)
 
-    def run(self):
+    def run(self) -> None:
         sleep(self.time)
         self.TIMEISUP.emit()
 
 
 class Windows_Notification(Windows_Notification_UI):
-    def __init__(self, parent, time, text1, text2, persepolis_setting):
+    def __init__(self, parent: QWidget, time: str, text1: str, text2: str, persepolis_setting: QSettings) -> None:
         super().__init__(parent, persepolis_setting)
 
         # run timer and close notification after time is up.
@@ -50,14 +53,13 @@ class Windows_Notification(Windows_Notification_UI):
         self.label1.setText(str(text1))
         self.label2.setText(str(text2))
 
-    def mousePressEvent(self, event):
+    def mousePressEvent(self, _event: QMouseEvent) -> None:
         self.close()
 
     # close window with ESC key
-    def keyPressEvent(self, event):
+    def keyPressEvent(self, event: QKeyEvent) -> None:
         if event.key() == Qt.Key_Escape:
             self.close()
 
-
-    def closeEvent(self, event):
+    def closeEvent(self, event: QCloseEvent) -> None:
         event.accept()

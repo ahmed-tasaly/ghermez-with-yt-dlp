@@ -50,7 +50,7 @@ single_downloads_list_file = os.path.join(category_folder, "Single Downloads")
 
 # this script for compatibility between Version 2 and 3
 
-def compatibility():
+def compatibility() -> None:
     if os.path.isfile(queues_list_file):
         persepolis_db = DataBase()
 
