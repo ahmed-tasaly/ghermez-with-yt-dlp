@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
 #    the Free Software Foundation, either version 3 of the License, or
@@ -13,27 +12,48 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 try:
-    from PySide6.QtWidgets import (
-        QTabWidget, QDoubleSpinBox, QPushButton, QComboBox,
-        QSpinBox, QVBoxLayout, QHBoxLayout, QLabel, QWidget,
-        QGridLayout, QCheckBox, QFrame, QLineEdit
-    )
-    from PySide6.QtCore import Qt, QTranslator, QCoreApplication, QLocale, QSettings
     from PySide6 import QtCore
+    from PySide6.QtCore import QCoreApplication, QLocale, QSettings, Qt, QTranslator
     from PySide6.QtGui import QIcon
-except ImportError:
-    from PyQt5.QtWidgets import (
-        QTabWidget, QDoubleSpinBox, QPushButton, QComboBox,
-        QSpinBox, QVBoxLayout, QHBoxLayout, QLabel, QWidget,
-        QGridLayout, QCheckBox, QFrame, QLineEdit
+    from PySide6.QtWidgets import (
+        QCheckBox,
+        QComboBox,
+        QDoubleSpinBox,
+        QFrame,
+        QGridLayout,
+        QHBoxLayout,
+        QLabel,
+        QLineEdit,
+        QPushButton,
+        QSpinBox,
+        QTabWidget,
+        QVBoxLayout,
+        QWidget,
     )
-    from PyQt5.QtCore import Qt, QTranslator, QCoreApplication, QLocale, QSettings
+except ImportError:
     from PyQt5 import QtCore
+    from PyQt5.QtCore import QCoreApplication, QLocale, QSettings, Qt, QTranslator
     from PyQt5.QtGui import QIcon
+    from PyQt5.QtWidgets import (
+        QCheckBox,
+        QComboBox,
+        QDoubleSpinBox,
+        QFrame,
+        QGridLayout,
+        QHBoxLayout,
+        QLabel,
+        QLineEdit,
+        QPushButton,
+        QSpinBox,
+        QTabWidget,
+        QVBoxLayout,
+        QWidget,
+    )
 
 from persepolis.constants import APP_NAME
-from persepolis.gui import resources # noqa: F401
+from persepolis.gui import resources  # noqa: F401
 from persepolis.gui.customized_widgets import MyQDateTimeEdit
+
 
 class AddLinkWindow_Ui(QWidget):
     def __init__(self, persepolis_setting: QSettings) -> None:
@@ -307,8 +327,8 @@ class AddLinkWindow_Ui(QWidget):
         horizontalLayout_4.addWidget(self.limit_spinBox)
 
         self.limit_comboBox = QComboBox(self.limit_frame)
-        self.limit_comboBox.addItem("")
-        self.limit_comboBox.addItem("")
+        self.limit_comboBox.addItem('')
+        self.limit_comboBox.addItem('')
         horizontalLayout_4.addWidget(self.limit_comboBox)
         limit_verticalLayout.addWidget(self.limit_frame)
         time_limit_horizontalLayout.addLayout(limit_verticalLayout)
@@ -329,7 +349,7 @@ class AddLinkWindow_Ui(QWidget):
         self.connections_spinBox = QSpinBox(self.connections_frame)
         self.connections_spinBox.setMinimum(1)
         self.connections_spinBox.setMaximum(16)
-        self.connections_spinBox.setProperty("value", 16)
+        self.connections_spinBox.setProperty('value', 16)
         horizontalLayout_3.addWidget(self.connections_spinBox)
         connections_horizontalLayout.addWidget(self.connections_frame)
         connections_horizontalLayout.addStretch(1)
@@ -415,61 +435,61 @@ class AddLinkWindow_Ui(QWidget):
         self.setLayout(window_verticalLayout)
 
         # labels ->
-        self.setWindowTitle(QCoreApplication.translate("addlink_ui_tr", "Add Download Link"))
+        self.setWindowTitle(QCoreApplication.translate('addlink_ui_tr', 'Add Download Link'))
 
-        self.link_label.setText(QCoreApplication.translate("addlink_ui_tr", "Download link: "))
+        self.link_label.setText(QCoreApplication.translate('addlink_ui_tr', 'Download link: '))
 
-        self.add_queue_label.setText(QCoreApplication.translate("addlink_ui_tr", "Add to category: "))
+        self.add_queue_label.setText(QCoreApplication.translate('addlink_ui_tr', 'Add to category: '))
 
-        self.change_name_checkBox.setText(QCoreApplication.translate("addlink_ui_tr", "Change file name: "))
+        self.change_name_checkBox.setText(QCoreApplication.translate('addlink_ui_tr', 'Change file name: '))
 
         self.detect_proxy_pushButton.setText(
-            QCoreApplication.translate("addlink_ui_tr", "Detect System Proxy Settings")
+            QCoreApplication.translate('addlink_ui_tr', 'Detect System Proxy Settings'),
         )
-        self.proxy_checkBox.setText(QCoreApplication.translate("addlink_ui_tr", "Proxy"))
-        self.proxy_pass_label.setText(QCoreApplication.translate("addlink_ui_tr", "Proxy password: "))
-        self.ip_label.setText(QCoreApplication.translate("addlink_ui_tr", "IP: "))
-        self.proxy_user_label.setText(QCoreApplication.translate("addlink_ui_tr", "Proxy username: "))
-        self.port_label.setText(QCoreApplication.translate("addlink_ui_tr", "Port:"))
+        self.proxy_checkBox.setText(QCoreApplication.translate('addlink_ui_tr', 'Proxy'))
+        self.proxy_pass_label.setText(QCoreApplication.translate('addlink_ui_tr', 'Proxy password: '))
+        self.ip_label.setText(QCoreApplication.translate('addlink_ui_tr', 'IP: '))
+        self.proxy_user_label.setText(QCoreApplication.translate('addlink_ui_tr', 'Proxy username: '))
+        self.port_label.setText(QCoreApplication.translate('addlink_ui_tr', 'Port:'))
 
-        self.download_checkBox.setText(QCoreApplication.translate("addlink_ui_tr", "Download username and password"))
-        self.download_user_label.setText(QCoreApplication.translate("addlink_ui_tr", "Download username: "))
-        self.download_pass_label.setText(QCoreApplication.translate("addlink_ui_tr", "Download password: "))
+        self.download_checkBox.setText(QCoreApplication.translate('addlink_ui_tr', 'Download username and password'))
+        self.download_user_label.setText(QCoreApplication.translate('addlink_ui_tr', 'Download username: '))
+        self.download_pass_label.setText(QCoreApplication.translate('addlink_ui_tr', 'Download password: '))
 
-        self.folder_pushButton.setText(QCoreApplication.translate("addlink_ui_tr", "Change Download Folder"))
-        self.folder_checkBox.setText(QCoreApplication.translate("addlink_ui_tr", "Remember this path"))
-        self.folder_label.setText(QCoreApplication.translate("addlink_ui_tr", "Download Folder: "))
+        self.folder_pushButton.setText(QCoreApplication.translate('addlink_ui_tr', 'Change Download Folder'))
+        self.folder_checkBox.setText(QCoreApplication.translate('addlink_ui_tr', 'Remember this path'))
+        self.folder_label.setText(QCoreApplication.translate('addlink_ui_tr', 'Download Folder: '))
 
-        self.start_checkBox.setText(QCoreApplication.translate("addlink_ui_tr", "Start time"))
-        self.end_checkBox.setText(QCoreApplication.translate("addlink_ui_tr", "End time"))
+        self.start_checkBox.setText(QCoreApplication.translate('addlink_ui_tr', 'Start time'))
+        self.end_checkBox.setText(QCoreApplication.translate('addlink_ui_tr', 'End time'))
 
-        self.limit_checkBox.setText(QCoreApplication.translate("addlink_ui_tr", "Limit speed"))
-        self.limit_comboBox.setItemText(0, "KiB/s")
-        self.limit_comboBox.setItemText(1, "MiB/s")
+        self.limit_checkBox.setText(QCoreApplication.translate('addlink_ui_tr', 'Limit speed'))
+        self.limit_comboBox.setItemText(0, 'KiB/s')
+        self.limit_comboBox.setItemText(1, 'MiB/s')
 
-        self.connections_label.setText(QCoreApplication.translate("addlink_ui_tr", "Number of connections:"))
+        self.connections_label.setText(QCoreApplication.translate('addlink_ui_tr', 'Number of connections:'))
 
-        self.cancel_pushButton.setText(QCoreApplication.translate("addlink_ui_tr", "Cancel"))
-        self.ok_pushButton.setText(QCoreApplication.translate("addlink_ui_tr", "OK"))
+        self.cancel_pushButton.setText(QCoreApplication.translate('addlink_ui_tr', 'Cancel'))
+        self.ok_pushButton.setText(QCoreApplication.translate('addlink_ui_tr', 'OK'))
 
-        self.download_later_pushButton.setText(QCoreApplication.translate("addlink_ui_tr", "Download Later"))
-
-        self.add_link_tabWidget.setTabText(self.add_link_tabWidget.indexOf(
-            self.link_tab), QCoreApplication.translate("addlink_ui_tr", "Link"))
+        self.download_later_pushButton.setText(QCoreApplication.translate('addlink_ui_tr', 'Download Later'))
 
         self.add_link_tabWidget.setTabText(self.add_link_tabWidget.indexOf(
-            self.proxy_tab), QCoreApplication.translate("addlink_ui_tr", "Proxy"))
+            self.link_tab), QCoreApplication.translate('addlink_ui_tr', 'Link'))
 
         self.add_link_tabWidget.setTabText(self.add_link_tabWidget.indexOf(
-            self.more_options_tab), QCoreApplication.translate("addlink_ui_tr", "More Options"))
+            self.proxy_tab), QCoreApplication.translate('addlink_ui_tr', 'Proxy'))
 
         self.add_link_tabWidget.setTabText(self.add_link_tabWidget.indexOf(
-            self.advance_options_tab), QCoreApplication.translate("addlink_ui_tr", "Advanced Options"))
+            self.more_options_tab), QCoreApplication.translate('addlink_ui_tr', 'More Options'))
 
-        self.referer_label.setText(QCoreApplication.translate("addlink_ui_tr", 'Referrer: '))
+        self.add_link_tabWidget.setTabText(self.add_link_tabWidget.indexOf(
+            self.advance_options_tab), QCoreApplication.translate('addlink_ui_tr', 'Advanced Options'))
 
-        self.header_label.setText(QCoreApplication.translate("addlink_ui_tr", 'Header: '))
+        self.referer_label.setText(QCoreApplication.translate('addlink_ui_tr', 'Referrer: '))
 
-        self.load_cookies_label.setText(QCoreApplication.translate("addlink_ui_tr", 'Load cookies: '))
+        self.header_label.setText(QCoreApplication.translate('addlink_ui_tr', 'Header: '))
 
-        self.user_agent_label.setText(QCoreApplication.translate("addlink_ui_tr", 'User agent: '))
+        self.load_cookies_label.setText(QCoreApplication.translate('addlink_ui_tr', 'Load cookies: '))
+
+        self.user_agent_label.setText(QCoreApplication.translate('addlink_ui_tr', 'User agent: '))

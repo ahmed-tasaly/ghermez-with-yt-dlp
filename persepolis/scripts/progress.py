@@ -1,6 +1,3 @@
-
-# -*- coding: utf-8 -*-
-
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
 #    the Free Software Foundation, either version 3 of the License, or
@@ -13,29 +10,32 @@
 #
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-from __future__ import annotations
-try:
-    from PySide6.QtCore import Qt, QSize, QPoint, QThread, QTranslator, QCoreApplication, QLocale, QSettings
-    from PySide6.QtWidgets import QLineEdit, QInputDialog, QWidget, QPushButton
-    from PySide6.QtGui import QIcon, QKeyEvent, QCloseEvent
-except ImportError:
-    from PyQt5.QtCore import Qt, QSize, QPoint, QThread, QTranslator, QCoreApplication, QLocale, QSettings
-    from PyQt5.QtWidgets import QLineEdit, QInputDialog, QWidget, QPushButton
-    from PyQt5.QtGui import QIcon, QKeyEvent, QCloseEvent
 
-from persepolis.gui.progress_ui import ProgressWindow_Ui
-from persepolis.scripts.shutdown import shutDown
-from persepolis.scripts.bubble import notifySend
-from persepolis.scripts import download
-from persepolis.constants import OS
-import subprocess
+from __future__ import annotations
+
+try:
+    from PySide6.QtCore import QCoreApplication, QLocale, QPoint, QSettings, QSize, Qt, QThread, QTranslator
+    from PySide6.QtGui import QCloseEvent, QIcon, QKeyEvent
+    from PySide6.QtWidgets import QInputDialog, QLineEdit, QPushButton, QWidget
+except ImportError:
+    from PyQt5.QtCore import QCoreApplication, QLocale, QPoint, QSettings, QSize, Qt, QThread, QTranslator
+    from PyQt5.QtGui import QCloseEvent, QIcon, QKeyEvent
+    from PyQt5.QtWidgets import QInputDialog, QLineEdit, QPushButton, QWidget
+
 import platform
+import subprocess
+
+from persepolis.constants import OS
+from persepolis.gui.progress_ui import ProgressWindow_Ui
+from persepolis.scripts import download
+from persepolis.scripts.bubble import notifySend
+from persepolis.scripts.shutdown import shutDown
 
 os_type = platform.system()
 
 class ShutDownThread(QThread):
     def __init__(self, parent: QWidget, gid: str, password: str | None=None) -> None:
-        QThread.__init__(self)
+        super().__init__()
         self.gid = gid
         self.password = password
         self.parent = parent
@@ -116,7 +116,7 @@ class ProgressWindow(ProgressWindow_Ui):
 
     def resumePushButtonPressed(self, _button: QPushButton) -> None:
 
-        if self.status == "paused":
+        if self.status == 'paused':
             answer = download.downloadUnpause(self.gid)
 
             # if aria2 did not respond , then this function is checking for aria2
@@ -126,18 +126,18 @@ class ProgressWindow(ProgressWindow_Ui):
                 version_answer = download.aria2Version()
                 if version_answer == 'did not respond':
                     self.parent.aria2Disconnected()
-                    notifySend(QCoreApplication.translate("progress_src_ui_tr", "Aria2 disconnected!"),
-                               QCoreApplication.translate("progress_src_ui_tr",
-                                                          "Persepolis is trying to connect! be patient!"),
+                    notifySend(QCoreApplication.translate('progress_src_ui_tr', 'Aria2 disconnected!'),
+                               QCoreApplication.translate('progress_src_ui_tr',
+                                                          'Persepolis is trying to connect! be patient!'),
                                10000, 'warning', parent=self.parent)
                 else:
-                    notifySend(QCoreApplication.translate("progress_src_ui_tr", "Aria2 did not respond!"),
-                               QCoreApplication.translate("progress_src_ui_tr", "Please try again."), 10000,
+                    notifySend(QCoreApplication.translate('progress_src_ui_tr', 'Aria2 did not respond!'),
+                               QCoreApplication.translate('progress_src_ui_tr', 'Please try again.'), 10000,
                                'warning', parent=self.parent)
 
     def pausePushButtonPressed(self, _button: QPushButton) -> None:
 
-        if self.status == "downloading":
+        if self.status == 'downloading':
             answer = download.downloadPause(self.gid)
 
             # if aria2 did not respond , then this function is checking for aria2
@@ -148,19 +148,19 @@ class ProgressWindow(ProgressWindow_Ui):
                 if version_answer == 'did not respond':
                     self.parent.aria2Disconnected()
                     download.downloadStop(self.gid, self.parent)
-                    notifySend("Aria2 disconnected!", "Persepolis is trying to connect! be patient!",
+                    notifySend('Aria2 disconnected!', 'Persepolis is trying to connect! be patient!',
                                10000, 'warning', parent=self.parent)
                 else:
-                    notifySend(QCoreApplication.translate("progress_src_ui_tr", "Aria2 did not respond!"),
-                               QCoreApplication.translate("progress_src_ui_tr", "Try again!"), 10000,
+                    notifySend(QCoreApplication.translate('progress_src_ui_tr', 'Aria2 did not respond!'),
+                               QCoreApplication.translate('progress_src_ui_tr', 'Try again!'), 10000,
                                'critical', parent=self.parent)
 
     def stopPushButtonPressed(self, _button: QPushButton) -> None:
 
-        dict = {'gid': self.gid,
+        download_dict = {'gid': self.gid,
                 'shutdown': 'canceled'}
 
-        self.parent.temp_db.updateSingleTable(dict)
+        self.parent.temp_db.updateSingleTable(download_dict)
 
         answer = download.downloadStop(self.gid, self.parent)
 
@@ -171,9 +171,9 @@ class ProgressWindow(ProgressWindow_Ui):
             version_answer = download.aria2Version()
             if version_answer == 'did not respond':
                 self.parent.aria2Disconnected()
-                notifySend(QCoreApplication.translate("progress_src_ui_tr", "Aria2 disconnected!"),
-                           QCoreApplication.translate("progress_src_ui_tr",
-                                                      "Persepolis is trying to connect! be patient!"),
+                notifySend(QCoreApplication.translate('progress_src_ui_tr', 'Aria2 disconnected!'),
+                           QCoreApplication.translate('progress_src_ui_tr',
+                                                      'Persepolis is trying to connect! be patient!'),
                            10000, 'warning', parent=self.parent)
 
     def limitCheckBoxToggled(self, _checkBoxes: bool) -> None:
@@ -190,7 +190,7 @@ class ProgressWindow(ProgressWindow_Ui):
             # check download status is "scheduled" or not!
             if self.status != 'scheduled':
                 # tell aria2 for unlimited speed
-                download.limitSpeed(self.gid, "0")
+                download.limitSpeed(self.gid, '0')
             else:
                 # update limit value in data_base
                 add_link_dictionary = {'gid': self.gid, 'limit_value': '0'}
@@ -210,10 +210,10 @@ class ProgressWindow(ProgressWindow_Ui):
             # write cancel value in data_base for this gid
             self.after_frame.setEnabled(False)
 
-            dict = {'gid': self.gid,
+            download_dict = {'gid': self.gid,
                     'shutdown': 'canceled'}
 
-            self.parent.temp_db.updateSingleTable(dict)
+            self.parent.temp_db.updateSingleTable(download_dict)
 
     def afterPushButtonPressed(self, _button: QPushButton) -> None:
         self.after_pushButton.setEnabled(False)
@@ -283,10 +283,10 @@ class ProgressWindow(ProgressWindow_Ui):
 
     def limitPushButtonPressed(self, _button: QPushButton) -> None:
         self.limit_pushButton.setEnabled(False)
-        if self.limit_comboBox.currentText() == "KiB/s":
-            limit_value = str(self.limit_spinBox.value()) + str("K")
+        if self.limit_comboBox.currentText() == 'KiB/s':
+            limit_value = str(self.limit_spinBox.value()) + 'K'
         else:
-            limit_value = str(self.limit_spinBox.value()) + str("M")
+            limit_value = str(self.limit_spinBox.value()) + 'M'
 
     # if download was started before , send the limit_speed request to aria2 .
     # else save the request in data_base

@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
 #    the Free Software Foundation, either version 3 of the License, or
@@ -15,12 +13,12 @@
 
 try:
     from PySide6 import QtSvg
-    from PySide6.QtWidgets import QDesktopWidget, QHBoxLayout, QVBoxLayout, QLabel, QWidget
-    from PySide6.QtCore import Qt, QSize, QRect, QPoint, QSettings
+    from PySide6.QtCore import QPoint, QRect, QSettings, QSize, Qt
+    from PySide6.QtWidgets import QDesktopWidget, QHBoxLayout, QLabel, QVBoxLayout, QWidget
 except ImportError:
     from PyQt5 import QtSvg
-    from PyQt5.QtWidgets import QDesktopWidget, QHBoxLayout, QVBoxLayout, QLabel, QWidget
-    from PyQt5.QtCore import Qt, QSize, QRect, QPoint, QSettings
+    from PyQt5.QtCore import QPoint, QRect, QSettings, QSize, Qt
+    from PyQt5.QtWidgets import QDesktopWidget, QHBoxLayout, QLabel, QVBoxLayout, QWidget
 
 class Windows_Notification_UI(QWidget):
     def __init__(self, parent: QWidget, persepolis_setting: QSettings) -> None:
@@ -68,7 +66,7 @@ class Windows_Notification_UI(QWidget):
         # 2 labels for notification messages
         self.label1 = QLabel(self)
         self.label1.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
-        self.label1.setStyleSheet("font-weight: bold")
+        self.label1.setStyleSheet('font-weight: bold')
         self.label1.setWordWrap(True)
 
         self.label2 = QLabel(self)

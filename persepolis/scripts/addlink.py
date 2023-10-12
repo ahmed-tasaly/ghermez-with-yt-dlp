@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
 #    the Free Software Foundation, either version 3 of the License, or
@@ -12,24 +10,27 @@
 #
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 from __future__ import annotations
+
 from typing import Callable
+
 try:
-    from PySide6.QtWidgets import QApplication, QFileDialog, QWidget, QPushButton
-    from PySide6.QtCore import Qt, QPoint, QSize, QDir, QThread, Signal, QSettings
-    from PySide6.QtGui import QIcon, QKeyEvent, QCloseEvent
+    from PySide6.QtCore import QDir, QPoint, QSettings, QSize, Qt, QThread, Signal
+    from PySide6.QtGui import QCloseEvent, QIcon, QKeyEvent
+    from PySide6.QtWidgets import QApplication, QFileDialog, QPushButton, QWidget
 except ImportError:
-    from PyQt5.QtWidgets import QApplication, QFileDialog, QWidget, QPushButton
-    from PyQt5.QtCore import Qt, QPoint, QSize, QDir, QThread, QSettings
-    from PyQt5.QtGui import QIcon, QKeyEvent, QCloseEvent
+    from PyQt5.QtCore import QDir, QPoint, QSettings, QSize, Qt, QThread
     from PyQt5.QtCore import pyqtSignal as Signal
+    from PyQt5.QtGui import QCloseEvent, QIcon, QKeyEvent
+    from PyQt5.QtWidgets import QApplication, QFileDialog, QPushButton, QWidget
+
+import os
+from functools import partial
 
 from persepolis.gui.addlink_ui import AddLinkWindow_Ui
+from persepolis.scripts import logger, spider
 from persepolis.scripts.check_proxy import getProxy
-from persepolis.scripts import spider
-from persepolis.scripts import logger
-from functools import partial
-import os
 
 # find file name and file size
 
@@ -38,7 +39,7 @@ class AddLinkSpiderThread(QThread):
     ADDLINKSPIDERSIGNAL = Signal(dict)
 
     def __init__(self, add_link_dictionary: dict[str, str]) -> None:
-        QThread.__init__(self)
+        super().__init__()
         self.add_link_dictionary = add_link_dictionary
 
     def run(self) -> None:
@@ -54,15 +55,15 @@ class AddLinkSpiderThread(QThread):
             # write an ERROR in log, If spider couldn't find file_name or file_size.
             if not(file_name):
                 logger.sendToLog(
-                    "Spider couldn't find file name", "ERROR")
+                    "Spider couldn't find file name", 'ERROR')
             if not(file_size):
                 logger.sendToLog(
-                    "Spider couldn't find file size", "ERROR")
+                    "Spider couldn't find file size", 'ERROR')
         except Exception as e:
             logger.sendToLog(
-                "Spider couldn't find download information", "ERROR")
+                "Spider couldn't find download information", 'ERROR')
             logger.sendToLog(
-                str(e), "ERROR")
+                str(e), 'ERROR')
 
 
 class AddLinkWindow(AddLinkWindow_Ui):
@@ -98,7 +99,7 @@ class AddLinkWindow(AddLinkWindow_Ui):
 
         # if browsers plugin didn't send any links
         # then check clipboard for link!
-        if ('link' in self.plugin_add_link_dictionary.keys()):
+        if ('link' in self.plugin_add_link_dictionary):
             # check plugin_add_link_dictionary for link!
             # "link" key-value must be checked
             self.link_lineEdit.setText(
@@ -108,7 +109,7 @@ class AddLinkWindow(AddLinkWindow_Ui):
             # check clipboard
             clipboard = QApplication.clipboard()
             text = clipboard.text()
-            if (("tp:/" in text[2:6]) or ("tps:/" in text[2:7])):
+            if (('tp:/' in text[2:6]) or ('tps:/' in text[2:7])):
                 self.link_lineEdit.setText(str(text))
 
         # detect_proxy_pushButton
@@ -185,7 +186,7 @@ class AddLinkWindow(AddLinkWindow_Ui):
         # check plugin_add_link_dictionary for finding file name
         # perhaps plugin sended file name in plugin_add_link_dictionary
         # for finding file name "out" key must be checked
-        if ('out' in self.plugin_add_link_dictionary.keys()):
+        if ('out' in self.plugin_add_link_dictionary):
             if self.plugin_add_link_dictionary['out']:
                 self.change_name_lineEdit.setText(
                     str(self.plugin_add_link_dictionary['out']))
@@ -203,7 +204,7 @@ class AddLinkWindow(AddLinkWindow_Ui):
             self.user_agent_lineEdit.setText(str(self.plugin_add_link_dictionary['user_agent']))
 
         if ('load_cookies' in self.plugin_add_link_dictionary):
-            self.load_cookies_lineEdit.setText((self.plugin_add_link_dictionary['load_cookies']))
+            self.load_cookies_lineEdit.setText(self.plugin_add_link_dictionary['load_cookies'])
 
 
 # set window size and position
@@ -225,12 +226,12 @@ class AddLinkWindow(AddLinkWindow_Ui):
         enable_proxy_frame = False
 
         # ip
-        if 'http_proxy_ip' in system_proxy_dict.keys():
+        if 'http_proxy_ip' in system_proxy_dict:
             self.ip_lineEdit.setText(str(system_proxy_dict['http_proxy_ip']))
             enable_proxy_frame = True
 
         # port
-        if 'http_proxy_port' in system_proxy_dict.keys():
+        if 'http_proxy_port' in system_proxy_dict:
             self.port_spinBox.setValue(int(system_proxy_dict['http_proxy_port']))
             enable_proxy_frame = True
 
@@ -304,10 +305,10 @@ class AddLinkWindow(AddLinkWindow_Ui):
             self.download_later_pushButton.setEnabled(False)
         else:  # find file size
 
-            dict = {'link': str(self.link_lineEdit.text())}
+            link_dict = {'link': str(self.link_lineEdit.text())}
 
             # spider is finding file size
-            new_spider = AddLinkSpiderThread(dict)
+            new_spider = AddLinkSpiderThread(link_dict)
             self.parent.threadPool.append(new_spider)
             self.parent.threadPool[-1].start()
             self.parent.threadPool[-1].ADDLINKSPIDERSIGNAL.connect(
@@ -392,10 +393,10 @@ class AddLinkWindow(AddLinkWindow_Ui):
         if not(self.limit_checkBox.isChecked()):
             limit = 0
         else:
-            if self.limit_comboBox.currentText() == "KiB/s":
-                limit = str(self.limit_spinBox.value()) + str("K")
+            if self.limit_comboBox.currentText() == 'KiB/s':
+                limit = str(self.limit_spinBox.value()) + 'K'
             else:
-                limit = str(self.limit_spinBox.value()) + str("M")
+                limit = str(self.limit_spinBox.value()) + 'M'
 
         # get start time for download if user set that.
         if not(self.start_checkBox.isChecked()):
@@ -454,7 +455,7 @@ class AddLinkWindow(AddLinkWindow_Ui):
             'out': out, 'start_time': start_time, 'end_time': end_time, 'link': link, 'ip': ip,
             'port': port, 'proxy_user': proxy_user, 'proxy_passwd': proxy_passwd,
             'download_user': download_user, 'download_passwd': download_passwd,
-            'connections': connections, 'limit_value': limit, 'download_path': download_path
+            'connections': connections, 'limit_value': limit, 'download_path': download_path,
         }
 
         # convert values to pystring

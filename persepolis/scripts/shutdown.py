@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
 #    the Free Software Foundation, either version 3 of the License, or
@@ -12,19 +10,25 @@
 #
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 from __future__ import annotations
 
 try:
     from PySide6.QtWidgets import QWidget
 except ImportError:
-    from PyQt5.QtWidgets import QWidget
+    pass
 
 
-from persepolis.scripts import logger
-from persepolis.constants import OS
-from time import sleep
-import subprocess
 import platform
+import subprocess
+from time import sleep
+
+from persepolis.constants import OS
+from persepolis.scripts import logger
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from PyQt5.QtWidgets import QWidget
 
 os_type = platform.system()
 
@@ -33,35 +37,35 @@ def shutDown(parent: QWidget, gid: str | None=None, category: str | None=None, p
     # for single downloads >> category = None
     # change value of shutdown in data base
     if category is not None:
-        dict = {'category': category,
+        shutdown_dict = {'category': category,
                 'shutdown': 'wait'}
 
         # update data base
-        parent.temp_db.updateQueueTable(dict)
+        parent.temp_db.updateQueueTable(shutdown_dict)
     else:
         # so we have single download
-        dict = {'gid': gid,
+        shutdown_dict = {'gid': gid,
                 'shutdown': 'wait'}
 
         # update data base
-        parent.temp_db.updateSingleTable(dict)
+        parent.temp_db.updateSingleTable(shutdown_dict)
 
-    shutdown_status = "wait"
+    shutdown_status = 'wait'
 
-    while shutdown_status == "wait":
+    while shutdown_status == 'wait':
         sleep(5)
 
         # get shutdown status from data_base
         if category is not None:
-            dict = parent.temp_db.returnCategory(category)
+            shutdown_dict = parent.temp_db.returnCategory(category)
         else:
-            dict = parent.temp_db.returnGid(gid)
+            shutdown_dict = parent.temp_db.returnGid(gid)
 
-        shutdown_status = dict['shutdown']
+        shutdown_status = shutdown_dict['shutdown']
 
-    if shutdown_status == "shutdown":
+    if shutdown_status == 'shutdown':
 
-        logger.sendToLog("Shutting down in 20 seconds", "INFO")
+        logger.sendToLog('Shutting down in 20 seconds', 'INFO')
         sleep(20)
 
         if os_type == OS.LINUX:

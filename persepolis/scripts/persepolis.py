@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
 #    the Free Software Foundation, either version 3 of the License, or
@@ -14,33 +12,34 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 try:
+    from PySide6.QtCore import QCoreApplication, QFile, QSettings, Qt, QTextStream
     from PySide6.QtGui import QFont
     from PySide6.QtWidgets import QApplication, QStyleFactory
-    from PySide6.QtCore import QFile, QTextStream, QCoreApplication, QSettings, Qt
 except ImportError:
+    from PyQt5.QtCore import QCoreApplication, QFile, QSettings, Qt, QTextStream
     from PyQt5.QtGui import QFont
     from PyQt5.QtWidgets import QApplication, QStyleFactory
-    from PyQt5.QtCore import QFile, QTextStream, QCoreApplication, QSettings, Qt
 
-from persepolis.gui import resources # noqa: F401
-import traceback
-from persepolis.scripts.error_window import ErrorWindow
-from persepolis.gui.palettes import DarkFusionPalette, LightFusionPalette
-import json
-import struct
 import argparse
-from persepolis.scripts import osCommands
-from ghermez import osAndDesktopEnvironment, determineConfigFolder
-from persepolis.constants import OS, APP_NAME, LONG_NAME, ORG_NAME, VERSION
-from copy import deepcopy
-import sys
+import json
 import os
+import struct
+import sys
+import traceback
+from copy import deepcopy
+
+from ghermez import determineConfigFolder, osAndDesktopEnvironment
+from persepolis.constants import APP_NAME, LONG_NAME, ORG_NAME, OS, VERSION
+from persepolis.gui import resources  # noqa: F401
+from persepolis.gui.palettes import DarkFusionPalette, LightFusionPalette
+from persepolis.scripts import osCommands
+from persepolis.scripts.error_window import ErrorWindow
 
 # finding os platform
 os_type, desktop_env = osAndDesktopEnvironment()
 
 # Don't run persepolis as root!
-if os_type in (OS.UNIX_LIKE + [OS.OSX]):
+if os_type in ([*OS.UNIX_LIKE, OS.OSX]):
     uid = os.getuid()
     if uid == 0:
         print('Do not run persepolis as root.')
@@ -73,13 +72,13 @@ if os_type != OS.WINDOWS:
         fcntl.lockf(fp, fcntl.LOCK_EX | fcntl.LOCK_NB)
 
         lock_file_validation = True  # Lock file created successfully!
-    except IOError:
+    except OSError:
         lock_file_validation = False  # creating lock_file was unsuccessful! So persepolis is still running
 
 else:  # for windows
     # pypiwin32 must be installed by pip
-    from win32event import CreateMutex
     from win32api import GetLastError
+    from win32event import CreateMutex
     from winerror import ERROR_ALREADY_EXISTS
 
     handle = CreateMutex(None, 1, ORG_NAME)
@@ -101,7 +100,7 @@ if lock_file_validation:
             setproctitle(APP_NAME)
         except ImportError:
             from persepolis.scripts import logger
-            logger.sendToLog('setproctitle is not installed!', "ERROR")
+            logger.sendToLog('setproctitle is not installed!', 'ERROR')
 
 
 # load persepolis_settings
@@ -131,7 +130,7 @@ class PersepolisApplication(QApplication):
         if color_scheme == 'Dark Fusion':
             dark_fusion = DarkFusionPalette()
             self.setPalette(dark_fusion)
-            file = QFile(":/dark_style.qss")
+            file = QFile(':/dark_style.qss')
             file.open(QFile.ReadOnly | QFile.Text)
             stream = QTextStream(file)
             self.setStyleSheet(stream.readAll())
@@ -139,7 +138,7 @@ class PersepolisApplication(QApplication):
         elif color_scheme == 'Light Fusion':
             light_fusion = LightFusionPalette()
             self.setPalette(light_fusion)
-            file = QFile(":/light_style.qss")
+            file = QFile(':/light_style.qss')
             file.open(QFile.ReadOnly | QFile.Text)
             stream = QTextStream(file)
             self.setStyleSheet(stream.readAll())
@@ -184,7 +183,7 @@ browser_plugin_dict = {'link': None,
                        'load_cookies': None,
                        'user_agent': None,
                        'header': None,
-                       'out': None
+                       'out': None,
                        }
 
 
@@ -200,8 +199,8 @@ if args.parent_window or unknownargs:
         msvcrt.setmode(sys.stdout.fileno(), os.O_BINARY)
 
     # Send message to browsers plugin
-    message = '{"enable": true, "version": "1.85"}'.encode('utf-8')
-    sys.stdout.buffer.write((struct.pack('i', len(message))))
+    message = b'{"enable": true, "version": "1.85"}'
+    sys.stdout.buffer.write(struct.pack('i', len(message)))
     sys.stdout.buffer.write(message)
     sys.stdout.flush()
 
@@ -211,7 +210,7 @@ if args.parent_window or unknownargs:
     text_length = struct.unpack('@I', text_length_bytes)[0]
 
     # Read the text (JSON object) of the message.
-    text = sys.stdin.buffer.read(text_length).decode("utf-8")
+    text = sys.stdin.buffer.read(text_length).decode('utf-8')
 
     if text:
 
@@ -226,22 +225,22 @@ if args.parent_window or unknownargs:
 
                 copy_dict = deepcopy(browser_plugin_dict)
 
-                if 'url' in item.keys():
+                if 'url' in item:
                     copy_dict['link'] = str(item['url'])
 
-                    if 'header' in item.keys() and item['header'] != '':
+                    if 'header' in item and item['header'] != '':
                         copy_dict['header'] = item['header']
 
-                    if 'referrer' in item.keys() and item['referrer'] != '':
+                    if 'referrer' in item and item['referrer'] != '':
                         copy_dict['referer'] = item['referrer']
 
-                    if 'filename' in item.keys() and item['filename'] != '':
+                    if 'filename' in item and item['filename'] != '':
                         copy_dict['out'] = os.path.basename(str(item['filename']))
 
-                    if 'useragent' in item.keys() and item['useragent'] != '':
+                    if 'useragent' in item and item['useragent'] != '':
                         copy_dict['user_agent'] = item['useragent']
 
-                    if 'cookies' in item.keys() and item['cookies'] != '':
+                    if 'cookies' in item and item['cookies'] != '':
                         copy_dict['load_cookies'] = item['cookies']
 
                     plugin_list.append(copy_dict)
@@ -279,33 +278,33 @@ if args.default:
 
 
 if args.link:
-    add_link_dictionary['link'] = "".join(args.link)
+    add_link_dictionary['link'] = ''.join(args.link)
 
 # if plugins call persepolis, then just start persepolis in system tray
     args.tray = True
 
 if args.referer:
-    add_link_dictionary['referer'] = "".join(args.referer)
+    add_link_dictionary['referer'] = ''.join(args.referer)
 else:
     add_link_dictionary['referer'] = None
 
 if args.cookie:
-    add_link_dictionary['load_cookies'] = "".join(args.cookie)
+    add_link_dictionary['load_cookies'] = ''.join(args.cookie)
 else:
     add_link_dictionary['load_cookies'] = None
 
 if args.agent:
-    add_link_dictionary['user_agent'] = "".join(args.agent)
+    add_link_dictionary['user_agent'] = ''.join(args.agent)
 else:
     add_link_dictionary['user_agent'] = None
 
 if args.headers:
-    add_link_dictionary['header'] = "".join(args.headers)
+    add_link_dictionary['header'] = ''.join(args.headers)
 else:
     add_link_dictionary['header'] = None
 
 if args.name:
-    add_link_dictionary['out'] = "".join(args.name)
+    add_link_dictionary['out'] = ''.join(args.name)
 else:
     add_link_dictionary['out'] = None
 
@@ -324,13 +323,13 @@ else:
 # comes up and window gets additional download information
 # from user (port , proxy , ...) and download starts and request file deleted
 
-if ('link' in add_link_dictionary.keys()):
+if ('link' in add_link_dictionary):
     plugin_dict = {'link': add_link_dictionary['link'],
                    'referer': add_link_dictionary['referer'],
                    'load_cookies': add_link_dictionary['load_cookies'],
                    'user_agent': add_link_dictionary['user_agent'],
                    'header': add_link_dictionary['header'],
-                   'out': add_link_dictionary['out']
+                   'out': add_link_dictionary['out'],
                    }
 
     plugin_list.append(plugin_dict)
@@ -388,7 +387,7 @@ def main():
             from persepolis.scripts import logger
 
             # write error_message in log file.
-            logger.sendToLog('Qt.AA_EnableHighDpiScaling is not available!', "ERROR")
+            logger.sendToLog('Qt.AA_EnableHighDpiScaling is not available!', 'ERROR')
 
 
         # create QApplication
@@ -406,7 +405,7 @@ def main():
             from persepolis.scripts import logger
 
             # write error_message in log file.
-            logger.sendToLog('Qt.AA_UseHighDpiPixmaps is not available!', "ERROR")
+            logger.sendToLog('Qt.AA_UseHighDpiPixmaps is not available!', 'ERROR')
 
         # set organization name and domain and application name
         QCoreApplication.setOrganizationName(ORG_NAME)
@@ -452,7 +451,7 @@ def main():
             error_message = str(traceback.format_exc())
 
             # write error_message in log file.
-            logger.sendToLog(error_message, "ERROR")
+            logger.sendToLog(error_message, 'ERROR')
 
             # Reset persepolis
             error_window = ErrorWindow(error_message)
@@ -460,7 +459,7 @@ def main():
 
         sys.exit(persepolis_download_manager.exec_())
 
-    elif not((args.parent_window or unknownargs)):
+    elif not(args.parent_window or unknownargs):
 
         # this section warns user that program is still running and no need to run it again
         # and creating a file to notify mainwindow for showing itself!

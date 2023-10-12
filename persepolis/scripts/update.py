@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
 #    the Free Software Foundation, either version 3 of the License, or
@@ -13,24 +12,24 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 try:
-    from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton
-    from PySide6.QtCore import Qt, QSize, QPoint, QTranslator, QCoreApplication, QLocale, QSettings
     from PySide6 import QtCore
-    from PySide6.QtGui import QIcon
-    from PySide6.QtGui import QKeyEvent, QCloseEvent
+    from PySide6.QtCore import QCoreApplication, QLocale, QPoint, QSettings, QSize, Qt, QTranslator
+    from PySide6.QtGui import QCloseEvent, QIcon, QKeyEvent
+    from PySide6.QtWidgets import QHBoxLayout, QLabel, QPushButton, QVBoxLayout, QWidget
 except ImportError:
-    from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton
-    from PyQt5.QtCore import Qt, QSize, QPoint, QTranslator, QCoreApplication, QLocale, QSettings
     from PyQt5 import QtCore
-    from PyQt5.QtGui import QIcon
-    from PyQt5.QtGui import QKeyEvent, QCloseEvent
+    from PyQt5.QtCore import QCoreApplication, QLocale, QPoint, QSettings, QSize, Qt, QTranslator
+    from PyQt5.QtGui import QCloseEvent, QIcon, QKeyEvent
+    from PyQt5.QtWidgets import QHBoxLayout, QLabel, QPushButton, QVBoxLayout, QWidget
 
 
-from persepolis.constants import OS, APP_NAME, LONG_NAME, VERSION, REPO_LINK
-from persepolis.scripts import osCommands
-import platform
-import requests
 import ast
+import platform
+
+import requests
+
+from persepolis.constants import APP_NAME, LONG_NAME, OS, REPO_LINK, VERSION
+from persepolis.scripts import osCommands
 
 # finding os_type
 os_type = platform.system()
@@ -53,20 +52,20 @@ class checkupdate(QWidget):
         if self.translator.load(':/translations/locales/ui_' + locale, 'ts'):
             QCoreApplication.installTranslator(self.translator)
 
-        self.setWindowTitle(QCoreApplication.translate("update_src_ui_tr", 'Checking for newer version'))
+        self.setWindowTitle(QCoreApplication.translate('update_src_ui_tr', 'Checking for newer version'))
 
         # installed version
         self.client_version = '3.20'
 
         # first line text
         self.update_label = QLabel(QCoreApplication.translate(
-            "update_src_ui_tr", f"The newest is the best, we recommend to update {APP_NAME.capitalize()}."))
+            'update_src_ui_tr', f'The newest is the best, we recommend to update {APP_NAME.capitalize()}.'))
         self.update_label.setTextFormat(QtCore.Qt.RichText)
         self.update_label.setAlignment(QtCore.Qt.AlignCenter)
 
         # second line text
         self.version_label = QLabel(QCoreApplication.translate(
-            "update_src_ui_tr", f'This is {LONG_NAME} version {VERSION}'))
+            'update_src_ui_tr', f'This is {LONG_NAME} version {VERSION}'))
         self.version_label.setAlignment(QtCore.Qt.AlignCenter)
 
         # release link
@@ -81,7 +80,7 @@ class checkupdate(QWidget):
         self.status_label.setAlignment(QtCore.Qt.AlignCenter)
 
         # update button
-        self.check_button = QPushButton(QCoreApplication.translate("update_src_ui_tr", "Check for new update"))
+        self.check_button = QPushButton(QCoreApplication.translate('update_src_ui_tr', 'Check for new update'))
         self.check_button.clicked.connect(self.updateCheck)
 
         # verticalLayout
@@ -110,7 +109,7 @@ class checkupdate(QWidget):
 
     # checking methode
     def updateCheck(self, _button: QPushButton) -> None:
-        self.check_button.setText(QCoreApplication.translate("update_src_ui_tr", 'Checking...'))
+        self.check_button.setText(QCoreApplication.translate('update_src_ui_tr', 'Checking...'))
 
         try:
             # get information dictionary from github
@@ -125,7 +124,7 @@ class checkupdate(QWidget):
             # Comparison
             if float(server_version) > float(self.client_version):
                 self.status_label.setText(QCoreApplication.translate(
-                    "update_src_ui_tr", f'A newer {APP_NAME.capitalize()} release is available'))
+                    'update_src_ui_tr', f'A newer {APP_NAME.capitalize()} release is available'))
 
                 if os_type == OS.WINDOWS:
                     self.winUpdatedl()  # this function download latest release
@@ -144,16 +143,16 @@ class checkupdate(QWidget):
 
             elif float(server_version) == float(self.client_version):
                 self.status_label.setText(QCoreApplication.translate(
-                    "update_src_ui_tr", 'Latest version is installed :)'))
+                    'update_src_ui_tr', 'Latest version is installed :)'))
 
             elif float(server_version) < float(self.client_version):
-                self.status_label.setText(QCoreApplication.translate("update_src_ui_tr", 'You are using beta version'))
+                self.status_label.setText(QCoreApplication.translate('update_src_ui_tr', 'You are using beta version'))
 
         except Exception:
             self.status_label.setText(QCoreApplication.translate(
-                "update_src_ui_tr", 'An error occurred while checking for updates.'))
+                'update_src_ui_tr', 'An error occurred while checking for updates.'))
 
-        self.check_button.setText(QCoreApplication.translate("update_src_ui_tr", 'Check for new update'))
+        self.check_button.setText(QCoreApplication.translate('update_src_ui_tr', 'Check for new update'))
 
     # close window with ESC key
     def keyPressEvent(self, event: QKeyEvent) -> None:

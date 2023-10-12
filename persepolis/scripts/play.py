@@ -1,4 +1,3 @@
-
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
 #    the Free Software Foundation, either version 3 of the License, or
@@ -17,10 +16,11 @@ try:
 except ImportError:
     from PyQt5.QtCore import QSettings
 
-from persepolis.scripts import logger
-from persepolis.constants import OS, ORG_NAME, APP_NAME
-import subprocess
 import platform
+import subprocess
+
+from persepolis.constants import APP_NAME, ORG_NAME, OS
+from persepolis.scripts import logger
 
 os_type = platform.system()
 
@@ -52,7 +52,7 @@ def playNotification(file: str) -> None:
 
             if answer != 0:
                 logger.sendToLog(
-                    "paplay not installed!Install it for playing sound notification", "WARNING")
+                    'paplay not installed!Install it for playing sound notification', 'WARNING')
 
         elif os_type == OS.OSX:
 

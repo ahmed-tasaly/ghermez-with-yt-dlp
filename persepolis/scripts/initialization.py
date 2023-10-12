@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -16,13 +15,13 @@
 
 # THIS FILE CONTAINING SOME VARIABLES , ... THAT USING FOR INITIALIZING PERSEPOLIS
 
-from persepolis.scripts.useful_tools import returnDefaultSettings
-from persepolis.scripts.browser_integration import browserIntegration
-from persepolis.constants import ORG_NAME, APP_NAME
-from persepolis.scripts import osCommands
 import os
 
 import ghermez
+from persepolis.constants import APP_NAME, ORG_NAME
+from persepolis.scripts import osCommands
+from persepolis.scripts.browser_integration import browserIntegration
+from persepolis.scripts.useful_tools import returnDefaultSettings
 
 try:
     from PySide6.QtCore import QSettings
@@ -77,7 +76,7 @@ persepolis_setting.beginGroup('settings')
 default_setting_dict = returnDefaultSettings()
 # this loop is checking values in persepolis_setting . if value is not
 # valid then value replaced by default_setting_dict value
-for key in default_setting_dict.keys():
+for key in default_setting_dict:
 
     setting_value = persepolis_setting.value(key, default_setting_dict[key])
     persepolis_setting.setValue(key, setting_value)
@@ -105,7 +104,7 @@ folder_list = [download_path_temp, download_path]
 # add subfolders to folder_list if user checked subfolders check box in setting window.
 if persepolis_setting.value('subfolder') == 'yes':
     for folder in ['Audios', 'Videos', 'Others', 'Documents', 'Compressed']:
-        folder_list.append(os.path.join(download_path, folder))
+        folder_list.append(os.path.join(download_path, folder))  # noqa: PERF401
 
 # create folders in folder_list
 for folder in folder_list:
@@ -167,9 +166,9 @@ if persepolis_version < 2.6:
 
         # write error in log
         logger.sendToLog(
-            "compatibility ERROR!", "ERROR")
+            'compatibility ERROR!', 'ERROR')
         logger.sendToLog(
-            str(e), "ERROR")
+            str(e), 'ERROR')
 
     persepolis_version = 2.6
 
@@ -189,7 +188,7 @@ if persepolis_version < 3.1:
 if persepolis_version < 3.2:
     persepolis_setting.beginGroup('settings')
 
-    for key in default_setting_dict.keys():
+    for key in default_setting_dict:
 
         setting_value = default_setting_dict[key]
         persepolis_setting.setValue(key, setting_value)

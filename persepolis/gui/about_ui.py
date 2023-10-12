@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
 #    the Free Software Foundation, either version 3 of the License, or
@@ -11,19 +10,20 @@
 #
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 try:
-    from PySide6.QtWidgets import QWidget, QTabWidget, QHBoxLayout, QVBoxLayout, QLabel, QTextEdit, QPushButton
-    from PySide6.QtCore import Qt, QSize, QTranslator, QCoreApplication, QLocale, QSettings
-    from PySide6.QtGui import QIcon, QFont
+    from PySide6.QtCore import QCoreApplication, QLocale, QSettings, QSize, Qt, QTranslator
+    from PySide6.QtGui import QFont, QIcon
+    from PySide6.QtWidgets import QHBoxLayout, QLabel, QPushButton, QTabWidget, QTextEdit, QVBoxLayout, QWidget
     pyside6_is_installed = True
 except ImportError:
-    from PyQt5.QtWidgets import QWidget, QTabWidget, QHBoxLayout, QVBoxLayout, QLabel, QTextEdit, QPushButton
-    from PyQt5.QtCore import Qt, QSize, QTranslator, QCoreApplication, QLocale, QSettings
-    from PyQt5.QtGui import QIcon, QFont
+    from PyQt5.QtCore import QCoreApplication, QLocale, QSettings, QSize, Qt, QTranslator
+    from PyQt5.QtGui import QFont, QIcon
+    from PyQt5.QtWidgets import QHBoxLayout, QLabel, QPushButton, QTabWidget, QTextEdit, QVBoxLayout, QWidget
     pyside6_is_installed = False
 
-from persepolis.constants import APP_NAME, LONG_NAME, VERSION, REPO_LINK
-from persepolis.gui import resources # noqa: F401
+from persepolis.constants import APP_NAME, LONG_NAME, REPO_LINK, VERSION
+from persepolis.gui import resources  # noqa: F401
 
 if pyside6_is_installed:
     try:
@@ -197,15 +197,15 @@ class AboutWindow_Ui(QWidget):
 
         verticalLayout.addLayout(button_horizontalLayout)
 
-        self.setWindowTitle(QCoreApplication.translate("about_ui_tr", f"About {APP_NAME.capitalize()}"))
+        self.setWindowTitle(QCoreApplication.translate('about_ui_tr', f'About {APP_NAME.capitalize()}'))
 
         # about_tab
-        self.title_label.setText(QCoreApplication.translate("about_ui_tr", LONG_NAME))
-        self.version_label.setText(QCoreApplication.translate("about_ui_tr", f"Version {VERSION}"))
+        self.title_label.setText(QCoreApplication.translate('about_ui_tr', LONG_NAME))
+        self.version_label.setText(QCoreApplication.translate('about_ui_tr', f'Version {VERSION}'))
         self.site2_label.setText(
-            QCoreApplication.translate("about_ui_tr",
-                                       f"<a href={REPO_LINK}>{REPO_LINK}</a>",
-                                       "TRANSLATORS NOTE: YOU REALLY DON'T NEED TO TRANSLATE THIS PART!")
+            QCoreApplication.translate('about_ui_tr',
+                                       f'<a href={REPO_LINK}>{REPO_LINK}</a>',
+                                       "TRANSLATORS NOTE: YOU REALLY DON'T NEED TO TRANSLATE THIS PART!"),
         )
 
         # self.telegram_label.setText(
@@ -224,17 +224,17 @@ class AboutWindow_Ui(QWidget):
         self.developers_title_label.setText(QCoreApplication.translate('about_ui_tr', 'Developers:'))
 
         self.name_label.setText(
-            QCoreApplication.translate("about_ui_tr",
-                                       "Reza Mousavi\nAliReza AmirSamimi\nMohammadreza Abdollahzadeh\nSadegh Alirezaie\nMostafa Asadi\nMohammadAmin Vahedinia\nJafar Akhondali\nH.Rostami\nEhsan Titish",  # noqa: E501
-                                       "TRANSLATORS NOTE: YOU REALLY DON'T NEED TO TRANSLATE THIS PART!")
+            QCoreApplication.translate('about_ui_tr',
+                                       'Reza Mousavi\nAliReza AmirSamimi\nMohammadreza Abdollahzadeh\nSadegh Alirezaie\nMostafa Asadi\nMohammadAmin Vahedinia\nJafar Akhondali\nH.Rostami\nEhsan Titish',  # noqa: E501
+                                       "TRANSLATORS NOTE: YOU REALLY DON'T NEED TO TRANSLATE THIS PART!"),
         )
 
         self.contributors_thank_label.setText(QCoreApplication.translate('about_ui_tr', 'Special thanks to:'))
         self.contributors_link_label.setText(
-            f"<a href={REPO_LINK}/graphs/contributors>our contributors</a>")
+            f'<a href={REPO_LINK}/graphs/contributors>our contributors</a>')
 
         # License
-        self.license_text.setPlainText("""
+        self.license_text.setPlainText('''
             This program is free software: you can redistribute it and/or modify
             it under the terms of the GNU General Public License as published by
             the Free Software Foundation, either version 3 of the License, or
@@ -247,13 +247,13 @@ class AboutWindow_Ui(QWidget):
 
             You should have received a copy of the GNU General Public License
             along with this program.  If not, see http://www.gnu.org/licenses/.
-            """)
+            ''')
 
         # tabs
-        self.about_tabWidget.addTab(self.about_tab, QCoreApplication.translate("about_ui_tr", f"About {APP_NAME.capitalize()}"))
-        self.about_tabWidget.addTab(self.developers_tab, QCoreApplication.translate("about_ui_tr", "Developers"))
-        self.about_tabWidget.addTab(self.translators_tab, QCoreApplication.translate("about_ui_tr", "Translators"))
-        self.about_tabWidget.addTab(self.license_tab, QCoreApplication.translate("about_ui_tr", "License"))
+        self.about_tabWidget.addTab(self.about_tab, QCoreApplication.translate('about_ui_tr', f'About {APP_NAME.capitalize()}'))
+        self.about_tabWidget.addTab(self.developers_tab, QCoreApplication.translate('about_ui_tr', 'Developers'))
+        self.about_tabWidget.addTab(self.translators_tab, QCoreApplication.translate('about_ui_tr', 'Translators'))
+        self.about_tabWidget.addTab(self.license_tab, QCoreApplication.translate('about_ui_tr', 'License'))
 
         # button
-        self.pushButton.setText(QCoreApplication.translate("about_ui_tr", "OK"))
+        self.pushButton.setText(QCoreApplication.translate('about_ui_tr', 'OK'))

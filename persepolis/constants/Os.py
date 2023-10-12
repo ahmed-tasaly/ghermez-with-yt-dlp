@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
 #    the Free Software Foundation, either version 3 of the License, or
@@ -20,5 +19,5 @@ class OS:
     OPEN_BSD = 'OpenBSD'
     OSX = DARWIN = 'Darwin'
     BSD_FAMILY = [FREE_BSD, OPEN_BSD]
-    UNIX_LIKE = BSD_FAMILY + [LINUX]
+    UNIX_LIKE = [*BSD_FAMILY, LINUX]
     LIST = [LINUX, WINDOWS, FREE_BSD, OPEN_BSD, OSX]

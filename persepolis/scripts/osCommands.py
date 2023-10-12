@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
 #    the Free Software Foundation, either version 3 of the License, or
@@ -13,16 +11,16 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-
-from typing import Literal
-from persepolis.constants import OS
-import subprocess
+import os
 import platform
 import shutil
-import os
+import subprocess
+from typing import Literal
+
+from persepolis.constants import OS
 
 os_type = platform.system()
-home_address = os.path.expanduser("~")
+home_address = os.path.expanduser('~')
 
 
 # this method finds file manager in linux
@@ -31,9 +29,8 @@ def findFileManager() -> str:
                                     'query',
                                     'default',
                                     'inode/directory'])
-    file_manager = pipe.decode('utf-8').strip().lower()
+    return pipe.decode('utf-8').strip().lower()
 
-    return file_manager
 
 
 def touch(file_path: str) -> None:
@@ -198,7 +195,7 @@ def removeDir(folder_path: str) -> Literal['ok', 'cant', 'no']:
         # return 'no' if file didn't existed
         return 'no'
 
-# make directory 
+# make directory
 def makeDirs(folder_path: str, hidden: bool=False) -> str:
 
     if hidden:
@@ -220,7 +217,7 @@ def makeDirs(folder_path: str, hidden: bool=False) -> str:
 
             # In linux and bsd a dot character must be added in the start of the directory's name
             dir_name = os.path.basename(folder_path)
-            dir_name = '.' + dir_name 
+            dir_name = '.' + dir_name
             folder_path = os.path.join(os.path.dirname(folder_path), dir_name)
 
             os.makedirs(folder_path, exist_ok=True)
@@ -229,7 +226,7 @@ def makeDirs(folder_path: str, hidden: bool=False) -> str:
         os.makedirs(folder_path, exist_ok=True)
 
     return folder_path
-    
+
 # this function returns mount point
 def findMountPoint(path: str) -> str:
 

@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
 #    the Free Software Foundation, either version 3 of the License, or
@@ -12,12 +10,15 @@
 #
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-from __future__ import annotations
-from ghermez import humanReadableSize
-from requests.cookies import cookiejar_from_dict
-from http.cookies import SimpleCookie
-import requests
 
+from __future__ import annotations
+
+from http.cookies import SimpleCookie
+
+import requests
+from requests.cookies import cookiejar_from_dict
+
+from ghermez import humanReadableSize
 
 # for more information about "requests" library , please see
 # http://docs.python-requests.org/en/master/
@@ -43,7 +44,7 @@ def spider(add_link_dictionary: dict[str, str]) -> tuple[str, str | None]:
     # define a requests session
     requests_session = requests.Session()
     if ip:
-        ip_port = 'http://' + str(ip) + ":" + str(port)
+        ip_port = 'http://' + str(ip) + ':' + str(port)
         if proxy_user:
             ip_port = 'http://' + proxy_user + ':' + proxy_passwd + '@' + ip_port
         # set proxy to the session
@@ -78,7 +79,7 @@ def spider(add_link_dictionary: dict[str, str]) -> tuple[str, str | None]:
 
     filename = None
     file_size = None
-    if 'Content-Disposition' in header.keys():  # checking if filename is available
+    if 'Content-Disposition' in header:  # checking if filename is available
         content_disposition = header['Content-Disposition']
         if content_disposition.find('filename') != -1:
             filename_splited = content_disposition.split('filename=')
@@ -96,13 +97,12 @@ def spider(add_link_dictionary: dict[str, str]) -> tuple[str, str | None]:
         filename = out
 
     # check if file_size is available
-    if 'Content-Length' in header.keys():
+    if 'Content-Length' in header:
         file_size = int(header['Content-Length'])
 
         # converting file_size to KiB or MiB or GiB
         file_size = humanReadableSize(file_size)
 
-    # return results
     return filename, file_size
 
 
@@ -143,7 +143,7 @@ def queueSpider(add_link_dictionary: dict[str, str]) -> str:
     except Exception:
         header = {}
     filename = None
-    if 'Content-Disposition' in header.keys():  # checking if filename is available
+    if 'Content-Disposition' in header:  # checking if filename is available
         content_disposition = header['Content-Disposition']
         if content_disposition.find('filename') != -1:
             filename_splited = content_disposition.split('filename=')
@@ -195,7 +195,7 @@ def addLinkSpider(add_link_dictionary: dict[str, str]) -> tuple[str | None, str 
 
     # find file size
     file_size = None
-    if 'Content-Length' in header.keys():  # checking if file_size is available
+    if 'Content-Length' in header:  # checking if file_size is available
         file_size = int(header['Content-Length'])
 
         # converting file_size to KiB or MiB or GiB
@@ -203,7 +203,7 @@ def addLinkSpider(add_link_dictionary: dict[str, str]) -> tuple[str | None, str 
 
     # find file name
     file_name = None
-    if 'Content-Disposition' in header.keys():  # checking if filename is available
+    if 'Content-Disposition' in header:  # checking if filename is available
         content_disposition = header['Content-Disposition']
         if content_disposition.find('filename') != -1:
             filename_splited = content_disposition.split('filename=')

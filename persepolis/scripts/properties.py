@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-
-
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
 #    the Free Software Foundation, either version 3 of the License, or
@@ -13,20 +10,24 @@
 #
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 from __future__ import annotations
+
 from typing import Callable
+
 try:
-    from PySide6.QtCore import Qt, QSize, QPoint, QDir, QTime, QCoreApplication, QSettings
-    from PySide6.QtWidgets import QLabel, QLineEdit, QFileDialog, QWidget, QPushButton
-    from PySide6.QtGui import QIcon, QKeyEvent, QCloseEvent
+    from PySide6.QtCore import QCoreApplication, QDir, QPoint, QSettings, QSize, Qt, QTime
+    from PySide6.QtGui import QCloseEvent, QIcon, QKeyEvent
+    from PySide6.QtWidgets import QFileDialog, QLabel, QLineEdit, QPushButton, QWidget
 except ImportError:
-    from PyQt5.QtCore import Qt, QSize, QPoint, QDir, QTime, QCoreApplication, QSettings
-    from PyQt5.QtWidgets import QLabel, QLineEdit, QFileDialog, QWidget, QPushButton
-    from PyQt5.QtGui import QIcon, QKeyEvent, QCloseEvent
+    from PyQt5.QtCore import QCoreApplication, QDir, QPoint, QSettings, QSize, Qt, QTime
+    from PyQt5.QtGui import QCloseEvent, QIcon, QKeyEvent
+    from PyQt5.QtWidgets import QFileDialog, QLabel, QLineEdit, QPushButton, QWidget
+
+import os
 
 from persepolis.gui.addlink_ui import AddLinkWindow_Ui
 from persepolis.scripts.check_proxy import getProxy
-import os
 
 
 class PropertiesWindow(AddLinkWindow_Ui):
@@ -51,8 +52,8 @@ class PropertiesWindow(AddLinkWindow_Ui):
             self.link_horizontalLayout.addWidget(self.link_lineEdit_2)
             self.link_lineEdit_2.textChanged.connect(self.linkLineChanged)
 
-            self.link_label.setText(QCoreApplication.translate("addlink_ui_tr", "Video Link: "))
-            self.link_label_2.setText(QCoreApplication.translate("addlink_ui_tr", "Audio Link: "))
+            self.link_label.setText(QCoreApplication.translate('addlink_ui_tr', 'Video Link: '))
+            self.link_label_2.setText(QCoreApplication.translate('addlink_ui_tr', 'Audio Link: '))
 
             # gid_1 >> video_gid , gid_2 >> audio_gid
             self.gid_1 = self.video_finder_dictionary['video_gid']
@@ -106,12 +107,12 @@ class PropertiesWindow(AddLinkWindow_Ui):
 
         # create a copy from add_link_dictionary for checking changes finally!
         self.add_link_dictionary_1_backup = {}
-        for key in self.add_link_dictionary_1.keys():
+        for key in self.add_link_dictionary_1:
             self.add_link_dictionary_1_backup[key] = self.add_link_dictionary_1[key]
 
         if video_finder_dictionary:
             self.add_link_dictionary_2_backup = {}
-            for key in self.add_link_dictionary_2.keys():
+            for key in self.add_link_dictionary_2:
                 self.add_link_dictionary_2_backup[key] = self.add_link_dictionary_2[key]
 
 
@@ -207,7 +208,7 @@ class PropertiesWindow(AddLinkWindow_Ui):
             limit_number = limit[0:-1]
             limit_unit = limit[-1]
             self.limit_spinBox.setValue(float(limit_number))
-            if limit_unit == "K":
+            if limit_unit == 'K':
                 self.limit_comboBox.setCurrentIndex(0)
             else:
                 self.limit_comboBox.setCurrentIndex(1)
@@ -244,7 +245,7 @@ class PropertiesWindow(AddLinkWindow_Ui):
             self.user_agent_lineEdit.setText(str(self.add_link_dictionary_1['user_agent']))
 
         if self.add_link_dictionary_1['load_cookies']:
-            self.load_cookies_lineEdit.setText((self.add_link_dictionary_1['load_cookies']))
+            self.load_cookies_lineEdit.setText(self.add_link_dictionary_1['load_cookies'])
 
 
 # set window size and position
@@ -263,12 +264,12 @@ class PropertiesWindow(AddLinkWindow_Ui):
         enable_proxy_frame = False
 
         # ip
-        if 'http_proxy_ip' in system_proxy_dict.keys():
+        if 'http_proxy_ip' in system_proxy_dict:
             self.ip_lineEdit.setText(str(system_proxy_dict['http_proxy_ip']))
             enable_proxy_frame = True
 
         # port
-        if 'http_proxy_port' in system_proxy_dict.keys():
+        if 'http_proxy_port' in system_proxy_dict:
             self.port_spinBox.setValue(int(system_proxy_dict['http_proxy_port']))
             enable_proxy_frame = True
 
@@ -388,10 +389,10 @@ class PropertiesWindow(AddLinkWindow_Ui):
         if not(self.limit_checkBox.isChecked()):
             limit = 0
         else:
-            if self.limit_comboBox.currentText() == "KiB/s":
-                limit = str(self.limit_spinBox.value()) + str("K")
+            if self.limit_comboBox.currentText() == 'KiB/s':
+                limit = str(self.limit_spinBox.value()) + 'K'
             else:
-                limit = str(self.limit_spinBox.value()) + str("M")
+                limit = str(self.limit_spinBox.value()) + 'M'
 
         if not(self.start_checkBox.isChecked()):
             start_time = None
@@ -481,7 +482,7 @@ class PropertiesWindow(AddLinkWindow_Ui):
                 self.parent.persepolis_db.updateDownloadTable([self.download_table_dict_2])
 
         # if any thing in add_link_dictionary_1 is changed,then update data base!
-        for key in self.add_link_dictionary_1.keys():
+        for key in self.add_link_dictionary_1:
             if self.add_link_dictionary_1[key] != self.add_link_dictionary_1_backup[key]:
 
                 # update data base
@@ -492,13 +493,13 @@ class PropertiesWindow(AddLinkWindow_Ui):
 
         # if link changed, then update download_db_table in data base
         if self.add_link_dictionary_1['link'] != self.add_link_dictionary_1_backup['link']:
-            
+
             dictionary = {'gid': self.gid_1, 'link': self.add_link_dictionary_1['link']}
             self.parent.persepolis_db.updateDownloadTable([dictionary])
 
         # if any thing in add_link_dictionary_2 is changed,then update data base!
         if self.video_finder_dictionary:
-            for key in self.add_link_dictionary_2.keys():
+            for key in self.add_link_dictionary_2:
                 if self.add_link_dictionary_2[key] != self.add_link_dictionary_2_backup[key]:
 
                     # update data base
@@ -509,7 +510,7 @@ class PropertiesWindow(AddLinkWindow_Ui):
 
             # if link changed, then update download_db_table in data base
             if self.add_link_dictionary_2['link'] != self.add_link_dictionary_2_backup['link']:
-                
+
                 dictionary = {'gid': self.gid_2, 'link': self.add_link_dictionary_2['link']}
                 self.parent.persepolis_db.updateDownloadTable([dictionary])
 

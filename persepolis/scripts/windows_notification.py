@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
 #    the Free Software Foundation, either version 3 of the License, or
@@ -14,24 +12,25 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 try:
-    from PySide6.QtCore import Qt, QThread, Signal, QSettings
-    from PySide6.QtGui import QKeyEvent, QMouseEvent, QCloseEvent
+    from PySide6.QtCore import QSettings, Qt, QThread, Signal
+    from PySide6.QtGui import QCloseEvent, QKeyEvent, QMouseEvent
     from PySide6.QtWidgets import QWidget
 except ImportError:
-    from PyQt5.QtCore import Qt, QThread, QSettings
-    from PyQt5.QtGui import QKeyEvent, QMouseEvent, QCloseEvent
-    from PyQt5.QtWidgets import QWidget
+    from PyQt5.QtCore import QSettings, Qt, QThread
     from PyQt5.QtCore import pyqtSignal as Signal
+    from PyQt5.QtGui import QCloseEvent, QKeyEvent, QMouseEvent
+    from PyQt5.QtWidgets import QWidget
+
+from time import sleep
 
 from persepolis.gui.windows_notification_ui import Windows_Notification_UI
-from time import sleep
 
 
 class TimerThread(QThread):
     TIMEISUP = Signal()
 
     def __init__(self, time: str) -> None:
-        QThread.__init__(self)
+        super().__init__()
         self.time = float(int(time)/1000)
 
     def run(self) -> None:

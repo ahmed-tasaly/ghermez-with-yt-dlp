@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
 #    the Free Software Foundation, either version 3 of the License, or
@@ -11,20 +10,21 @@
 #
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-from ghermez import determineConfigFolder
-from persepolis.gui.log_window_ui import LogWindow_Ui
-from persepolis.scripts import osCommands
-from persepolis.constants import REPO_LINK
+
 import os
 
+from ghermez import determineConfigFolder
+from persepolis.constants import REPO_LINK
+from persepolis.gui.log_window_ui import LogWindow_Ui
+from persepolis.scripts import osCommands
+
 try:
-    from PySide6.QtCore import Qt, QPoint, QSize, QSettings
-    from PySide6.QtGui import QIcon, QKeyEvent, QCloseEvent
+    from PySide6.QtCore import QPoint, QSettings, QSize, Qt
+    from PySide6.QtGui import QCloseEvent, QIcon, QKeyEvent
     from PySide6.QtWidgets import QLayout, QPushButton
 except ImportError:
-    from PyQt5.QtCore import Qt, QPoint, QSize, QSettings
-    from PyQt5.QtGui import QIcon, QKeyEvent, QCloseEvent
+    from PyQt5.QtCore import QPoint, QSettings, QSize, Qt
+    from PyQt5.QtGui import QCloseEvent, QIcon, QKeyEvent
     from PyQt5.QtWidgets import QLayout, QPushButton
 
 # config_folder
@@ -42,7 +42,7 @@ class LogWindow(LogWindow_Ui):
 # log file address
         self.log_file = os.path.join(str(config_folder), 'persepolisdm.log')
 
-        f = open(self.log_file, 'r')
+        f = open(self.log_file)
         f_lines = f.readlines()
         f.close()
 
@@ -108,7 +108,7 @@ class LogWindow(LogWindow_Ui):
 
 # this method is refresh log messages in text_edit
     def refreshLogPushButtonPressed(self, _button: QPushButton) -> None:
-        f = open(self.log_file, 'r')
+        f = open(self.log_file)
         f_lines = f.readlines()
         f.close()
 

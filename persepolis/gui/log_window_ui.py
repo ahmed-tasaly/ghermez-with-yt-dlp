@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
 #    the Free Software Foundation, either version 3 of the License, or
@@ -13,18 +12,19 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 try:
-    from PySide6.QtWidgets import QWidget, QTextEdit, QVBoxLayout, QHBoxLayout, QPushButton
-    from PySide6.QtCore import Qt, QTranslator, QCoreApplication, QLocale, QSettings
-    from PySide6.QtGui import QIcon
     from PySide6 import QtCore
+    from PySide6.QtCore import QCoreApplication, QLocale, QSettings, Qt, QTranslator
+    from PySide6.QtGui import QIcon
+    from PySide6.QtWidgets import QHBoxLayout, QPushButton, QTextEdit, QVBoxLayout, QWidget
 except ImportError:
-    from PyQt5.QtWidgets import QWidget, QTextEdit, QVBoxLayout, QHBoxLayout, QPushButton
-    from PyQt5.QtCore import Qt, QTranslator, QCoreApplication, QLocale, QSettings
-    from PyQt5.QtGui import QIcon
     from PyQt5 import QtCore
+    from PyQt5.QtCore import QCoreApplication, QLocale, QSettings, Qt, QTranslator
+    from PyQt5.QtGui import QIcon
+    from PyQt5.QtWidgets import QHBoxLayout, QPushButton, QTextEdit, QVBoxLayout, QWidget
 
 from persepolis.constants import APP_NAME
-from persepolis.gui import resources # noqa: F401
+from persepolis.gui import resources  # noqa: F401
+
 
 class LogWindow_Ui(QWidget):
     def __init__(self, persepolis_setting: QSettings) -> None:
@@ -94,9 +94,9 @@ class LogWindow_Ui(QWidget):
 
 # set labels
 
-        self.setWindowTitle(QCoreApplication.translate("log_window_ui_tr", 'Persepolis Log'))
-        self.close_pushButton.setText(QCoreApplication.translate("log_window_ui_tr", 'Close'))
-        self.copy_log_pushButton.setText(QCoreApplication.translate("log_window_ui_tr", 'Copy Selected to Clipboard'))
-        self.report_pushButton.setText(QCoreApplication.translate("log_window_ui_tr", "Report Issue"))
-        self.refresh_log_pushButton.setText(QCoreApplication.translate("log_window_ui_tr", 'Refresh Log Messages'))
-        self.clear_log_pushButton.setText(QCoreApplication.translate("log_window_ui_tr", 'Clear Log Messages'))
+        self.setWindowTitle(QCoreApplication.translate('log_window_ui_tr', 'Persepolis Log'))
+        self.close_pushButton.setText(QCoreApplication.translate('log_window_ui_tr', 'Close'))
+        self.copy_log_pushButton.setText(QCoreApplication.translate('log_window_ui_tr', 'Copy Selected to Clipboard'))
+        self.report_pushButton.setText(QCoreApplication.translate('log_window_ui_tr', 'Report Issue'))
+        self.refresh_log_pushButton.setText(QCoreApplication.translate('log_window_ui_tr', 'Refresh Log Messages'))
+        self.clear_log_pushButton.setText(QCoreApplication.translate('log_window_ui_tr', 'Clear Log Messages'))

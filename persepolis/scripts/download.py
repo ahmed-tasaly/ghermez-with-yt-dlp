@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
 #    the Free Software Foundation, either version 3 of the License, or
@@ -13,23 +11,22 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from persepolis.scripts.osCommands import moveFile, makeTempDownloadDir
-from persepolis.scripts.useful_tools import freeSpace
-from persepolis.scripts.bubble import notifySend
-from persepolis.scripts import logger
-from persepolis.constants import OS
-import xmlrpc.client
-import urllib.parse
-import subprocess
-import traceback
-import platform
-import time
 import ast
 import os
+import platform
+import subprocess
+import time
+import traceback
+import urllib.parse
+import xmlrpc.client
 
-from persepolis.constants import ORG_NAME, APP_NAME
 import ghermez
 from ghermez import humanReadableSize
+from persepolis.constants import APP_NAME, ORG_NAME, OS
+from persepolis.scripts import logger
+from persepolis.scripts.bubble import notifySend
+from persepolis.scripts.osCommands import makeTempDownloadDir, moveFile
+from persepolis.scripts.useful_tools import freeSpace
 
 try:
     from PySide6.QtCore import QSettings
@@ -41,7 +38,7 @@ except ImportError:
 # https://aria2.github.io/manual/en/html/aria2c.html#rpc-interface
 
 
-home_address = os.path.expanduser("~")
+home_address = os.path.expanduser('~')
 
 os_type = platform.system()
 
@@ -67,10 +64,7 @@ server = xmlrpc.client.ServerProxy(server_uri, allow_none=True)
 
 def startAria():
     # return that starting is successful or not!
-    answer = ghermez.startAria(port, aria2_path)
-
-    # return result
-    return answer
+    return ghermez.startAria(port, aria2_path)
 
 # check aria2 release version . Persepolis uses this function to
 # check that aria2 RPC connection is available or not.
@@ -81,8 +75,8 @@ def aria2Version():
         answer = server.aria2.getVersion()
     except Exception:
         # write ERROR messages in terminal and log
-        logger.sendToLog("Aria2 didn't respond!", "ERROR")
-        answer = "did not respond"
+        logger.sendToLog("Aria2 didn't respond!", 'ERROR')
+        answer = 'did not respond'
 
     return answer
 
@@ -97,7 +91,7 @@ def downloadAria(gid, parent):
     add_link_dictionary = parent.persepolis_db.searchGidInAddLinkTable(gid)
 
     for key in add_link_dictionary:
-        if add_link_dictionary[key] in ["NULL", "None"]:
+        if add_link_dictionary[key] in ['NULL', 'None']:
             add_link_dictionary[key] = None
 
     link = add_link_dictionary['link']
@@ -119,7 +113,7 @@ def downloadAria(gid, parent):
 
     # make header option
     header_list = []
-    header_list.append("Cookie: " + str(cookies))
+    header_list.append('Cookie: ' + str(cookies))
 
 # convert Mega to Kilo, RPC does not Support floating point numbers.
     if limit != '0':
@@ -147,23 +141,23 @@ def downloadAria(gid, parent):
 
 # update status and last_try_date in data_base
     if start_time:
-        status = "scheduled"
+        status = 'scheduled'
     else:
-        status = "waiting"
+        status = 'waiting'
 
     # get last_try_date
     now_date = nowDate()
 
     # update data_base
-    dict = {'gid': gid, 'status': status, 'last_try_date': now_date}
-    parent.persepolis_db.updateDownloadTable([dict])
+    download_dict = {'gid': gid, 'status': status, 'last_try_date': now_date}
+    parent.persepolis_db.updateDownloadTable([download_dict])
 
     # create ip_port from ip and port in desired format.
     # for example "127.0.0.1:8118"
     if ip:
-        ip_port = str(ip) + ":" + str(port)
+        ip_port = str(ip) + ':' + str(port)
     else:
-        ip_port = ""
+        ip_port = ''
 
     # call startTime if start_time is available
     # startTime creates sleep loop if user set start_time
@@ -171,9 +165,9 @@ def downloadAria(gid, parent):
     if start_time:
         start_time_status = startTime(start_time, gid, parent)
     else:
-        start_time_status = "downloading"
+        start_time_status = 'downloading'
 
-    if start_time_status == "scheduled":
+    if start_time_status == 'scheduled':
         # read limit value again from data_base before starting download!
         # perhaps user changed this in progress bar window
         add_link_dictionary = parent.persepolis_db.searchGidInAddLinkTable(gid)
@@ -206,7 +200,7 @@ def downloadAria(gid, parent):
     download_path_temp = persepolis_setting.value('settings/download_path_temp')
 
     # Find user's selected download_path
-    download_path = add_link_dictionary['download_path'] 
+    download_path = add_link_dictionary['download_path']
 
     # check is download_path is existed
     if os.path.isdir(download_path):
@@ -215,10 +209,10 @@ def downloadAria(gid, parent):
 
             # Create folder and give new temp address from makeTempDownloadDir function.
             # Please checkout osCommands.py for more information.
-            download_path_temp = makeTempDownloadDir(download_path) 
+            download_path_temp = makeTempDownloadDir(download_path)
     else:
         # write an error in logger
-        logger.sendToLog("download_path is not found!", "ERROR")
+        logger.sendToLog('download_path is not found!', 'ERROR')
 
     if start_time_status != 'stopped':
         # send download request to aria2
@@ -241,45 +235,46 @@ def downloadAria(gid, parent):
             'max-connection-per-server': str(connections),
             'min-split-size': '1M',
             'continue': 'true',
-            'dir': str(download_path_temp)
+            'dir': str(download_path_temp),
         }
 
         if str(persepolis_setting.value('settings/dont-check-certificate')) == 'yes':
             aria_dict['check-certificate'] = 'false'
 
-        if not link.startswith("https"):
+        if not link.startswith('https'):
             aria_dict['http-user'] = str(download_user)
             aria_dict['http-passwd'] = str(download_passwd)
 
         aria_dict_copy = aria_dict.copy()
         # remove empty key[value] from aria_dict
-        for aria_dict_key in aria_dict_copy.keys():
+        for aria_dict_key in aria_dict_copy:
             if aria_dict_copy[aria_dict_key] in [None, 'None', '']:
                 del aria_dict[aria_dict_key]
 
         try:
             answer = server.aria2.addUri([link], aria_dict)
 
-            logger.sendToLog(answer + " Starts", 'INFO')
+            logger.sendToLog(answer + ' Starts', 'INFO')
             if end_time:
                 endTime(end_time, gid, parent)
 
         except Exception:
 
             # write error status in data_base
-            dict = {'gid': gid, 'status': 'error'}
-            parent.persepolis_db.updateDownloadTable([dict])
+            download_dict = {'gid': gid, 'status': 'error'}
+            parent.persepolis_db.updateDownloadTable([download_dict])
 
             # write ERROR messages in log
-            logger.sendToLog("Download did not start", "ERROR")
+            logger.sendToLog('Download did not start', 'ERROR')
             error_message = str(traceback.format_exc())
-            logger.sendToLog(error_message, "ERROR")
+            logger.sendToLog(error_message, 'ERROR')
 
             # return False!
             return False
     else:
         # if start_time_status is "stopped" it means download Canceled by user
-        logger.sendToLog("Download Canceled", "INFO")
+        logger.sendToLog('Download Canceled', 'INFO')
+        return None
 
 # this function returns list of download information
 def tellActive():
@@ -295,16 +290,15 @@ def tellActive():
     gid_list = []
 
     # convert download information in desired format.
-    for dict in downloads_status:
-        converted_info_dict = convertDownloadInformation(dict)
+    for download_dict in downloads_status:
+        converted_info_dict = convertDownloadInformation(download_dict)
 
         # add gid to gid_list
-        gid_list.append(dict['gid'])
+        gid_list.append(download_dict['gid'])
 
         # add converted information to download_status_list
         download_status_list.append(converted_info_dict)
 
-    # return results
     return gid_list, download_status_list
 
 # this function returns download status that specified by gid!
@@ -325,7 +319,7 @@ def tellStatus(gid, parent):
 
 
 # if download has completed , then move file to the download folder
-    if (converted_info_dict['status'] == "complete"):
+    if (converted_info_dict['status'] == 'complete'):
         file_name = converted_info_dict['file_name']
 
         # find user preferred download_path from addlink_db_table in data_base
@@ -369,7 +363,7 @@ def tellStatus(gid, parent):
         parent.persepolis_db.updateAddLinkTable([add_link_dictionary])
 
 # if an error occurred!
-    if (converted_info_dict['status'] == "error"):
+    if (converted_info_dict['status'] == 'error'):
         # add errorMessage to converted_info_dict
         converted_info_dict['error'] = str(download_status['errorMessage'])
 
@@ -404,7 +398,7 @@ def convertDownloadInformation(download_status):
         file_name = None
         link = None
 
-    for i in download_status.keys():
+    for i in download_status:
         if not(download_status[i]):
             download_status[i] = None
 
@@ -434,7 +428,7 @@ def convertDownloadInformation(download_status):
         file_size = file_size_back
         downloaded = downloaded_back
         percent = int(downloaded * 100 / file_size)
-        percent_str = str(percent) + "%"
+        percent_str = str(percent) + '%'
     else:
         percent_str = None
         size_str = None
@@ -454,23 +448,23 @@ def convertDownloadInformation(download_status):
         # converting file_size to KiB or MiB or GiB
         download_speed_str = humanReadableSize(download_speed, 'speed') + '/s'
 
-        eta = ""
+        eta = ''
         if estimate_time_left >= 3600:
-            eta = eta + str(int(estimate_time_left/3600)) + "h"
+            eta = eta + str(int(estimate_time_left/3600)) + 'h'
             estimate_time_left = estimate_time_left % 3600
-            eta = eta + str(int(estimate_time_left/60)) + "m"
+            eta = eta + str(int(estimate_time_left/60)) + 'm'
             estimate_time_left = estimate_time_left % 60
-            eta = eta + str(estimate_time_left) + "s"
+            eta = eta + str(estimate_time_left) + 's'
         elif estimate_time_left >= 60:
-            eta = eta + str(int(estimate_time_left/60)) + "m"
+            eta = eta + str(int(estimate_time_left/60)) + 'm'
             estimate_time_left = estimate_time_left % 60
-            eta = eta + str(estimate_time_left) + "s"
+            eta = eta + str(estimate_time_left) + 's'
         else:
-            eta = eta + str(estimate_time_left) + "s"
+            eta = eta + str(estimate_time_left) + 's'
         estimate_time_left_str = eta
 
     else:
-        download_speed_str = "0"
+        download_speed_str = '0'
         estimate_time_left_str = None
 
     # find number of connections
@@ -486,14 +480,14 @@ def convertDownloadInformation(download_status):
         status_str = None
 
     # rename active status to downloading
-    if (status_str == "active"):
-        status_str = "downloading"
+    if (status_str == 'active'):
+        status_str = 'downloading'
 
     # rename removed status to stopped
-    if (status_str == "removed"):
-        status_str = "stopped"
+    if (status_str == 'removed'):
+        status_str = 'stopped'
 
-    if (status_str == "None"):
+    if (status_str == 'None'):
         status_str = None
 
     # set 0 second for estimate_time_left_str if download is completed.
@@ -501,7 +495,7 @@ def convertDownloadInformation(download_status):
         estimate_time_left_str = '0s'
 
 # return information in dictionary format
-    download_info = {
+    return {
         'gid': download_status['gid'],
         'file_name': file_name,
         'status': status_str,
@@ -511,10 +505,9 @@ def convertDownloadInformation(download_status):
         'connections': connections_str,
         'rate': download_speed_str,
         'estimate_time_left': estimate_time_left_str,
-        'link': link
+        'link': link,
     }
 
-    return download_info
 
 # download complete actions!
 # this method is returning file_path of file in the user's download folder
@@ -533,7 +526,7 @@ def downloadCompleteAction(parent, path, download_path, file_name, file_size):
     # if '?' in file_extension, then file_name contains query components.
     if '?' in file_extension:
         file_extension = file_extension.split('?')[0]
-        file_name = '.'.join([file_name_without_extension, file_extension])
+        file_name = f'{file_name_without_extension}.{file_extension}'
 
     # rename file if file already existed
     i = 1
@@ -560,17 +553,17 @@ def downloadCompleteAction(parent, path, download_path, file_name, file_size):
 
             if not(move_answer):
                 # write error message in log
-                logger.sendToLog('Persepolis can not move file', "ERROR")
+                logger.sendToLog('Persepolis can not move file', 'ERROR')
                 file_path = path
 
         else:
             # notify user if we have insufficient disk space
             # and do not move file from temp download folder to download folder
             file_path = path
-            logger.sendToLog('Insufficient disk space in download folder', "ERROR")
+            logger.sendToLog('Insufficient disk space in download folder', 'ERROR')
 
             # show notification
-            notifySend("Insufficient disk space!", 'Please change download folder',
+            notifySend('Insufficient disk space!', 'Please change download folder',
                        10000, 'fail', parent=parent)
 
     else:
@@ -578,7 +571,7 @@ def downloadCompleteAction(parent, path, download_path, file_name, file_size):
         move_answer = moveFile(str(path), str(file_path), 'file')
 
         if not(move_answer):
-            logger.sendToLog('Persepolis can not move file', "ERROR")
+            logger.sendToLog('Persepolis can not move file', 'ERROR')
             file_path = path
 
     return str(file_path)
@@ -621,13 +614,12 @@ def findDownloadPath(file_name, download_path, subfolder):
                   'tar.bz2', 'tbz2', 'tar.lzma', 'tlz', 'uc', 'uc0', 'uc2', 'ucn', 'ur2', 'ue2', 'uca', 'uha', 'war',
                   'wim', 'xar', 'xp3', 'yz1', 'zip', 'zipx', 'zoo', 'zpaq', 'zz', 'ecc', 'par', 'par2']
 
-    # return download_path
     if str(subfolder) == 'yes':
         if file_extension in audio:
             return os.path.join(download_path, 'Audios')
 
         # aria2c downloads youtube links file_name with 'videoplayback' name?!
-        elif (file_extension in video) or (file_name == 'videoplayback'):
+        elif (file_extension in video) or (file_name == 'videoplayback'):  # noqa: RET505
             return os.path.join(download_path, 'Videos')
 
         elif file_extension in document:
@@ -646,10 +638,10 @@ def findDownloadPath(file_name, download_path, subfolder):
 def shutDown():
     try:
         answer = server.aria2.shutdown()
-        logger.sendToLog("Aria2 Shutdown : " + str(answer), "INFO")
+        logger.sendToLog('Aria2 Shutdown : ' + str(answer), 'INFO')
         return True
     except Exception:
-        logger.sendToLog("Aria2 Shutdown Error", "ERROR")
+        logger.sendToLog('Aria2 Shutdown Error', 'ERROR')
         return False
 
 # downloadStop stops download completely
@@ -659,8 +651,8 @@ def shutDown():
 
 def downloadStop(gid, parent):
     # get download status from data_base
-    dict = parent.persepolis_db.searchGidInDownloadTable(gid)
-    status = dict['status']
+    download_dict = parent.persepolis_db.searchGidInDownloadTable(gid)
+    status = download_dict['status']
 
     # if status is "scheduled", then download request has not been sended to aria2!
     # so no need to send stop request to aria2.
@@ -673,10 +665,10 @@ def downloadStop(gid, parent):
             if status == 'downloading':
                 server.aria2.removeDownloadResult(gid)
         except Exception:
-            answer = "None"
+            answer = 'None'
 
         # write a messages in log and terminal
-        logger.sendToLog(answer + " stopped", "INFO")
+        logger.sendToLog(answer + ' stopped', 'INFO')
 
     # if download has not been completed yet,
     # so just chang status of download to "stopped" in data base.
@@ -689,8 +681,8 @@ def downloadStop(gid, parent):
                                                          start_time=True, end_time=True, after_download=True)
 
         # change status of download to "stopped" in data base
-        dict = {'gid': gid, 'status': 'stopped'}
-        parent.persepolis_db.updateDownloadTable([dict])
+        download_dict = {'gid': gid, 'status': 'stopped'}
+        parent.persepolis_db.updateDownloadTable([download_dict])
 
     return answer
 
@@ -705,7 +697,7 @@ def downloadPause(gid):
     except Exception:
         answer = None
 
-    logger.sendToLog(str(answer) + " paused", "INFO")
+    logger.sendToLog(str(answer) + ' paused', 'INFO')
     return answer
 
 
@@ -717,7 +709,7 @@ def downloadUnpause(gid):
     except Exception:
         answer = None
 
-    logger.sendToLog(str(answer) + " unpaused", "INFO")
+    logger.sendToLog(str(answer) + ' unpaused', 'INFO')
 
     return answer
 
@@ -740,10 +732,10 @@ def limitSpeed(gid, limit):
 
     try:
         server.aria2.changeOption(gid, {'max-download-limit': limit})
-        logger.sendToLog("Download speed limit  value is changed", "INFO")
+        logger.sendToLog('Download speed limit  value is changed', 'INFO')
 
     except Exception:
-        logger.sendToLog("Speed limitation was unsuccessful", "ERROR")
+        logger.sendToLog('Speed limitation was unsuccessful', 'ERROR')
 
 
 # this function returns GID of active downloads in list format.
@@ -756,21 +748,19 @@ def activeDownloads():
     active_gids = []
     for i in answer:
         # extract gid from dictionary
-        dict = i
-        gid = dict['gid']
+        download_dict = i
+        gid = download_dict['gid']
 
         # add gid to list
         active_gids.append(gid)
 
-    # return results
     return active_gids
 
 
 # This function returns data and time in string format
 # for example >> 2017/09/09 , 13:12:26
 def nowDate():
-    date = time.strftime("%Y/%m/%d , %H:%M:%S")
-    return date
+    return time.strftime('%Y/%m/%d , %H:%M:%S')
 
 # sigmaTime gets hours and minutes for input.
 # and converts hours to minutes and returns summation in minutes
@@ -778,14 +768,14 @@ def nowDate():
 
 
 def sigmaTime(time):
-    hour, minute = time.split(":")
+    hour, minute = time.split(':')
     return (int(hour)*60 + int(minute))
 
 # nowTime returns now time in HH:MM format!
 
 
 def nowTime():
-    now_time = time.strftime("%H:%M")
+    now_time = time.strftime('%H:%M')
     return sigmaTime(now_time)
 
 # this function creates sleep time,if user sets "start time" for download.
@@ -793,7 +783,7 @@ def nowTime():
 
 def startTime(start_time, gid, parent):
     # write some messages
-    logger.sendToLog("Download starts at " + start_time, "INFO")
+    logger.sendToLog('Download starts at ' + start_time, 'INFO')
 
     # start_time that specified by user
     sigma_start = sigmaTime(start_time)
@@ -809,23 +799,22 @@ def startTime(start_time, gid, parent):
         sigma_now = nowTime()
 
         # check download status from data_base
-        dict = parent.persepolis_db.searchGidInDownloadTable(gid)
-        data_base_download_status = dict['status']
+        download_dict = parent.persepolis_db.searchGidInDownloadTable(gid)
+        data_base_download_status = download_dict['status']
 
         # if data_base_download_status = stopped >> it means that user
         # canceled download and loop must break!
         if data_base_download_status == 'stopped':
             status = 'stopped'
             break
-        else:
-            status = 'scheduled'
+        status = 'scheduled'
 
 # if user canceled download , then return 'stopped' and if download time arrived then return 'scheduled'!
     return status
 
 
 def endTime(end_time, gid, parent):
-    logger.sendToLog("End time is activated " + gid, "INFO")
+    logger.sendToLog('End time is activated ' + gid, 'INFO')
     sigma_end = sigmaTime(end_time)
 
     # get current time
@@ -836,11 +825,11 @@ def endTime(end_time, gid, parent):
     while sigma_end != sigma_now:
 
         # get download status from data_base
-        dict = parent.persepolis_db.searchGidInDownloadTable(gid)
-        status = dict['status']
+        download_dict = parent.persepolis_db.searchGidInDownloadTable(gid)
+        status = download_dict['status']
 
         # check download status
-        if status == 'scheduled' or status == 'downloading' or status == 'paused' or status == 'waiting':
+        if status in ('scheduled', 'downloading', 'paused', 'waiting'):
 
             # download continues!
             answer = 'continue'
@@ -850,7 +839,7 @@ def endTime(end_time, gid, parent):
             # Download completed or stopped by user
             # so break the loop
             answer = 'end'
-            logger.sendToLog("Download has been finished! " + str(gid), "INFO")
+            logger.sendToLog('Download has been finished! ' + str(gid), 'INFO')
             break
 
         # get current time
@@ -859,7 +848,7 @@ def endTime(end_time, gid, parent):
 
     # Time is up!
     if answer != 'end':
-        logger.sendToLog("Time is up!", "INFO")
+        logger.sendToLog('Time is up!', 'INFO')
         answer = downloadStop(gid, parent)
         i = 0
         # try to stop download 10 times

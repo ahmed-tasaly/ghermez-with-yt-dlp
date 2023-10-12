@@ -1,6 +1,6 @@
 line-length = 120
 select = ["ALL"]
-ignore = ["ANN101", "D107", "FBT003", "N802", "N803", "N806", "PLR2004", "SIM108"]
+ignore = ["ANN101", "D107", "FBT001", "FBT003", "N802", "N803", "N806", "PLR2004", "SIM108"]
 
 [per-file-ignores]
 "__init__.py" = ["F401"]

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
 #    the Free Software Foundation, either version 3 of the License, or
@@ -13,17 +12,19 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from __future__ import annotations
-from ghermez import determineConfigFolder
-from persepolis.scripts import osCommands
-from persepolis.constants import OS, BROWSER
-import subprocess
-import platform
-import sys
+
 import os
+import platform
+import subprocess
+import sys
+
+from ghermez import determineConfigFolder
+from persepolis.constants import BROWSER, OS
+from persepolis.scripts import osCommands
 
 os_type = platform.system()
 
-home_address = str(os.path.expanduser("~"))
+home_address = str(os.path.expanduser('~'))
 
 # download manager config folder .
 config_folder = determineConfigFolder()
@@ -140,28 +141,28 @@ def browserIntegration(browser: str) -> (bool, bool):
 
         if browser in BROWSER.CHROME_FAMILY:
             native_message_folder = os.path.join(
-                home_address, 'AppData\Local\persepolis_download_manager', 'chrome')
+                home_address, 'AppData\\Local\\persepolis_download_manager', 'chrome')
         else:
             native_message_folder = os.path.join(
-                home_address, 'AppData\Local\persepolis_download_manager', 'firefox')
+                home_address, 'AppData\\Local\\persepolis_download_manager', 'firefox')
 
     # WebExtension native hosts file prototype
     webextension_json_connector = {
-        "name": "com.persepolis.pdmchromewrapper",
-        "type": "stdio",
-        "path": str(exec_path),
-        "description": "Integrate Persepolis with %s using WebExtensions" % (browser)
+        'name': 'com.persepolis.pdmchromewrapper',
+        'type': 'stdio',
+        'path': str(exec_path),
+        'description': 'Integrate Persepolis with %s using WebExtensions' % (browser),
     }
 
     # Add chrom* keys
     if browser in BROWSER.CHROME_FAMILY:
-        webextension_json_connector["allowed_origins"] = ["chrome-extension://legimlagjjoghkoedakdjhocbeomojao/"]
+        webextension_json_connector['allowed_origins'] = ['chrome-extension://legimlagjjoghkoedakdjhocbeomojao/']
 
     # Add firefox keys
     elif browser == BROWSER.FIREFOX:
-        webextension_json_connector["allowed_extensions"] = [
-            "com.persepolis.pdmchromewrapper@persepolisdm.github.io",
-            "com.persepolis.pdmchromewrapper.offline@persepolisdm.github.io"
+        webextension_json_connector['allowed_extensions'] = [
+            'com.persepolis.pdmchromewrapper@persepolisdm.github.io',
+            'com.persepolis.pdmchromewrapper.offline@persepolisdm.github.io',
         ]
 
     # Build final path
@@ -172,7 +173,7 @@ def browserIntegration(browser: str) -> (bool, bool):
 
     # Write NMH file
     f = open(native_message_file, 'w')
-    f.write(str(webextension_json_connector).replace("'", "\""))
+    f.write(str(webextension_json_connector).replace("'", '\"'))
     f.close()
 
     if os_type != OS.WINDOWS:
@@ -197,12 +198,12 @@ def browserIntegration(browser: str) -> (bool, bool):
             try:
                 # create pdmchromewrapper key under NativeMessagingHosts
                 winreg.CreateKey(winreg.HKEY_CURRENT_USER,
-                                 "SOFTWARE\\Google\\Chrome\\NativeMessagingHosts\\com.persepolis.pdmchromewrapper")
+                                 'SOFTWARE\\Google\\Chrome\\NativeMessagingHosts\\com.persepolis.pdmchromewrapper')
                 # open a connection to pdmchromewrapper key
                 gintKey = winreg.OpenKey(
                     winreg.HKEY_CURRENT_USER,
-                    "SOFTWARE\\Google\\Chrome\\NativeMessagingHosts\\com.persepolis.pdmchromewrapper",
-                    0, winreg.KEY_ALL_ACCESS
+                    'SOFTWARE\\Google\\Chrome\\NativeMessagingHosts\\com.persepolis.pdmchromewrapper',
+                    0, winreg.KEY_ALL_ACCESS,
                 )
                 # set native_message_file as key value
                 winreg.SetValueEx(gintKey, '', 0, winreg.REG_SZ, native_message_file)
@@ -219,12 +220,12 @@ def browserIntegration(browser: str) -> (bool, bool):
             try:
                 # create pdmchromewrapper key under NativeMessagingHosts for firefox
                 winreg.CreateKey(winreg.HKEY_CURRENT_USER,
-                                 "SOFTWARE\\Mozilla\\NativeMessagingHosts\\com.persepolis.pdmchromewrapper")
+                                 'SOFTWARE\\Mozilla\\NativeMessagingHosts\\com.persepolis.pdmchromewrapper')
                 # open a connection to pdmchromewrapper key for firefox
                 fintKey = winreg.OpenKey(
                     winreg.HKEY_CURRENT_USER,
-                    "SOFTWARE\\Mozilla\\NativeMessagingHosts\\com.persepolis.pdmchromewrapper",
-                    0, winreg.KEY_ALL_ACCESS
+                    'SOFTWARE\\Mozilla\\NativeMessagingHosts\\com.persepolis.pdmchromewrapper',
+                    0, winreg.KEY_ALL_ACCESS,
                 )
                 # set native_message_file as key value
                 winreg.SetValueEx(fintKey, '', 0, winreg.REG_SZ, native_message_file)
@@ -240,7 +241,7 @@ def browserIntegration(browser: str) -> (bool, bool):
     # create persepolis_run_shell file for gnu/linux and BSD and Mac
     # firefox and chromium and ... call persepolis with Native Messaging system.
     # json file calls persepolis_run_shell file.
-    if os_type in (OS.UNIX_LIKE + [OS.OSX]):
+    if os_type in ([*OS.UNIX_LIKE, OS.OSX]):
         # find available shell
         shell_list = ['/bin/bash', '/usr/local/bin/bash', '/bin/sh', '/usr/local/bin/sh', '/bin/ksh', '/bin/tcsh']
 

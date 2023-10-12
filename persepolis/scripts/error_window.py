@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
 #    the Free Software Foundation, either version 3 of the License, or
@@ -11,22 +10,21 @@
 #
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
 
 try:
-    from PySide6.QtWidgets import QWidget, QTextEdit, QVBoxLayout, QHBoxLayout, QPushButton, QLabel
+    from PySide6.QtCore import QSettings, QSize, Qt
     from PySide6.QtGui import QIcon, QKeyEvent
-    from PySide6.QtCore import Qt, QSize, QSettings
+    from PySide6.QtWidgets import QHBoxLayout, QLabel, QPushButton, QTextEdit, QVBoxLayout, QWidget
 except ImportError:
-    from PyQt5.QtWidgets import QWidget, QTextEdit, QVBoxLayout, QHBoxLayout, QPushButton, QLabel
-    from PyQt5.QtCore import Qt, QSize, QSettings
+    from PyQt5.QtCore import QSettings, QSize, Qt
     from PyQt5.QtGui import QIcon, QKeyEvent
-
-from persepolis.constants import ORG_NAME, APP_NAME, LONG_NAME, REPO_LINK
-from persepolis.scripts import osCommands
-from persepolis.gui import resources # noqa: F401
+    from PyQt5.QtWidgets import QHBoxLayout, QLabel, QPushButton, QTextEdit, QVBoxLayout, QWidget
 
 from ghermez import DataBase
+from persepolis.constants import APP_NAME, LONG_NAME, ORG_NAME, REPO_LINK
+from persepolis.gui import resources  # noqa: F401
+from persepolis.scripts import osCommands
+
 
 class ErrorWindow(QWidget):
     def __init__(self, text: str) -> None:
@@ -51,7 +49,7 @@ class ErrorWindow(QWidget):
         verticalLayout.addWidget(self.label2)
 
         self.report_pushButton = QPushButton(self)
-        self.report_pushButton.setText("Report Issue")
+        self.report_pushButton.setText('Report Issue')
         horizontalLayout.addWidget(self.report_pushButton)
 
         self.reset_persepolis_pushButton = QPushButton(self)

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
 #    the Free Software Foundation, either version 3 of the License, or
@@ -13,13 +12,15 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from __future__ import annotations
+
+import os
 import re
 import subprocess
 import urllib
-import os
+
 from ghermez import osAndDesktopEnvironment
-from persepolis.scripts import logger
 from persepolis.constants import OS
+from persepolis.scripts import logger
 
 # get proxy function
 
@@ -37,7 +38,7 @@ def getProxy() -> dict[str, str]:
 
     # write in log
     platform = 'platform : ' + os_type
-    logger.sendToLog(platform, "INFO")
+    logger.sendToLog(platform, 'INFO')
 
     proxy = {}
     if os_type in OS.UNIX_LIKE:
@@ -46,7 +47,7 @@ def getProxy() -> dict[str, str]:
         else:
             desktop_env_type = 'Desktop environment: ' + str(desktop)
 
-        logger.sendToLog(desktop_env_type, "INFO")
+        logger.sendToLog(desktop_env_type, 'INFO')
 
     # check if it is KDE
     if desktop == 'KDE':
@@ -54,13 +55,13 @@ def getProxy() -> dict[str, str]:
         proxysource = {}
 
         # user home directory path
-        home_address = os.path.expanduser("~")
+        home_address = os.path.expanduser('~')
         # get proxy file content
         try:
             plasma_proxy_config_file_path = os.path.join(
                 home_address,
                 '.config',
-                'kioslaverc'
+                'kioslaverc',
             )
         except Exception:
             logger.sendToLog('no proxy file detected', 'INFO')
@@ -71,7 +72,7 @@ def getProxy() -> dict[str, str]:
             try:
                 with open(plasma_proxy_config_file_path) as proxyfile:
                     for line in proxyfile:
-                        name, var = line.partition("=")[::2]
+                        name, var = line.partition('=')[::2]
                         proxysource[name.strip()] = str(var)
             except Exception:
                 logger.sendToLog('no proxy file detected', 'INFO')
@@ -80,14 +81,14 @@ def getProxy() -> dict[str, str]:
             if proxysource['ProxyType'].split('\n')[0] == '1':
                 # get ftp proxy
                 try:
-                    proxy['ftp_proxy_port'] = proxysource['ftpProxy'].split(' ')[1].replace("/", "").replace("\n", "")
+                    proxy['ftp_proxy_port'] = proxysource['ftpProxy'].split(' ')[1].replace('/', '').replace('\n', '')
                     proxy['ftp_proxy_ip'] = proxysource['ftpProxy'].split(' ')[0].split('//')[1]
                 except Exception:
                     logger.sendToLog('no manual ftp proxy detected', 'INFO')
 
                 # get http proxy
                 try:
-                    proxy['http_proxy_port'] = proxysource['httpProxy'].split(' ')[1].replace("/", "").replace("\n", "")
+                    proxy['http_proxy_port'] = proxysource['httpProxy'].split(' ')[1].replace('/', '').replace('\n', '')
                     proxy['http_proxy_ip'] = proxysource['httpProxy'].split(' ')[0].split('//')[1]
                 except Exception:
                     logger.sendToLog('no manual http proxy detected', 'INFO')
@@ -95,7 +96,7 @@ def getProxy() -> dict[str, str]:
                 # get https proxy
                 try:
                     proxy['https_proxy_port'] = proxysource['httpsProxy'].split(
-                        ' ')[1].replace("/", "").replace("\n", "")
+                        ' ')[1].replace('/', '').replace('\n', '')
                     proxy['https_proxy_ip'] = proxysource['httpsProxy'].split(' ')[0].split('//')[1]
                 except Exception:
                     logger.sendToLog('no manual https proxy detected', 'INFO')
@@ -115,18 +116,18 @@ def getProxy() -> dict[str, str]:
         else:
             logger.sendToLog('no proxy file detected', 'INFO')
 
-    # Detect proxy from GNOME Desktop        
+    # Detect proxy from GNOME Desktop
     elif desktop == 'GNOME':
         process = subprocess.run(['gsettings', 'get', 'org.gnome.system.proxy', 'mode'], stdout=subprocess.PIPE)
         mode = re.search(r'manual' , process.stdout.decode('utf-8'))
-        if mode is not None:    
+        if mode is not None:
             try:
                 process = subprocess.run(
-                    ['gsettings', 'get', 'org.gnome.system.proxy.http', 'host'], stdout=subprocess.PIPE
+                    ['gsettings', 'get', 'org.gnome.system.proxy.http', 'host'], stdout=subprocess.PIPE,
                 )
                 proxy['http_proxy_ip'] = re.search(r"\'([\w0-9\.]+)\'" , process.stdout.decode('utf-8')).group(1)
                 process = subprocess.run(
-                    ['gsettings', 'get', 'org.gnome.system.proxy.http', 'port'], stdout=subprocess.PIPE
+                    ['gsettings', 'get', 'org.gnome.system.proxy.http', 'port'], stdout=subprocess.PIPE,
                 )
                 proxy['http_proxy_port'] = process.stdout.decode('utf-8')
             except Exception:
@@ -134,11 +135,11 @@ def getProxy() -> dict[str, str]:
 
             try:
                 process = subprocess.run(
-                    ['gsettings', 'get', 'org.gnome.system.proxy.https', 'host'], stdout=subprocess.PIPE
+                    ['gsettings', 'get', 'org.gnome.system.proxy.https', 'host'], stdout=subprocess.PIPE,
                 )
                 proxy['https_proxy_ip'] = re.search(r"\'([\w0-9\.]+)\'" , process.stdout.decode('utf-8')).group(1)
                 process = subprocess.run(
-                    ['gsettings', 'get', 'org.gnome.system.proxy.https', 'port'], stdout=subprocess.PIPE
+                    ['gsettings', 'get', 'org.gnome.system.proxy.https', 'port'], stdout=subprocess.PIPE,
                 )
                 proxy['https_proxy_port'] = process.stdout.decode('utf-8')
             except Exception:
@@ -146,25 +147,24 @@ def getProxy() -> dict[str, str]:
 
             try:
                 process = subprocess.run(
-                    ['gsettings', 'get', 'org.gnome.system.proxy.ftp', 'host'], stdout=subprocess.PIPE
+                    ['gsettings', 'get', 'org.gnome.system.proxy.ftp', 'host'], stdout=subprocess.PIPE,
                 )
                 proxy['ftp_proxy_ip'] = re.search(r"\'([\w0-9\.]+)\'" , process.stdout.decode('utf-8')).group(1)
                 process = subprocess.run(
-                    ['gsettings', 'get', 'org.gnome.system.proxy.ftp', 'port'], stdout=subprocess.PIPE
+                    ['gsettings', 'get', 'org.gnome.system.proxy.ftp', 'port'], stdout=subprocess.PIPE,
                 )
                 proxy['ftp_proxy_port'] = process.stdout.decode('utf-8')
             except Exception:
                 logger.sendToLog('no ftp proxy detected', 'INFO')
-            
+
             try:
                 process = subprocess.run(
-                    ['gsettings', 'get', 'org.gnome.system.proxy.socks', 'host'], stdout=subprocess.PIPE
+                    ['gsettings', 'get', 'org.gnome.system.proxy.socks', 'host'], stdout=subprocess.PIPE,
                 )
-                # value = re.search(r"\'([\w0-9\.]+)\'" , process.stdout.decode('utf-8')).group(1)
                 socks_proxy = True
             except Exception:
                 socks_proxy = False
-        
+
         else:
             logger.sendToLog('no manual proxy detected', 'INFO')
 
@@ -175,21 +175,21 @@ def getProxy() -> dict[str, str]:
         # get http proxy
         try:
             proxy['http_proxy_ip'] = proxysource['http'].split(':')[1].replace('//', '')
-            proxy['http_proxy_port'] = proxysource['http'].split(':')[2].replace("/", "").replace("\n", "")
+            proxy['http_proxy_port'] = proxysource['http'].split(':')[2].replace('/', '').replace('\n', '')
         except Exception:
             logger.sendToLog('no http proxy detected', 'INFO')
 
         # get https proxy
         try:
             proxy['https_proxy_ip'] = proxysource['https'].split(':')[1].replace('//', '')
-            proxy['https_proxy_port'] = proxysource['https'].split(':')[2].replace("/", "").replace("\n", "")
+            proxy['https_proxy_port'] = proxysource['https'].split(':')[2].replace('/', '').replace('\n', '')
         except Exception:
             logger.sendToLog('no https proxy detected', 'INFO')
 
         # get ftp proxy
         try:
             proxy['ftp_proxy_ip'] = proxysource['ftp'].split(':')[1].replace('//', '')
-            proxy['ftp_proxy_port'] = proxysource['ftp'].split(':')[2].replace("/", "").replace("\n", "")
+            proxy['ftp_proxy_port'] = proxysource['ftp'].split(':')[2].replace('/', '').replace('\n', '')
         except Exception:
             logger.sendToLog('no ftp proxy detected', 'INFO')
 
@@ -225,7 +225,7 @@ def getProxy() -> dict[str, str]:
     key_is_available = False
     key_list = ['http_proxy_ip', 'https_proxy_ip', 'ftp_proxy_ip']
     for key in key_list:
-        if key in proxy.keys():
+        if key in proxy:
             key_is_available = True
 
     if not key_is_available and socks_proxy:
@@ -236,7 +236,7 @@ def getProxy() -> dict[str, str]:
             https://github.com/persepolisdm/persepolis/wiki/Privoxy"
         logger.sendToLog(socks_message, 'ERROR')
 
-    # return results
+    # results
     proxy_log_message = 'proxy: ' + str(proxy)
     logger.sendToLog(proxy_log_message, 'INFO')
     return proxy

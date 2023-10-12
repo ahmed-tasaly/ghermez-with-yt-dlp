@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
 #    the Free Software Foundation, either version 3 of the License, or
@@ -12,6 +10,7 @@
 #
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 from __future__ import annotations
 
 try:
@@ -19,14 +18,14 @@ try:
 except ImportError:
     from PyQt5.QtWidgets import QStyleFactory, QWidget
 
-from persepolis.constants import OS
-import urllib.parse
-import subprocess
-import platform
-import sys
 import os
+import platform
+import subprocess
+import sys
+import urllib.parse
 
 import ghermez
+from persepolis.constants import OS
 
 try:
     from persepolis.scripts import logger
@@ -40,17 +39,17 @@ except ImportError:
 os_type = platform.system()
 
 # user home address
-home_address = os.path.expanduser("~")
+home_address = os.path.expanduser('~')
 
 
 # determine the config folder path based on the operating system
 def determineConfigFolder():
     if os_type in OS.UNIX_LIKE:
         config_folder = os.path.join(
-            home_address, ".config/persepolis_download_manager")
+            home_address, '.config/persepolis_download_manager')
     elif os_type == OS.OSX:
         config_folder = os.path.join(
-            home_address, "Library/Application Support/persepolis_download_manager")
+            home_address, 'Library/Application Support/persepolis_download_manager')
     elif os_type == OS.WINDOWS:
         config_folder = os.path.join(
             home_address, 'AppData', 'Local', 'persepolis_download_manager')
@@ -79,7 +78,7 @@ def humanReadableSize(size: float, input_type: str='file_size') -> str:
     while size >= 1024:
         i += 1
         size = size / 1024
-        
+
     if input_type == 'speed':
         j = 0
     else:
@@ -87,8 +86,7 @@ def humanReadableSize(size: float, input_type: str='file_size') -> str:
 
     if i > j:
         return str(round(size, 2)) + ' ' + labels[i]
-    else:
-        return str(round(size, None)) + ' ' + labels[i]
+    return str(round(size, None)) + ' ' + labels[i]
 
 # this function converts human readable size to byte
 
@@ -101,7 +99,7 @@ def convertToByte(file_size: str) -> int:
         unit = file_size[-3:]
 
         # persepolis uses float type for GiB and TiB
-        if unit == 'GiB' or unit == 'TiB':
+        if unit in ('GiB', 'TiB'):
 
             size_value = float(file_size[:-4])
 
@@ -131,24 +129,24 @@ def convertToByte(file_size: str) -> int:
 
 
 # this function checks free space in hard disk.
-def freeSpace(dir: str) -> (int | None):
+def freeSpace(directory: str) -> (int | None):
     try:
         import psutil
     except ImportError:
         if logger_availability:
-            logger.sendToLog("psutil in not installed!", "ERROR")
+            logger.sendToLog('psutil in not installed!', 'ERROR')
 
         return None
 
     try:
-        dir_space = psutil.disk_usage(dir)
+        dir_space = psutil.disk_usage(directory)
         free_space = dir_space.free
         return int(free_space)
 
     except Exception as e:
         # log in to the log file
         if logger_availability:
-            logger.sendToLog("persepolis couldn't find free space value:\n" + str(e), "ERROR")
+            logger.sendToLog("persepolis couldn't find free space value:\n" + str(e), 'ERROR')
 
         return None
 
@@ -158,9 +156,8 @@ def returnDefaultSettings() -> dict[str, str]:
     available_styles = QStyleFactory.keys()
 
     # Persepolis default setting
-    default_setting_dict = ghermez.returnDefaultSettings(available_styles)
+    return ghermez.returnDefaultSettings(available_styles)
 
-    return default_setting_dict
 
 
 def muxer(parent: QWidget, video_finder_dictionary: dict[str, str]):

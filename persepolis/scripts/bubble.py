@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
 #    the Free Software Foundation, either version 3 of the License, or
@@ -14,20 +12,25 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from __future__ import annotations
-from persepolis.scripts.play import playNotification
-from persepolis.gui import resources # noqa: F401
-from persepolis.constants import OS, APP_NAME, ORG_NAME, LONG_NAME
-import subprocess
-import platform
+
 import os
+import platform
+import subprocess
+
+from persepolis.constants import APP_NAME, LONG_NAME, ORG_NAME, OS
+from persepolis.gui import resources  # noqa: F401
+from persepolis.scripts.play import playNotification
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from PySide6.QtWidgets import QWidget
+    from PyQt5.QtWidgets import QWidget
 
 try:
     from PySide6.QtCore import QSettings
-    from PySide6.QtWidgets import QWidget
     from PySide6.QtGui import QIcon
 except ImportError:
     from PyQt5.QtCore import QSettings
-    from PyQt5.QtWidgets import QWidget
     from PyQt5.QtGui import QIcon
 
 # platform
@@ -84,7 +87,7 @@ def notifySend(message1: str, message2: str, time: int, sound: str, parent: QWid
     # using Qt notification or Native system notification
     if enable_notification == 'QT notification':
         parent.system_tray_icon.showMessage(
-            message1, message2, QIcon.fromTheme('persepolis-tray', QIcon(':/persepolis-tray.svg')), 10000
+            message1, message2, QIcon.fromTheme('persepolis-tray', QIcon(':/persepolis-tray.svg')), 10000,
         )
     else:
         if os_type in OS.UNIX_LIKE:

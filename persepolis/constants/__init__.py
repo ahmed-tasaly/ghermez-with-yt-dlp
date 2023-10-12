@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
 #    the Free Software Foundation, either version 3 of the License, or
@@ -13,16 +12,12 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-
-# import sys
-# sys.path.insert(1, '.')
-
-from .Os import OS
 from .Browser import BROWSER
+from .Os import OS
 
-APP_NAME = "ghermez"
-ORG_NAME = "ghermez_download_manager"
-LONG_NAME = "Ghermez Download Manager"
-VERSION = "0.0.1"
-LICENSE = "GPL-v3"
-REPO_LINK = "https://github.com/IamRezaMousavi/ghermez"
+APP_NAME = 'ghermez'
+ORG_NAME = 'ghermez_download_manager'
+LONG_NAME = 'Ghermez Download Manager'
+VERSION = '0.0.1'
+LICENSE = 'GPL-v3'
+REPO_LINK = 'https://github.com/IamRezaMousavi/ghermez'

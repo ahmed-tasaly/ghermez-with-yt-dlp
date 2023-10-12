@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
 #    the Free Software Foundation, either version 3 of the License, or
@@ -11,13 +10,13 @@
 #
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
+
+import logging
+import os
 
 from ghermez import determineConfigFolder
 from persepolis.constants import APP_NAME
 from persepolis.scripts.osCommands import touch
-import logging
-import os
 
 # config_folder
 config_folder = determineConfigFolder()
@@ -51,10 +50,10 @@ handler.setFormatter(formatter)
 logObj.addHandler(handler)
 
 
-def sendToLog(text="", type="INFO"):
-    if type == "INFO":
+def sendToLog(text='', level='INFO'):
+    if level == 'INFO':
         logObj.info(text)
-    elif type == "ERROR":
+    elif level == 'ERROR':
         logObj.error(text)
     else:
         logObj.warning(text)

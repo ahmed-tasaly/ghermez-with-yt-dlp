@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
 #    the Free Software Foundation, either version 3 of the License, or
@@ -12,29 +10,55 @@
 #
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 from __future__ import annotations
+
 from typing import Callable
 
 try:
-    from PySide6.QtCore import Qt, QEvent, QTime, QSize, QPoint, QDir, QTranslator, QCoreApplication, QLocale, QSettings, QObject
-    from PySide6.QtWidgets import QFileDialog, QStyleFactory, QMessageBox, QTableWidgetItem, QPushButton, QWidget
-    from PySide6.QtGui import QFont, QKeySequence, QCloseEvent, QKeyEvent
+    from PySide6.QtCore import (
+        QCoreApplication,
+        QDir,
+        QEvent,
+        QLocale,
+        QObject,
+        QPoint,
+        QSettings,
+        QSize,
+        Qt,
+        QTime,
+        QTranslator,
+    )
+    from PySide6.QtGui import QCloseEvent, QFont, QKeyEvent, QKeySequence
+    from PySide6.QtWidgets import QFileDialog, QMessageBox, QPushButton, QStyleFactory, QTableWidgetItem, QWidget
 except ImportError:
-    from PyQt5.QtCore import Qt, QEvent, QTime, QSize, QPoint, QDir, QTranslator, QCoreApplication, QLocale, QSettings, QObject
-    from PyQt5.QtWidgets import QFileDialog, QStyleFactory, QMessageBox, QTableWidgetItem, QPushButton, QWidget
-    from PyQt5.QtGui import QFont, QKeySequence, QCloseEvent, QKeyEvent
+    from PyQt5.QtCore import (
+        QCoreApplication,
+        QDir,
+        QEvent,
+        QLocale,
+        QObject,
+        QPoint,
+        QSettings,
+        QSize,
+        Qt,
+        QTime,
+        QTranslator,
+    )
+    from PyQt5.QtGui import QCloseEvent, QFont, QKeyEvent, QKeySequence
+    from PyQt5.QtWidgets import QFileDialog, QMessageBox, QPushButton, QStyleFactory, QTableWidgetItem, QWidget
 
 
-from persepolis.constants import OS
-from persepolis.gui.setting_ui import Setting_Ui, KeyCapturingWindow_Ui
-from persepolis.scripts.useful_tools import returnDefaultSettings
-from persepolis.scripts import osCommands
-from persepolis.scripts import startup
+import os
 import platform
 import sys
-import os
 
-home_address = os.path.expanduser("~")
+from persepolis.constants import OS
+from persepolis.gui.setting_ui import KeyCapturingWindow_Ui, Setting_Ui
+from persepolis.scripts import osCommands, startup
+from persepolis.scripts.useful_tools import returnDefaultSettings
+
+home_address = os.path.expanduser('~')
 os_type = platform.system()
 
 
@@ -54,7 +78,7 @@ class KeyCapturingWindow(KeyCapturingWindow_Ui):
             if event.key():
                 # show new keys in window
                 self.capturedKeyLabel.setText(str(QKeySequence(event.modifiers() | event.key()).toString()))
-        return super(KeyCapturingWindow, self).eventFilter(source, event)
+        return super().eventFilter(source, event)
 
     def okPushButtonPressed(self, _button: QPushButton) -> None:
         # return new keys
@@ -441,9 +465,9 @@ class PreferencesWindow(Setting_Ui):
         # check that if shortcut used before.
         if keys in self.shortcuts_list:
             self.msgBox = QMessageBox()
-            self.msgBox.setText(QCoreApplication.translate("setting_src_ui_tr",
-                                                           "<b><center>This shortcut has been used before!\
-                    Use another one!</center></b>"))
+            self.msgBox.setText(QCoreApplication.translate('setting_src_ui_tr',
+                                                           '<b><center>This shortcut has been used before!\
+                    Use another one!</center></b>'))
             self.msgBox.setIcon(QMessageBox.Warning)
             reply = self.msgBox.exec_()  # noqa: F841
 
@@ -488,7 +512,7 @@ class PreferencesWindow(Setting_Ui):
             self.color_comboBox.setEnabled(True)
 
             # color_comboBox items
-            color_scheme = ['Dark Fusion', 'Light Fusion'] 
+            color_scheme = ['Dark Fusion', 'Light Fusion']
 
             # add items
             self.color_comboBox.addItems(color_scheme)
@@ -529,7 +553,7 @@ class PreferencesWindow(Setting_Ui):
         elif selected_style == 'Adwaita-Dark':
             dark_theme = True
 
-        elif selected_style == 'Adwaita' or selected_style == 'macintosh':
+        elif selected_style in ('Adwaita', 'macintosh'):
             dark_theme = False
 
         if dark_theme:
@@ -539,7 +563,7 @@ class PreferencesWindow(Setting_Ui):
                 icons = ['Breeze-Dark', 'Papirus-Dark']
             else:
                 icons = ['Breeze-Dark']
- 
+
             self.icon_comboBox.addItems(icons)
 
             # current_icons_index is -1, if findText couldn't find icon index.
@@ -577,7 +601,7 @@ class PreferencesWindow(Setting_Ui):
                         'Papirus-Dark', 'Papirus-Light']
             else:
                 icons = ['Breeze', 'Breeze-Dark', 'Papirus']
- 
+
             self.icon_comboBox.addItems(icons)
 
             # current_icons_index is -1, if findText couldn't find icon index.
@@ -1015,7 +1039,7 @@ class PreferencesWindow(Setting_Ui):
             self.persepolis_setting.setValue('subfolder', 'yes')
 
             for folder in ['Audios', 'Videos', 'Others', 'Documents', 'Compressed']:
-                folder_list.append(os.path.join(download_path, folder))
+                folder_list.append(os.path.join(download_path, folder))  # noqa: PERF401
 
         else:
             self.persepolis_setting.setValue('subfolder', 'no')
@@ -1169,7 +1193,7 @@ class PreferencesWindow(Setting_Ui):
 
         # comparing first_key_value_dict with second_key_value_dict
         show_message_box = False
-        for key in self.first_key_value_dict.keys():
+        for key in self.first_key_value_dict:
             if self.first_key_value_dict[key] != self.second_key_value_dict[key]:
                 if key in ['locale', 'aria2_path', 'download_path_temp', 'download_path',
                            'custom-font', 'rpc-port', 'max-tries', 'retry-wait', 'timeout',
@@ -1181,9 +1205,9 @@ class PreferencesWindow(Setting_Ui):
         if show_message_box:
             restart_messageBox = QMessageBox()
             restart_messageBox.setText(QCoreApplication.translate(
-                "setting_src_ui_tr", '<b><center>Restart Persepolis Please!</center></b>\
+                'setting_src_ui_tr', '<b><center>Restart Persepolis Please!</center></b>\
                 <br><center>Some changes take effect after restarting Persepolis</center>'))
-            restart_messageBox.setWindowTitle(QCoreApplication.translate("setting_src_ui_tr", 'Restart Persepolis!'))
+            restart_messageBox.setWindowTitle(QCoreApplication.translate('setting_src_ui_tr', 'Restart Persepolis!'))
             restart_messageBox.exec_()
 
         # applying changes

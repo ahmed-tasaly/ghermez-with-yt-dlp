@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
 #    the Free Software Foundation, either version 3 of the License, or
@@ -17,8 +15,8 @@ import ast
 
 
 # This function is writting a list in file_path in dictionary format
-def writeList(file_path, list):
-    dictionary = {'list': list}
+def writeList(file_path, dir_list):
+    dictionary = {'list': dir_list}
     f = open(file_path, 'w')
     f.writelines(str(dictionary))
     f.close()
@@ -27,16 +25,16 @@ def writeList(file_path, list):
 
 
 def readList(file_path, mode='dictionary'):
-    f = open(file_path, 'r')
+    f = open(file_path)
     f_string = f.readline()
     f.close()
     dictionary = ast.literal_eval(f_string.strip())
-    list = dictionary['list']
+    dir_list = dictionary['list']
 
     if mode == 'string':
-        list[9] = str(list[9])
+        dir_list[9] = str(dir_list[9])
 
-    return list
+    return dir_list
 
 # this function is reading a file that contains dictionary , and extracts
 # dictionary from it.
@@ -47,5 +45,4 @@ def readDict(file_path):
     f_lines = f.readlines()
     f.close()
     dict_str = str(f_lines[0].strip())
-    return_dict = ast.literal_eval(dict_str)
-    return return_dict
+    return ast.literal_eval(dict_str)

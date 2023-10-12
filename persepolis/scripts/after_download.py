@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
 #    the Free Software Foundation, either version 3 of the License, or
@@ -12,27 +10,33 @@
 #
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-from __future__ import annotations
-try:
-    from PySide6.QtCore import Qt, QSize, QPoint, QTranslator, QCoreApplication, QLocale, QSettings
-    from PySide6.QtWidgets import QWidget
-    from PySide6.QtGui import QIcon, QKeyEvent, QCloseEvent
-except ImportError:
-    from PyQt5.QtCore import Qt, QSize, QPoint, QTranslator, QCoreApplication, QLocale, QSettings
-    from PyQt5.QtWidgets import QWidget
-    from PyQt5.QtGui import QIcon, QKeyEvent, QCloseEvent
 
+from __future__ import annotations
+
+try:
+    from PySide6.QtCore import QCoreApplication, QLocale, QPoint, QSettings, QSize, Qt, QTranslator
+    from PySide6.QtGui import QCloseEvent, QIcon, QKeyEvent
+    from PySide6.QtWidgets import QWidget
+except ImportError:
+    from PyQt5.QtCore import QCoreApplication, QLocale, QPoint, QSettings, QSize, Qt, QTranslator
+    from PyQt5.QtGui import QCloseEvent, QIcon, QKeyEvent
+
+
+import os
 
 from persepolis.gui.after_download_ui import AfterDownloadWindow_Ui
 from persepolis.scripts import osCommands
-import os
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from PyQt5.QtWidgets import QWidget
 
 
 class AfterDownloadWindow(AfterDownloadWindow_Ui):
-    def __init__(self, parent: QWidget, dict: dict[str, str], persepolis_setting: QSettings) -> None:
+    def __init__(self, parent: QWidget, download_dict: dict[str, str], persepolis_setting: QSettings) -> None:
         super().__init__(persepolis_setting)
         self.persepolis_setting = persepolis_setting
-        self.dict = dict
+        self.dict = download_dict
         self.parent = parent
 
         # add support for other languages
@@ -67,7 +71,7 @@ class AfterDownloadWindow(AfterDownloadWindow_Ui):
         # file_name
 
         window_title = str(self.dict['file_name'])
-        file_name = QCoreApplication.translate("after_download_src_ui_tr", "<b>File name</b>: ") + \
+        file_name = QCoreApplication.translate('after_download_src_ui_tr', '<b>File name</b>: ') + \
             window_title
 
         self.setWindowTitle(window_title)
@@ -75,7 +79,7 @@ class AfterDownloadWindow(AfterDownloadWindow_Ui):
         self.file_name_label.setText(file_name)
 
         # size
-        size = QCoreApplication.translate("after_download_src_ui_tr", "<b>Size</b>: ") + str(self.dict['size'])
+        size = QCoreApplication.translate('after_download_src_ui_tr', '<b>Size</b>: ') + str(self.dict['size'])
         self.size_label.setText(size)
 
         # disable link_lineEdit and save_as_lineEdit
@@ -103,14 +107,6 @@ class AfterDownloadWindow(AfterDownloadWindow_Ui):
     def openFolder(self) -> None:
         # open download folder
         download_path = self.add_link_dict['download_path']
-
-#         file_name = os.path.basename(file_path)
-
-#         file_path_split = file_path.split(file_name)
-
-#         del file_path_split[-1]
-
-#         download_path = file_name.join(file_path_split)
 
         if os.path.isfile(download_path):
             osCommands.xdgOpen(download_path, 'folder', 'file')

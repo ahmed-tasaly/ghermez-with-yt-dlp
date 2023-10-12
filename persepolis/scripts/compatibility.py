@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
 #    the Free Software Foundation, either version 3 of the License, or
@@ -13,25 +11,24 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from ghermez import determineConfigFolder
-from persepolis.scripts.osCommands import remove, removeDir
-from persepolis.scripts.newopen import readList
 import os
 
-from ghermez import DataBase
+from ghermez import DataBase, determineConfigFolder
+from persepolis.scripts.newopen import readList
+from persepolis.scripts.osCommands import remove, removeDir
 
 # config_folder
 config_folder = determineConfigFolder()
 
-download_info_folder = os.path.join(config_folder, "download_info")
+download_info_folder = os.path.join(config_folder, 'download_info')
 
 
 # download_list_file contains GID of all downloads
-download_list_file = os.path.join(config_folder, "download_list_file")
+download_list_file = os.path.join(config_folder, 'download_list_file')
 
 # download_list_file_active for active downloads
 download_list_file_active = os.path.join(
-    config_folder, "download_list_file_active")
+    config_folder, 'download_list_file_active')
 
 # queues_list contains queues name
 queues_list_file = os.path.join(config_folder, 'queues_list')
@@ -42,10 +39,10 @@ category_folder = os.path.join(config_folder, 'category_folder')
 
 # queue_info_folder is contains queues information(start time,end
 # time,limit speed , ...)
-queue_info_folder = os.path.join(config_folder, "queue_info")
+queue_info_folder = os.path.join(config_folder, 'queue_info')
 
 # single_downloads_list_file contains gid of non categorized downloads
-single_downloads_list_file = os.path.join(category_folder, "Single Downloads")
+single_downloads_list_file = os.path.join(category_folder, 'Single Downloads')
 
 
 # this script for compatibility between Version 2 and 3
@@ -94,11 +91,11 @@ def compatibility() -> None:
                          'limit_enable': 'no',
                          'limit_value': '0K',
                          'after_download': 'no',
-                         'gid_list': str(gid_list)
+                         'gid_list': str(gid_list),
                          }
 
         # add category to data_base
-        if category == 'All Downloads' or category == 'Single Downloads':
+        if category in ('All Downloads', 'Single Downloads'):
             persepolis_db.updateCategoryTable([category_dict])
         else:
             persepolis_db.insertInCategoryTable(category_dict)
@@ -115,7 +112,7 @@ def compatibility() -> None:
         download_info_file_list = readList(download_info_file)
         add_link_dictionary = download_info_file_list[9]
 
-        dict = {'file_name': download_info_file_list[0],
+        download_dict = {'file_name': download_info_file_list[0],
                 'status': download_info_file_list[1],
                 'size': download_info_file_list[2],
                 'downloaded_size': download_info_file_list[3],
@@ -131,10 +128,10 @@ def compatibility() -> None:
 
         add_link_dictionary['gid'] = download_info_file_list[8]
 
-        if 'user-agent' in add_link_dictionary.keys():
+        if 'user-agent' in add_link_dictionary:
             add_link_dictionary['user_agent'] = add_link_dictionary.pop('user-agent')
 
-        if 'load-cookies' in add_link_dictionary.keys():
+        if 'load-cookies' in add_link_dictionary:
             add_link_dictionary['load_cookies'] = add_link_dictionary.pop('load-cookies')
 
         add_link_dictionary['limit_value'] = 0
@@ -162,11 +159,11 @@ def compatibility() -> None:
         for key in keys_list:
                 # if a key is missed in dict,
                 # then add this key to the dict and assign None value for the key.
-            if key not in add_link_dictionary.keys():
+            if key not in add_link_dictionary:
                 add_link_dictionary[key] = None
 
         # write information in data_base
-        persepolis_db.insertInDownloadTable([dict])
+        persepolis_db.insertInDownloadTable([download_dict])
         persepolis_db.insertInAddLinkTable([add_link_dictionary])
 
     # close connections

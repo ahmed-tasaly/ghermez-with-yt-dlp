@@ -1,7 +1,3 @@
-
-# -*- coding: utf-8 -*-
-
-
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
 #    the Free Software Foundation, either version 3 of the License, or
@@ -16,22 +12,41 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 try:
-    from PySide6.QtWidgets import (
-        QCheckBox, QProgressBar, QFrame, QDoubleSpinBox, QComboBox,
-        QWidget, QTabWidget, QVBoxLayout, QHBoxLayout, QPushButton, QLabel
-    )
-    from PySide6.QtCore import Qt, QTranslator, QCoreApplication, QLocale, QSize, QSettings
+    from PySide6.QtCore import QCoreApplication, QLocale, QSettings, QSize, Qt, QTranslator
     from PySide6.QtGui import QIcon
-except ImportError:
-    from PyQt5.QtWidgets import (
-        QCheckBox, QProgressBar, QFrame, QDoubleSpinBox, QComboBox,
-        QWidget, QTabWidget, QVBoxLayout, QHBoxLayout, QPushButton, QLabel
+    from PySide6.QtWidgets import (
+        QCheckBox,
+        QComboBox,
+        QDoubleSpinBox,
+        QFrame,
+        QHBoxLayout,
+        QLabel,
+        QProgressBar,
+        QPushButton,
+        QTabWidget,
+        QVBoxLayout,
+        QWidget,
     )
-    from PyQt5.QtCore import Qt, QTranslator, QCoreApplication, QLocale, QSize, QSettings
+except ImportError:
+    from PyQt5.QtCore import QCoreApplication, QLocale, QSettings, QSize, Qt, QTranslator
     from PyQt5.QtGui import QIcon
+    from PyQt5.QtWidgets import (
+        QCheckBox,
+        QComboBox,
+        QDoubleSpinBox,
+        QFrame,
+        QHBoxLayout,
+        QLabel,
+        QProgressBar,
+        QPushButton,
+        QTabWidget,
+        QVBoxLayout,
+        QWidget,
+    )
 
 from persepolis.constants import APP_NAME, LONG_NAME
-from persepolis.gui import resources # noqa: F401
+from persepolis.gui import resources  # noqa: F401
+
 
 class ProgressWindow_Ui(QWidget):
     def __init__(self, persepolis_setting: QSettings) -> None:
@@ -60,7 +75,7 @@ class ProgressWindow_Ui(QWidget):
         self.setMinimumSize(QSize(595, 284))
 
         self.setWindowIcon(QIcon.fromTheme(APP_NAME, QIcon(':/ghermez.png')))
-        self.setWindowTitle(QCoreApplication.translate("progress_ui_tr", LONG_NAME))
+        self.setWindowTitle(QCoreApplication.translate('progress_ui_tr', LONG_NAME))
 
         verticalLayout = QVBoxLayout(self)
 
@@ -98,13 +113,12 @@ class ProgressWindow_Ui(QWidget):
         information_verticalLayout.addStretch(1)
 
 # add information_tab to progress_tabWidget
-        self.progress_tabWidget.addTab(self.information_tab, "")
+        self.progress_tabWidget.addTab(self.information_tab, '')
 
 # options_tab
         self.options_tab = QWidget()
         options_tab_verticalLayout = QVBoxLayout(self.options_tab)
         options_tab_horizontalLayout = QHBoxLayout()
-#         options_tab_horizontalLayout.setContentsMargins(11, 11, 11, 11)
 
 
 # limit_checkBox
@@ -128,8 +142,8 @@ class ProgressWindow_Ui(QWidget):
 
 # limit_comboBox
         self.limit_comboBox = QComboBox(self.options_tab)
-        self.limit_comboBox.addItem("")
-        self.limit_comboBox.addItem("")
+        self.limit_comboBox.addItem('')
+        self.limit_comboBox.addItem('')
 
         limit_frame_horizontalLayout.addWidget(self.limit_comboBox)
 
@@ -164,7 +178,7 @@ class ProgressWindow_Ui(QWidget):
 
 # after_comboBox
         self.after_comboBox = QComboBox(self.options_tab)
-        self.after_comboBox.addItem("")
+        self.after_comboBox.addItem('')
 
         after_frame_verticalLayout.addWidget(self.after_comboBox)
 
@@ -177,7 +191,7 @@ class ProgressWindow_Ui(QWidget):
         after_verticalLayout.setContentsMargins(11, 11, 11, 11)
         options_tab_horizontalLayout.addLayout(after_verticalLayout)
 
-        self.progress_tabWidget.addTab(self.options_tab, "")
+        self.progress_tabWidget.addTab(self.options_tab, '')
 
         verticalLayout.addWidget(self.progress_tabWidget)
 
@@ -210,27 +224,27 @@ class ProgressWindow_Ui(QWidget):
 
         self.progress_tabWidget.setCurrentIndex(0)
 # labels
-        self.link_label.setText(QCoreApplication.translate("progress_ui_tr", "Link: "))
-        self.status_label.setText(QCoreApplication.translate("progress_ui_tr", "Status: "))
-        self.downloaded_label.setText(QCoreApplication.translate("progress_ui_tr", "Downloaded:"))
-        self.rate_label.setText(QCoreApplication.translate("progress_ui_tr", "Transfer rate: "))
-        self.time_label.setText(QCoreApplication.translate("progress_ui_tr", "Estimated time left:"))
-        self.connections_label.setText(QCoreApplication.translate("progress_ui_tr", "Number of connections: "))
+        self.link_label.setText(QCoreApplication.translate('progress_ui_tr', 'Link: '))
+        self.status_label.setText(QCoreApplication.translate('progress_ui_tr', 'Status: '))
+        self.downloaded_label.setText(QCoreApplication.translate('progress_ui_tr', 'Downloaded:'))
+        self.rate_label.setText(QCoreApplication.translate('progress_ui_tr', 'Transfer rate: '))
+        self.time_label.setText(QCoreApplication.translate('progress_ui_tr', 'Estimated time left:'))
+        self.connections_label.setText(QCoreApplication.translate('progress_ui_tr', 'Number of connections: '))
         self.progress_tabWidget.setTabText(self.progress_tabWidget.indexOf(
-            self.information_tab),  QCoreApplication.translate("progress_ui_tr", "Download Information"))
-        self.limit_checkBox.setText(QCoreApplication.translate("progress_ui_tr", "Limit speed"))
-        self.after_checkBox.setText(QCoreApplication.translate("progress_ui_tr", "After download"))
-        self.limit_comboBox.setItemText(0, "KiB/s")
-        self.limit_comboBox.setItemText(1, "MiB/s")
-        self.limit_pushButton.setText(QCoreApplication.translate("progress_ui_tr", "Apply"))
+            self.information_tab),  QCoreApplication.translate('progress_ui_tr', 'Download Information'))
+        self.limit_checkBox.setText(QCoreApplication.translate('progress_ui_tr', 'Limit speed'))
+        self.after_checkBox.setText(QCoreApplication.translate('progress_ui_tr', 'After download'))
+        self.limit_comboBox.setItemText(0, 'KiB/s')
+        self.limit_comboBox.setItemText(1, 'MiB/s')
+        self.limit_pushButton.setText(QCoreApplication.translate('progress_ui_tr', 'Apply'))
 
-        self.after_comboBox.setItemText(0,  QCoreApplication.translate("progress_ui_tr", "Shut Down"))
+        self.after_comboBox.setItemText(0,  QCoreApplication.translate('progress_ui_tr', 'Shut Down'))
 
         self.progress_tabWidget.setTabText(
             self.progress_tabWidget.indexOf(self.options_tab),
-            QCoreApplication.translate("progress_ui_tr", "Download Options")
+            QCoreApplication.translate('progress_ui_tr', 'Download Options'),
         )
-        self.resume_pushButton.setText(QCoreApplication.translate("progress_ui_tr", "Resume"))
-        self.pause_pushButton.setText(QCoreApplication.translate("progress_ui_tr", "Pause"))
-        self.stop_pushButton.setText(QCoreApplication.translate("progress_ui_tr", "Stop"))
-        self.after_pushButton.setText(QCoreApplication.translate("progress_ui_tr", "Apply"))
+        self.resume_pushButton.setText(QCoreApplication.translate('progress_ui_tr', 'Resume'))
+        self.pause_pushButton.setText(QCoreApplication.translate('progress_ui_tr', 'Pause'))
+        self.stop_pushButton.setText(QCoreApplication.translate('progress_ui_tr', 'Stop'))
+        self.after_pushButton.setText(QCoreApplication.translate('progress_ui_tr', 'Apply'))

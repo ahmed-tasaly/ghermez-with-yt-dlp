@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-
-
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
 #    the Free Software Foundation, either version 3 of the License, or
@@ -13,33 +10,36 @@
 #
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 from __future__ import annotations
+
 from typing import Callable
+
 try:
-    from PySide6.QtCore import Qt, QPoint, QSize, QThread, Signal, QDir, QSettings
-    from PySide6.QtWidgets import QTableWidgetItem, QFileDialog, QWidget, QPushButton
-    from PySide6.QtGui import QIcon, QKeyEvent, QCloseEvent
+    from PySide6.QtCore import QDir, QPoint, QSettings, QSize, Qt, QThread, Signal
+    from PySide6.QtGui import QCloseEvent, QIcon, QKeyEvent
+    from PySide6.QtWidgets import QFileDialog, QPushButton, QTableWidgetItem, QWidget
 except ImportError:
-    from PyQt5.QtCore import Qt, QPoint, QSize, QThread, QDir, QSettings
-    from PyQt5.QtWidgets import QTableWidgetItem, QFileDialog, QWidget, QPushButton
+    from PyQt5.QtCore import QDir, QPoint, QSettings, QSize, Qt, QThread
     from PyQt5.QtCore import pyqtSignal as Signal
-    from PyQt5.QtGui import QIcon, QKeyEvent, QCloseEvent
+    from PyQt5.QtGui import QCloseEvent, QIcon, QKeyEvent
+    from PyQt5.QtWidgets import QFileDialog, QPushButton, QTableWidgetItem, QWidget
+
+import os
+from copy import deepcopy
+from functools import partial
 
 from persepolis.gui.text_queue_ui import TextQueue_Ui
-from persepolis.scripts import logger
-from persepolis.scripts import spider
-from functools import partial
-from copy import deepcopy
-import os
+from persepolis.scripts import logger, spider
 
 
 # This thread finds filename
 class QueueSpiderThread(QThread):
     QUEUESPIDERRETURNEDFILENAME = Signal(str)
 
-    def __init__(self, dict: dict[str, str]) -> None:
-        QThread.__init__(self)
-        self.dict = dict
+    def __init__(self, download_dict: dict[str, str]) -> None:
+        super().__init__()
+        self.dict = download_dict
 
     def run(self) -> None:
         try:
@@ -73,14 +73,14 @@ class BrowserPluginQueue(TextQueue_Ui):
         self.list_of_links.reverse()
 
         k = 1
-        for dict in self.list_of_links:
+        for link_dict in self.list_of_links:
             # add row to the links_table
             self.links_table.insertRow(0)
 
             # file_name
-            if 'out' in dict:
-                if dict['out']:
-                    file_name = dict['out']
+            if 'out' in link_dict:
+                if link_dict['out']:
+                    file_name = link_dict['out']
                 else:
                     file_name = '***'
             else:
@@ -88,7 +88,7 @@ class BrowserPluginQueue(TextQueue_Ui):
 
             if file_name == '***':
                 # spider finds file name
-                new_spider = QueueSpiderThread(dict)
+                new_spider = QueueSpiderThread(link_dict)
                 self.parent.threadPool.append(new_spider)
                 self.parent.threadPool[-1].start()
                 self.parent.threadPool[-1].QUEUESPIDERRETURNEDFILENAME.connect(
@@ -105,7 +105,7 @@ class BrowserPluginQueue(TextQueue_Ui):
             self.links_table.setItem(0, 0, item)
 
             # find link
-            link = dict['link']
+            link = link_dict['link']
             item = QTableWidgetItem(str(link))
 
             # insert link
@@ -317,17 +317,17 @@ class BrowserPluginQueue(TextQueue_Ui):
         if not(self.limit_checkBox.isChecked()):
             limit = 0
         else:
-            if self.limit_comboBox.currentText() == "KiB/s":
-                limit = str(self.limit_spinBox.value()) + str("K")
+            if self.limit_comboBox.currentText() == 'KiB/s':
+                limit = str(self.limit_spinBox.value()) + 'K'
             else:
-                limit = str(self.limit_spinBox.value()) + str("M")
+                limit = str(self.limit_spinBox.value()) + 'M'
 
         category = str(self.add_queue_comboBox.currentText())
 
         connections = self.connections_spinBox.value()
         download_path = self.download_folder_lineEdit.text()
 
-        dict = {'out': None,
+        addlink_dict = {'out': None,
                 'start_time': None,
                 'end_time': None,
                 'link': None,
@@ -344,7 +344,7 @@ class BrowserPluginQueue(TextQueue_Ui):
                 'load_cookies': None,
                 'user_agent': None,
                 'header': None,
-                'after_download': None
+                'after_download': None,
                 }
 
 
@@ -360,7 +360,7 @@ class BrowserPluginQueue(TextQueue_Ui):
             if (item.checkState() == 2):
                 # Create a copy from dict and add it to add_link_dictionary_list
                 self.add_link_dictionary_list.append(
-                    deepcopy(dict))
+                    deepcopy(addlink_dict))
 
                 # get link and add it to dict
                 link = self.links_table.item(row, 1).text()
@@ -375,7 +375,7 @@ class BrowserPluginQueue(TextQueue_Ui):
                 keys_list = ['referer', 'header', 'user-agent', 'load_cookies']
                 for key in keys_list:
                     if key in input_dict:
-                        self.add_link_dictionary_list[i][key] = dict[key]
+                        self.add_link_dictionary_list[i][key] = addlink_dict[key]
 
                 i = i + 1
 

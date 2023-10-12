@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
 #    the Free Software Foundation, either version 3 of the License, or
@@ -14,11 +12,11 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 try:
-    from PySide6.QtGui import QPalette, QColor
     from PySide6.QtCore import Qt
+    from PySide6.QtGui import QColor, QPalette
 except ImportError:
-    from PyQt5.QtGui import QPalette, QColor
     from PyQt5.QtCore import Qt
+    from PyQt5.QtGui import QColor, QPalette
 
 class DarkFusionPalette(QPalette):
     def __init__(self) -> None:
@@ -63,7 +61,7 @@ class DarkFusionPalette(QPalette):
 class LightFusionPalette(QPalette):
     def __init__(self) -> None:
         super().__init__()
-        # EFF0F1 
+        # EFF0F1
         self.setColor(QPalette.Window, QColor(239, 240, 241))
 
         self.setColor(QPalette.WindowText, QColor(49, 54, 59))
