@@ -3,36 +3,35 @@ Actions=Open;Tray;
 Categories=Qt;Network;
 Comment[en_US]=Download Manager
 Comment=Download Manager
-Exec=persepolis
+Exec=ghermez
 GenericName[en_US]=Download Manager
 GenericName=Download Manager
 GenericName[bn]=ডাউনলোড মেনেজার
 GenericName[fa]=نرم افزار مدیریت بارگیری
 GenericName[it]=Download Manager
-Icon=persepolis
+Icon=ghermez
 Keywords=Internet;WWW;Web;
-Name[en_US]=Persepolis Download Manager
-Name=Persepolis Download Manager
+Name[en_US]=Ghermez Download Manager
+Name=Ghermez Download Manager
 Name[bn]=পার্সেপোলিস
-Name[fa]=پرسپولیس
-Name[it]=Download Manager Persepolis
+Name[fa]=قرمز
+Name[it]=Download Manager Ghermez
 StartupNotify=true
-StartupWMClass=persepolis
+StartupWMClass=ghermez
 Terminal=false
 Type=Application
 X-KDE-SubstituteUID=false
 
 [Desktop Action Open]
-Exec=persepolis
-Name=Start Persepolis
+Exec=ghermez
+Name=Start Ghermez
 Name[bn]=পার্সেপোলিস শুরু করুন
 Name[fa]=اجرای برنامه
-Name[it]=Avvia Persepolis
+Name[it]=Avvia Ghermez
 
 [Desktop Action Tray]
-Exec=persepolis --tray
+Exec=ghermez --tray
 Name=Start in System Tray
 Name[bn]=সিস্টেম-ট্রে-তে শুরু করুন
 Name[fa]=اجرای برنامه در سینی نمایه
 Name[it]=Avvia nella barra delle applicazioni
-

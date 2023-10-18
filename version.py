@@ -7,22 +7,22 @@ VSVersionInfo(
     OS=0x40004,
     fileType=0x1,
     subtype=0x0,
-    date=(0, 0)
+    date=(0, 0),
     ),
   kids=[
     StringFileInfo(
       [
       StringTable(
-        u'040904B0',
-        [StringStruct(u'CompanyName', u'Reza Mousavi'),
-        StringStruct(u'FileDescription', u'A Free Download Manager GUI for Aria2'),
-        StringStruct(u'FileVersion', u'0.0.1.0'),
-        StringStruct(u'InternalName', u'Ghermez Download Manager'),
-        StringStruct(u'LegalCopyright', u'\xa9 GNU General Public License v3.0'),
-        StringStruct(u'OriginalFilename', u'Ghermez Download Manager.exe'),
-        StringStruct(u'ProductName', u'Ghermez Download Manager'),
-        StringStruct(u'ProductVersion', u'0.0.1.0')])
+        '040904B0',
+        [StringStruct('CompanyName', 'Reza Mousavi'),
+        StringStruct('FileDescription', 'A Free Download Manager GUI for Aria2'),
+        StringStruct('FileVersion', '0.0.1.0'),
+        StringStruct('InternalName', 'Ghermez Download Manager'),
+        StringStruct('LegalCopyright', '\xa9 GNU General Public License v3.0'),
+        StringStruct('OriginalFilename', 'Ghermez Download Manager.exe'),
+        StringStruct('ProductName', 'Ghermez Download Manager'),
+        StringStruct('ProductVersion', '0.0.1.0')]),
       ]),
-    VarFileInfo([VarStruct(u'Translation', [1033, 1200])])
-  ]
+    VarFileInfo([VarStruct('Translation', [1033, 1200])]),
+  ],
 )

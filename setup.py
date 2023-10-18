@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# coding: utf-8
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
 #    the Free Software Foundation, either version 3 of the License, or
@@ -16,18 +15,17 @@
 
 
 import os
-import warnings
-import sys
 import platform
 import shutil
+import sys
 
 # finding os platform
 os_type = platform.system()
 
-if os_type == 'Linux' or os_type == 'FreeBSD' or os_type == 'OpenBSD':
-    from setuptools import setup, Command, find_packages
+if os_type in ('Linux', 'FreeBSD', 'OpenBSD'):
+    from setuptools import setup
     setuptools_available = True
-    print(os_type + " detected!")
+    print(os_type + ' detected!')
 else:
     print('This script is only work for GNU/Linux or BSD!')
     sys.exit(1)
@@ -64,7 +62,7 @@ try:
     import setproctitle
     print('python3-setproctitle is found!')
 except:
-    print("Warning: setproctitle is not installed!")
+    print('Warning: setproctitle is not installed!')
     not_installed = not_installed + 'python3-setproctitle, '
 
 # psutil
@@ -72,7 +70,7 @@ try:
     import psutil
     print('python3-psutil is found!')
 except:
-    print("Warning: python3-psutil is not installed!")
+    print('Warning: python3-psutil is not installed!')
     not_installed = not_installed + 'psutil, '
 
 # youtube_dl
@@ -83,10 +81,18 @@ except:
     print('Warning: youtube-dl is not installed!')
     not_installed = not_installed + 'youtube-dl, '
 
+# maturin
+answer = os.system('maturin --version 1>/dev/null')
+if answer != 0:
+    print('Error maturin not installed!')
+    not_installed = not_installed + 'maturin, '
+else:
+    print('maturin is found!')
+
 # aria2
 answer = os.system('aria2c --version 1>/dev/null')
 if answer != 0:
-    print("Error aria2 not installed!")
+    print('Error aria2 not installed!')
     not_installed = not_installed + 'aria2c, '
 else:
     print('aria2 is found!')
@@ -94,7 +100,7 @@ else:
 # libnotify-bin
 answer = os.system('notify-send --version 1>/dev/null')
 if answer != 0:
-    print("Error libnotify-bin is not installed!")
+    print('Error libnotify-bin is not installed!')
     not_installed = not_installed + 'libnotify-bin, '
 else:
     print('libnotify-bin is found!')
@@ -102,7 +108,7 @@ else:
 # paplay
 answer = os.system('paplay --version 1>/dev/null')
 if answer != 0:
-    print("Warning: paplay not installed!You need pulseaudio for sound notifications!")
+    print('Warning: paplay not installed!You need pulseaudio for sound notifications!')
     not_installed = not_installed + 'paplay, '
 else:
     print('paplay is found!')
@@ -122,7 +128,7 @@ else:
 # ffmpeg
 answer = os.system('ffmpeg -version 1>/dev/null')
 if answer != 0:
-    print("Warning: ffmpeg not installed!")
+    print('Warning: ffmpeg not installed!')
     not_installed = not_installed + 'ffmpeg, '
 else:
     print('ffmpeg is found!')
@@ -133,7 +139,7 @@ if not_installed != '':
     print('########################')
     print('####### WARNING ########')
     print('########################')
-    print('Some dependencies are not installed .It causes some problems for persepolis! : \n')
+    print('Some dependencies are not installed .It causes some problems for ghermez! : \n')
     print(not_installed + '\n\n')
     print('Read this link for more information: \n')
     print('https://github.com/persepolisdm/persepolis/wiki/git-installation-instruction\n\n')
@@ -141,29 +147,33 @@ if not_installed != '':
     if answer not in ['y', 'Y', 'yes']:
         sys.exit(1)
 
-if sys.argv[1] == "test":
+if sys.argv[1] == 'test':
     print('We have not unit test :)')
     sys.exit('0')
 
-DESCRIPTION = 'Persepolis Download Manager'
+DESCRIPTION = 'Ghermez Download Manager'
 
 if os_type == 'Linux':
     DATA_FILES = [
-        ('/usr/share/man/man1/', ['man/persepolis.1.gz']),
-        ('/usr/share/applications/', ['xdg/com.github.persepolisdm.persepolis.desktop']),
-        ('/usr/share/metainfo/', ['xdg/com.github.persepolisdm.persepolis.appdata.xml']),
-        ('/usr/share/icons/hicolor/scalable/apps/', ['resources/persepolis.svg']),
-        ('/usr/share/icons/hicolor/scalable/apps/', ['resources/persepolis-tray.svg'])
+        ('/usr/share/man/man1/', ['man/ghermez.1.gz']),
+        ('/usr/share/applications/', ['xdg/com.github.iamrezamousavi.ghermez.desktop']),
+        ('/usr/share/metainfo/', ['xdg/com.github.iamrezamousavi.ghermez.appdata.xml']),
+        ('/usr/share/icons/hicolor/scalable/apps/', ['resources/ghermez.png']),
+        ('/usr/share/icons/hicolor/scalable/apps/', ['resources/ghermez-tray.png']),
     ]
-elif os_type == 'FreeBSD' or os_type == 'OpenBSD':
+elif os_type in ('FreeBSD', 'OpenBSD'):
     DATA_FILES = [
-        ('/usr/local/share/man/man1/', ['man/persepolis.1.gz']),
-        ('/usr/local/share/applications/', ['xdg/com.github.persepolisdm.persepolis.desktop']),
-        ('/usr/local/share/metainfo/', ['xdg/com.github.persepolisdm.persepolis.appdata.xml']),
-        ('/usr/local/share/pixmaps/', ['resources/persepolis.svg']),
-        ('/usr/local/share/pixmaps/', ['resources/persepolis-tray.svg'])
+        ('/usr/local/share/man/man1/', ['man/ghermez.1.gz']),
+        ('/usr/local/share/applications/', ['xdg/com.github.iamrezamousavi.ghermez.desktop']),
+        ('/usr/local/share/metainfo/', ['xdg/com.github.iamrezamousavi.ghermez.appdata.xml']),
+        ('/usr/local/share/pixmaps/', ['resources/ghermez.png']),
+        ('/usr/local/share/pixmaps/', ['resources/ghermez-tray.png']),
     ]
 
+
+# build rust-python package
+os.system('maturin build --release')
+print('ghermez package is builded!')
 
 # finding current directory
 cwd = os.path.abspath(__file__)
@@ -174,41 +184,41 @@ src_pycache = os.path.join(setup_dir, 'persepolis', '__pycache__')
 gui_pycache = os.path.join(setup_dir, 'persepolis', 'gui', '__pycache__')
 scripts_pycache = os.path.join(setup_dir, 'persepolis', 'scripts', '__pycache__')
 constants_pycache = os.path.join(setup_dir, 'persepolis', 'constants', '__pycache__')
+ghermez_pycache = os.path.join(setup_dir, 'ghermez', '__pycache__')
 
-for folder in [src_pycache, gui_pycache, scripts_pycache, constants_pycache]:
+for folder in [src_pycache, gui_pycache, scripts_pycache, constants_pycache, ghermez_pycache]:
     if os.path.isdir(folder):
         shutil.rmtree(folder)
-        print(str(folder)
-              + ' is removed!')
+        print(str(folder) + ' is removed!')
 
 
 # Creating man page file
-persepolis_man_page = os.path.join(setup_dir, 'man', 'persepolis.1')
+ghermez_man_page = os.path.join(setup_dir, 'man', 'ghermez.1')
 os.system('gzip -f -k -9 "'
-          + persepolis_man_page
+          + ghermez_man_page
           + '"')
 print('man page file is generated!')
 
 setup(
-    name='persepolis',
-    version='3.2.0',
+    name='ghermez',
+    version='0.0.1',
     license='GPL3',
     description=DESCRIPTION,
     long_description=DESCRIPTION,
+    python_requires='>=3.8',
     include_package_data=True,
-    url='https://github.com/persepolisdm/persepolis',
-    author='AliReza AmirSamimi',
-    author_email='alireza.amirsamimi@gmail.com',
-    maintainer='AliReza AmirSamimi',
-    maintainer_email='alireza.amirsamimi@gmail.com',
+    url='https://github.com/IamRezaMousavi/ghermez',
+    author='Reza Mousavi',
+    author_email='iamrezamousavi@gmail.com',
+    maintainer='Reza Mousavi',
+    maintainer_email='iamrezamousavi@gmail.com',
     packages=(
         'persepolis', 'persepolis.constants',
         'persepolis.scripts', 'persepolis.gui',
+        'ghermez',
     ),
+    package_data={
+        'ghermez': ['*'],
+    },
     data_files=DATA_FILES,
-    entry_points={
-        'console_scripts': [
-            'persepolis = persepolis.__main__'
-        ]
-    }
 )

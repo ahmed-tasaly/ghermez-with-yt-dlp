@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# coding: utf-8
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
 #    the Free Software Foundation, either version 3 of the License, or
@@ -16,17 +15,15 @@
 
 
 import os
-import warnings
-import sys
 import platform
 import shutil
-from persepolis.constants import OS
+import sys
 
 # finding os platform
 os_type = platform.system()
 
-if os_type == 'Linux' or os_type == 'FreeBSD' or os_type == 'OpenBSD':
-    print(os_type + " detected!")
+if os_type in ('Linux', 'FreeBSD', 'OpenBSD'):
+    print(os_type + ' detected!')
 else:
     print('This script is only work for GNU/Linux or BSD!')
     sys.exit(1)
@@ -41,12 +38,12 @@ src_pycache = os.path.join(setup_dir, 'persepolis', '__pycache__')
 gui_pycache = os.path.join(setup_dir, 'persepolis', 'gui', '__pycache__')
 scripts_pycache = os.path.join(setup_dir, 'persepolis', 'scripts', '__pycache__')
 constants_pycache = os.path.join(setup_dir, 'persepolis', 'constants', '__pycache__')
+ghermez_pycache = os.path.join(setup_dir, 'ghermez', '__pycache__')
 
-for folder in [src_pycache, gui_pycache, scripts_pycache, constants_pycache]:
+for folder in [src_pycache, gui_pycache, scripts_pycache, constants_pycache, ghermez_pycache]:
     if os.path.isdir(folder):
         shutil.rmtree(folder)
-        print(str(folder)
-              + ' is removed!')
+        print(str(folder) + ' is removed!')
 
 
 uid = os.getuid()
@@ -65,20 +62,19 @@ src_pycache = os.path.join(setup_dir, 'persepolis', '__pycache__')
 gui_pycache = os.path.join(setup_dir, 'persepolis', 'gui', '__pycache__')
 scripts_pycache = os.path.join(setup_dir, 'persepolis', 'scripts', '__pycache__')
 constants_pycache = os.path.join(setup_dir, 'persepolis', 'constants', '__pycache__')
+ghermez_pycache = os.path.join(setup_dir, 'ghermez', '__pycache__')
 
-for folder in [src_pycache, gui_pycache, scripts_pycache, constants_pycache]:
+for folder in [src_pycache, gui_pycache, scripts_pycache, constants_pycache, ghermez_pycache]:
     if os.path.isdir(folder):
         shutil.rmtree(folder)
-        print(str(folder)
-              + ' is removed!')
+        print(str(folder) + ' is removed!')
 
 # clear unwanted files!
-for folder in ['build', 'dist', 'root', 'persepolis.egg-info']:
+for folder in ['build', 'dist', 'root', 'ghermez.egg-info']:
     if os.path.isdir(folder):
         shutil.rmtree(folder)
-        print(str(folder)
-              + ' is removed!')
+        print(str(folder) + ' is removed!')
 
-man_page = 'man/persepolis.1.gz'
+man_page = 'man/ghermez.1.gz'
 if os.path.isfile(man_page):
-    os.remove('man/persepolis.1.gz')
+    os.remove('man/ghermez.1.gz')
