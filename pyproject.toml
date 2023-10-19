@@ -15,6 +15,3 @@ classifiers = [
 
 [tool.maturin]
 features = ["pyo3/extension-module"]
-
-[project.scripts]
-ghermez = "persepolis.__main__"

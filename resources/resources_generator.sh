@@ -6,6 +6,8 @@ while getopts "trh" arg;do
             translate="1";;
         r)
             resources="1";;
+        s)
+            pyside_resources="1";;
         q)
             create_qm_files="1";;
         *)
@@ -31,6 +33,14 @@ if [ "$resources" == "1" ];then
 
     # generate resource.py file
     pyrcc5 resources.qrc -o "$parent_dir/persepolis/gui/resources.py"
+
+    echo  "$parent_dir/persepolis/gui/resource.py is generated!"
+fi
+
+if [ "$pyside_resources" == "1" ];then
+
+    # generate resource.py file
+    pyside6-rcc resources.qrc -o "$parent_dir/persepolis/gui/resources.py"
 
     echo  "$parent_dir/persepolis/gui/resource.py is generated!"
 fi

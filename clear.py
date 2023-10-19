@@ -70,7 +70,7 @@ for folder in [src_pycache, gui_pycache, scripts_pycache, constants_pycache, ghe
         print(str(folder) + ' is removed!')
 
 # clear unwanted files!
-for folder in ['build', 'dist', 'root', 'ghermez.egg-info']:
+for folder in ['build', 'dist', 'root', 'ghermez.egg-info', 'target']:
     if os.path.isdir(folder):
         shutil.rmtree(folder)
         print(str(folder) + ' is removed!')

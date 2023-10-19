@@ -14,6 +14,7 @@
 #
 
 
+import glob
 import os
 import platform
 import shutil
@@ -116,7 +117,7 @@ else:
 # sound-theme-freedesktop
 if os_type == 'Linux':
     notifications_path = '/usr/share/sounds/freedesktop/stereo/'
-elif os_type == 'FreeBSD' or os_type == 'OpenBSD':
+elif os_type in ('FreeBSD', 'OpenBSD'):
     notifications_path = '/usr/local/share/sounds/freedesktop/stereo/'
 
 if os.path.isdir(notifications_path):
@@ -172,8 +173,14 @@ elif os_type in ('FreeBSD', 'OpenBSD'):
 
 
 # build rust-python package
-os.system('maturin build --release')
-print('ghermez package is builded!')
+answer = os.system('maturin build --release')
+if answer != 0:
+    print('[ERROR]: ghermez package not builded')
+    answer = input('Do you want to continue?(y/n)')
+    if answer not in ['y', 'Y', 'yes']:
+        sys.exit(1)
+else:
+    print('ghermez package is builded!')
 
 # finding current directory
 cwd = os.path.abspath(__file__)
@@ -191,6 +198,16 @@ for folder in [src_pycache, gui_pycache, scripts_pycache, constants_pycache, ghe
         shutil.rmtree(folder)
         print(str(folder) + ' is removed!')
 
+
+# Generate resources file
+answer = os.system('cd resources; ./resources_generator.sh -r; cd ..')
+if answer != 0:
+    print('[Error]: qt resources not generated!')
+    answer = input('Do you want to continue?(y/n)')
+    if answer not in ['y', 'Y', 'yes']:
+        sys.exit(1)
+else:
+    print('qt resources genetated!')
 
 # Creating man page file
 ghermez_man_page = os.path.join(setup_dir, 'man', 'ghermez.1')
@@ -215,10 +232,24 @@ setup(
     packages=(
         'persepolis', 'persepolis.constants',
         'persepolis.scripts', 'persepolis.gui',
-        'ghermez',
     ),
-    package_data={
-        'ghermez': ['*'],
+    entry_points={
+        'console_scripts': [
+            'ghermez = persepolis.__main__',
+        ],
     },
     data_files=DATA_FILES,
 )
+
+whl_file = glob.glob('./target/wheels/*.whl')[0]
+answer = os.system(f'pip install {whl_file} --break-system-packages')
+if answer != 0:
+    print('########################')
+    print('####### ERROR ########')
+    print('########################')
+    print('Ghernez not installed correctly!\n')
+    print('Use clear.py and uninstall.py to remove installed packages and report error!')
+    print('https://github.com/IamRezaMousavi/ghermez/issues\n\n')
+
+else:
+    print('Ghermez download manager is installed!')
