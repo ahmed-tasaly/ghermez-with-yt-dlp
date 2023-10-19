@@ -33,27 +33,40 @@ pub fn determineConfigFolder() -> PathBuf {
 // this function returns operating system and desktop environment(for linux and bsd).
 #[pyfunction]
 pub fn osAndDesktopEnvironment() -> (String, Option<String>) {
+    let mut os_type = String::with_capacity(7);
+    let mut desktop_env: Option<String> = None;
+
     #[cfg(any(target_os = "linux", target_os = "freebsd", target_os = "openbsd"))]
     {
-        let os_type = "Linux".to_string();
-        let desktop_env = match env::var("XDG_CURRENT_DESKTOP") {
+        #[cfg(target_os = "linux")]
+        {
+            os_type.push_str("Linux");
+        }
+
+        #[cfg(target_os = "openbsd")]
+        {
+            os_type.push_str("OpenBSD");
+        }
+
+        #[cfg(target_os = "freebsd")]
+        {
+            os_type.push_str("FreeBSD");
+        }
+
+        desktop_env = match env::var("XDG_CURRENT_DESKTOP") {
             Ok(val) => Some(val),
             Err(_) => None,
         };
-        (os_type, desktop_env)
     }
     #[cfg(target_os = "macos")]
     {
-        let os_type = "Darwin".to_string();
-        let desktop_env = None;
-        (os_type, desktop_env)
+        os_type.push_str("Darwin");
     }
     #[cfg(target_os = "windows")]
     {
-        let os_type = "Windows".to_string();
-        let desktop_env = None;
-        (os_type, desktop_env)
+        os_type.push_str("Windows");
     }
+    (os_type, desktop_env)
 }
 
 // this function converts file_size to KiB or MiB or GiB
