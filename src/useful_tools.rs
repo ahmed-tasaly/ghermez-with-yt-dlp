@@ -36,7 +36,10 @@ pub fn osAndDesktopEnvironment() -> (String, Option<String>) {
     #[cfg(any(target_os = "linux", target_os = "freebsd", target_os = "openbsd"))]
     {
         let os_type = "Linux".to_string();
-        let desktop_env = Some(env::var("XDG_CURRENT_DESKTOP").unwrap());
+        let desktop_env = match env::var("XDG_CURRENT_DESKTOP") {
+            Ok(val) => Some(val),
+            Err(_) => None,
+        };
         (os_type, desktop_env)
     }
     #[cfg(target_os = "macos")]
