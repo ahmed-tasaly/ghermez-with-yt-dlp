@@ -24,16 +24,18 @@ os_type = platform.system()
 
 if os_type == 'Linux':
     path_list = ['/usr/share/man/man1/ghermez.1.gz',
-                 '/usr/share/pixmaps/ghermez.svg',
-                 '/usr/share/pixmaps/ghermez-tray.svg',
+                 '/usr/share/pixmaps/ghermez.png',
+                 '/usr/share/pixmaps/ghermez-tray.png',
+                 '/usr/share/icons/hicolor/scalable/apps/ghermez.png',
+                 '/usr/share/icons/hicolor/scalable/apps/ghermez-tray.png',
                  '/usr/share/applications/com.github.iamrezamousavi.ghermez.desktop',
                  '/usr/share/metainfo/com.github.iamrezamousavi.ghermez.appdata.xml',
                  '/usr/bin/ghermez']
 
 elif os_type in ('FreeBSD', 'OpenBSD'):
     path_list = ['/usr/local/share/man/man1/ghermez.1.gz',
-                 '/usr/local/share/pixmaps/ghermez.svg',
-                 '/usr/local/share/pixmaps/ghermez-tray.svg',
+                 '/usr/local/share/pixmaps/ghermez.png',
+                 '/usr/local/share/pixmaps/ghermez-tray.png',
                  '/usr/local/share/applications/com.github.iamrezamousavi.ghermez.desktop',
                  '/usr/local/share/metainfo/com.github.iamrezamousavi.ghermez.appdata.xml',
                  '/usr/local/bin/ghermez']
