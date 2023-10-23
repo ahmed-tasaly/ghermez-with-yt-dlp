@@ -11,7 +11,7 @@
   <a href="https://github.com/IamRezaMousavi/ghermez"><strong>Explore the docs »</strong></a>
   <br/>
   <br/>
-  <a href="https://github.com/IamRezaMousavi/ghermez">View Release</a>
+  <a href="https://github.com/IamRezaMousavi/ghermez/releases">View Release</a>
   .
   <a href="https://github.com/IamRezaMousavi/ghermez/issues">Report Bug</a>
   .
