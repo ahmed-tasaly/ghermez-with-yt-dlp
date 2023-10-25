@@ -12,6 +12,21 @@ use pyo3::prelude::*;
 
 static HOME_ADDRESS: Lazy<PathBuf> = Lazy::new(|| home_dir().unwrap());
 
+#[cfg(target_os = "linux")]
+const OS_TYPE: &str = "Linux";
+
+#[cfg(target_os = "windows")]
+const OS_TYPE: &str = "Windows";
+
+#[cfg(target_os = "macos")]
+const OS_TYPE: &str = "Darwin";
+
+#[cfg(target_os = "openbsd")]
+const OS_TYPE: &str = "OpenBSD";
+
+#[cfg(target_os = "freebsd")]
+const OS_TYPE: &str = "FreeBSD";
+
 // determine the config folder path based on the operating system
 #[pyfunction]
 pub fn determineConfigFolder() -> PathBuf {
@@ -32,41 +47,17 @@ pub fn determineConfigFolder() -> PathBuf {
 
 // this function returns operating system and desktop environment(for linux and bsd).
 #[pyfunction]
-pub fn osAndDesktopEnvironment() -> (String, Option<String>) {
-    let mut os_type = String::with_capacity(7);
+pub fn osAndDesktopEnvironment() -> (&'static str, Option<String>) {
     let mut desktop_env: Option<String> = None;
 
     #[cfg(any(target_os = "linux", target_os = "freebsd", target_os = "openbsd"))]
     {
-        #[cfg(target_os = "linux")]
-        {
-            os_type.push_str("Linux");
-        }
-
-        #[cfg(target_os = "openbsd")]
-        {
-            os_type.push_str("OpenBSD");
-        }
-
-        #[cfg(target_os = "freebsd")]
-        {
-            os_type.push_str("FreeBSD");
-        }
-
         desktop_env = match env::var("XDG_CURRENT_DESKTOP") {
             Ok(val) => Some(val),
             Err(_) => None,
         };
     }
-    #[cfg(target_os = "macos")]
-    {
-        os_type.push_str("Darwin");
-    }
-    #[cfg(target_os = "windows")]
-    {
-        os_type.push_str("Windows");
-    }
-    (os_type, desktop_env)
+    (OS_TYPE, desktop_env)
 }
 
 // this function converts file_size to KiB or MiB or GiB
