@@ -14,7 +14,6 @@
 #
 
 
-import glob
 import os
 import platform
 import shutil
@@ -25,6 +24,7 @@ os_type = platform.system()
 
 if os_type in ('Linux', 'FreeBSD', 'OpenBSD'):
     from setuptools import setup
+    from setuptools_rust import Binding, RustExtension
     setuptools_available = True
     print(os_type + ' detected!')
 else:
@@ -172,16 +172,6 @@ elif os_type in ('FreeBSD', 'OpenBSD'):
     ]
 
 
-# build rust-python package
-answer = os.system('maturin build --release')
-if answer != 0:
-    print('[ERROR]: ghermez package not builded')
-    answer = input('Do you want to continue?(y/n)')
-    if answer not in ['y', 'Y', 'yes']:
-        sys.exit(1)
-else:
-    print('ghermez package is builded!')
-
 # finding current directory
 cwd = os.path.abspath(__file__)
 setup_dir = os.path.dirname(cwd)
@@ -239,17 +229,12 @@ setup(
         ],
     },
     data_files=DATA_FILES,
+    rust_extensions=[
+        RustExtension(
+            'ghermez.ghermez',
+            path='Cargo.toml',  # Default value, can be omitted
+            py_limited_api='auto',  # Default value, can be omitted
+            binding=Binding.PyO3,  # Default value, can be omitted
+        ),
+    ],
 )
-
-whl_file = glob.glob('./target/wheels/*.whl')[0]
-answer = os.system(f'pip install {whl_file} --break-system-packages')
-if answer != 0:
-    print('########################')
-    print('####### ERROR ########')
-    print('########################')
-    print('Ghernez not installed correctly!\n')
-    print('Use clear.py and uninstall.py to remove installed packages and report error!')
-    print('https://github.com/IamRezaMousavi/ghermez/issues\n\n')
-
-else:
-    print('Ghermez download manager is installed!')
