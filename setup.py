@@ -82,14 +82,6 @@ except:
     print('Warning: youtube-dl is not installed!')
     not_installed = not_installed + 'youtube-dl, '
 
-# maturin
-answer = os.system('maturin --version 1>/dev/null')
-if answer != 0:
-    print('Error maturin not installed!')
-    not_installed = not_installed + 'maturin, '
-else:
-    print('maturin is found!')
-
 # aria2
 answer = os.system('aria2c --version 1>/dev/null')
 if answer != 0:

@@ -23,6 +23,8 @@
 ## Table Of Contents
 
 - [About the Project](#about-the-project)
+- [Installation](#installation)
+- [Roadmap](#roadmap)
 - [Contributing](#contributing)
 - [Acknowledgements](#acknowledgements)
 
@@ -40,6 +42,60 @@ Ghermez is a download manager & a GUI for [Aria2](https://github.com/aria2/aria2
 - Scheduling downloads
 - Download queuing
 - and many more!
+
+## Installation
+
+There are a few installation options for Ghermez. If you would like another installation option, please open an issue for it.
+
+### Windows
+
+Download the installer .exe file from [latest release](https://github.com/IamRezaMousavi/ghermez/releases/latest).
+
+### Linux
+
+#### Arch Linux
+
+Download the .pkg.tar.zst package from [latest release](https://github.com/IamRezaMousavi/ghermez/releases/latest) and run:
+
+```sh
+sudo pacman -S <file-name>.pkg.tar.zst
+```
+
+Or download [PKGBUILD](./archlinux/PKGBUILD) file in `archlinux` directory and run:
+
+```sh
+makepkg -si
+```
+
+#### Debian-base Linux
+
+Download the .deb package from [latest release](https://github.com/IamRezaMousavi/ghermez/releases/latest) and run:
+
+```sh
+sudo dpkg -i <file-name>.deb
+```
+
+### Source Code
+
+**Run below commands with `sudo`**
+
+- First you have to install [python](https://www.python.org/downloads/) and [rust](https://www.rust-lang.org/tools/install)
+
+- Install requirement packages
+
+```sh
+pip install -U -r ./requirements.txt
+```
+
+- Run setup script
+
+```sh
+python setup.py install
+```
+
+## Roadmap
+
+See the [open issues](https://github.com/ShaanCoding/ReadME-Generator/issues) for a list of proposed features (and known issues).
 
 ## Contributing
 
