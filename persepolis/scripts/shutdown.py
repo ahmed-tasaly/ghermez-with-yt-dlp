@@ -22,10 +22,10 @@ except ImportError:
 import platform
 import subprocess
 from time import sleep
+from typing import TYPE_CHECKING
 
 from persepolis.constants import OS
 from persepolis.scripts import logger
-from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from PyQt5.QtWidgets import QWidget

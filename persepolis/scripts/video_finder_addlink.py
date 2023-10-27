@@ -50,8 +50,8 @@ from time import time
 
 import youtube_dl
 
-from ghermez import determineConfigFolder
-from persepolis.scripts import logger, osCommands
+import ghermez
+from persepolis.scripts import logger
 from persepolis.scripts.addlink import AddLinkWindow
 from persepolis.scripts.spider import spider
 
@@ -61,7 +61,7 @@ logger.sendToLog('youtube_dl version: '
                  'INFO')
 
 # download manager config folder .
-config_folder = determineConfigFolder()
+config_folder = ghermez.determineConfigFolder()
 
 # persepolis tmp folder path
 persepolis_tmp = os.path.join(config_folder, 'persepolis_tmp')
@@ -149,7 +149,7 @@ class MediaListFetcherThread(QThread):
             ret_val = {'error': str(ex)}
         finally:  # Delete cookie file
             try:
-                osCommands.remove(self.cookie_path)
+                ghermez.remove(self.cookie_path)
 
             except Exception as ex:
                 logger.sendToLog(ex, 'ERROR')

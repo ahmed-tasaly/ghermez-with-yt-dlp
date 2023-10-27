@@ -71,11 +71,11 @@ from copy import deepcopy
 from functools import partial
 from time import sleep
 
-from ghermez import DataBase, PluginsDB, TempDB, determineConfigFolder, osAndDesktopEnvironment
+import ghermez
 from persepolis.constants import APP_NAME, OS, REPO_LINK
 from persepolis.gui import resources  # noqa: F401
 from persepolis.gui.mainwindow_ui import MainWindow_Ui, QTableWidgetItem
-from persepolis.scripts import download, logger, osCommands, spider
+from persepolis.scripts import download, logger, spider
 from persepolis.scripts.about import AboutWindow
 from persepolis.scripts.addlink import AddLinkWindow
 from persepolis.scripts.after_download import AfterDownloadWindow
@@ -144,10 +144,10 @@ global plugin_links_checked
 plugin_links_checked = False
 
 # find os platform
-os_type, desktop_env = osAndDesktopEnvironment()
+os_type, desktop_env = ghermez.osAndDesktopEnvironment()
 
 # config_folder
-config_folder = determineConfigFolder()
+config_folder = ghermez.determineConfigFolder()
 
 download_info_folder = os.path.join(config_folder, 'download_info')
 
@@ -1087,7 +1087,7 @@ class CheckingThread(QThread):
             # still running. see persepolis file for more details.
             if os.path.isfile(show_window_file):
                 # OK! we catch notification! remove show_window_file now!
-                osCommands.remove(show_window_file)
+                ghermez.remove(show_window_file)
 
                 # emit a signal to notify MainWindow for showing itself!
                 self.SHOWMAINWINDOWSIGNAL.emit()
@@ -1096,7 +1096,7 @@ class CheckingThread(QThread):
             if os.path.isfile(plugin_ready):
 
                 # OK! We received notification! remove plugin_ready file
-                osCommands.remove(plugin_ready)
+                ghermez.remove(plugin_ready)
 
                 # When checkPluginCall method considered request , then
                 # plugin_links_checked is changed to True
@@ -1215,7 +1215,7 @@ class MoveThread(QThread):
             # find file_name
             self.file_name = os.path.basename(self.old_file_path)
 
-            self.move = osCommands.moveFile(self.old_file_path, self.new_folder_path)
+            self.move = ghermez.moveFile(self.old_file_path, self.new_folder_path)
 
             # if moving is not successful, notify user.
             if not(self.move):
@@ -1341,13 +1341,13 @@ class MainWindow(MainWindow_Ui):
 
     # initializing
         # create an object for PluginsDB
-        self.plugins_db = PluginsDB()
+        self.plugins_db = ghermez.PluginsDB()
 
         # create an object for DataBase
-        self.persepolis_db = DataBase()
+        self.persepolis_db = ghermez.DataBase()
 
         # create an object fo TempDB
-        self.temp_db = TempDB()
+        self.temp_db = ghermez.TempDB()
 
         # create tables
         self.temp_db.createTables()
@@ -3331,7 +3331,7 @@ class MainWindow(MainWindow_Ui):
         # check that if download folder is availabile or not
         if os.path.isdir(download_path):
             # open folder
-            osCommands.xdgOpen(download_path, 'folder', 'folder')
+            ghermez.xdgOpen(download_path, 'folder', 'folder')
         else:
             # show error message if folder didn't existed
             notifySend(str(download_path), QCoreApplication.translate('mainwindow_src_ui_tr', 'Not Found'), 5000,
@@ -3373,7 +3373,7 @@ class MainWindow(MainWindow_Ui):
                 # check that if download_path existed
                 if os.path.isfile(download_path):
                     # open file
-                    osCommands.xdgOpen(download_path, 'folder', 'file')
+                    ghermez.xdgOpen(download_path, 'folder', 'file')
                 else:
                     # showing error message , if folder didn't existed
                     notifySend(str(download_path), QCoreApplication.translate('mainwindow_src_ui_tr', 'Not Found'),
@@ -3415,7 +3415,7 @@ class MainWindow(MainWindow_Ui):
 
                 if os.path.isfile(file_path):
                     # open file
-                    osCommands.xdgOpen(file_path)
+                    ghermez.xdgOpen(file_path)
 
                 else:
                     # show error message , if file was deleted or moved
@@ -3566,10 +3566,10 @@ class MainWindow(MainWindow_Ui):
             if file_name != '***' and status != 'complete':
                 file_name_path = os.path.join(
                     temp_download_folder,  str(file_name))
-                osCommands.remove(file_name_path)  # remove file
+                ghermez.remove(file_name_path)  # remove file
 
                 file_name_aria = file_name_path + '.aria2'
-                osCommands.remove(file_name_aria)  # remove file.aria
+                ghermez.remove(file_name_aria)  # remove file.aria
 
         # tell the CheckDownloadInfoThread that job is done!
         global checking_flag
@@ -3722,11 +3722,11 @@ class MainWindow(MainWindow_Ui):
                     temp_download_folder, str(file_name))
 
                 # remove file : file_name_path
-                osCommands.remove(file_name_path)
+                ghermez.remove(file_name_path)
 
                 # remove aria2 download information file : file_name_aria
                 file_name_aria = file_name_path + '.aria2'
-                osCommands.remove(file_name_aria)
+                ghermez.remove(file_name_aria)
 
             # remove downloaded file, if download is completed
             if status == 'complete':
@@ -3736,7 +3736,7 @@ class MainWindow(MainWindow_Ui):
                 if dictionary:
                     file_path = dictionary['download_path']
 
-                    remove_answer = osCommands.remove(file_path)
+                    remove_answer = ghermez.remove(file_path)
 
                     if remove_answer == 'no':
                         notifySend(str(file_path), QCoreApplication.translate('mainwindow_src_ui_tr', 'Not Found'),
@@ -5284,11 +5284,11 @@ class MainWindow(MainWindow_Ui):
 
     # this method opens issues page in github
     def reportIssue(self, menu=None):
-        osCommands.xdgOpen(f'{REPO_LINK}/issues')
+        ghermez.xdgOpen(f'{REPO_LINK}/issues')
 
     # this method opens persepolis wiki page in github
     def persepolisHelp(self, menu=None):
-        osCommands.xdgOpen(f'https://github.com/persepolisdm/persepolis/wiki')
+        ghermez.xdgOpen(f'https://github.com/persepolisdm/persepolis/wiki')
 
     # this method opens update menu
 
@@ -5899,8 +5899,8 @@ class MainWindow(MainWindow_Ui):
             audio_file_path = audio_add_link_dictionary['download_path']
             video_file_path = video_add_link_dictionary['download_path']
 
-            remove_answer = osCommands.remove(audio_file_path)
-            remove_answer = osCommands.remove(video_file_path)  # noqa: F841
+            remove_answer = ghermez.remove(audio_file_path)
+            remove_answer = ghermez.remove(video_file_path)  # noqa: F841
 
             # remove audio row from download_table
             if row is not None:

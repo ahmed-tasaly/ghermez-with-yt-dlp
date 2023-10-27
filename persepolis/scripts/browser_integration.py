@@ -18,16 +18,15 @@ import platform
 import subprocess
 import sys
 
-from ghermez import determineConfigFolder
+import ghermez
 from persepolis.constants import BROWSER, OS
-from persepolis.scripts import osCommands
 
 os_type = platform.system()
 
 home_address = str(os.path.expanduser('~'))
 
 # download manager config folder .
-config_folder = determineConfigFolder()
+config_folder = ghermez.determineConfigFolder()
 
 # browser can be firefox or chromium or chrome
 
@@ -169,7 +168,7 @@ def browserIntegration(browser: str) -> (bool, bool):
     native_message_file = os.path.join(
         native_message_folder, 'com.persepolis.pdmchromewrapper.json')
 
-    osCommands.makeDirs(native_message_folder)
+    ghermez.makeDirs(native_message_folder)
 
     # Write NMH file
     f = open(native_message_file, 'w')

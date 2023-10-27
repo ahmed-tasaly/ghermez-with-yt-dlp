@@ -16,15 +16,15 @@ from __future__ import annotations
 import os
 import platform
 import subprocess
+from typing import TYPE_CHECKING
 
 from persepolis.constants import APP_NAME, LONG_NAME, ORG_NAME, OS
 from persepolis.gui import resources  # noqa: F401
 from persepolis.scripts.play import playNotification
-from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from PySide6.QtWidgets import QWidget
     from PyQt5.QtWidgets import QWidget
+    from PySide6.QtWidgets import QWidget
 
 try:
     from PySide6.QtCore import QSettings

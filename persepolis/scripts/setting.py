@@ -53,10 +53,10 @@ import os
 import platform
 import sys
 
+import ghermez
 from persepolis.constants import OS
 from persepolis.gui.setting_ui import KeyCapturingWindow_Ui, Setting_Ui
-from persepolis.scripts import osCommands, startup
-from persepolis.scripts.useful_tools import returnDefaultSettings
+from persepolis.scripts import startup
 
 home_address = os.path.expanduser('~')
 os_type = platform.system()
@@ -708,7 +708,7 @@ class PreferencesWindow(Setting_Ui):
 
         self.persepolis_setting.beginGroup('settings')
 
-        self.setting_dict = returnDefaultSettings()
+        self.setting_dict = ghermez.returnDefaultSettings()
 
         self.tries_spinBox.setValue(int(self.setting_dict['max-tries']))
         self.wait_spinBox.setValue(int(self.setting_dict['retry-wait']))
@@ -1045,7 +1045,7 @@ class PreferencesWindow(Setting_Ui):
             self.persepolis_setting.setValue('subfolder', 'no')
 
         for folder in folder_list:
-            osCommands.makeDirs(folder)
+            ghermez.makeDirs(folder)
 
         if self.enable_notifications_checkBox.isChecked():
             self.persepolis_setting.setValue('sound', 'yes')

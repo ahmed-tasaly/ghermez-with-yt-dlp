@@ -14,12 +14,11 @@
 import logging
 import os
 
-from ghermez import determineConfigFolder
+import ghermez
 from persepolis.constants import APP_NAME
-from persepolis.scripts.osCommands import touch
 
 # config_folder
-config_folder = determineConfigFolder()
+config_folder = ghermez.determineConfigFolder()
 
 # create a directory if it does not exist
 if not os.path.exists(config_folder):
@@ -29,7 +28,7 @@ if not os.path.exists(config_folder):
 log_file = os.path.join(str(config_folder), f'{APP_NAME}dm.log')
 
 if not os.path.isfile(log_file):
-    touch(log_file)
+    ghermez.touch(log_file)
 
 # define logging object
 logObj = logging.getLogger(APP_NAME.capitalize())

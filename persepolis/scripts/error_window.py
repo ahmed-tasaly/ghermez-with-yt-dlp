@@ -20,10 +20,9 @@ except ImportError:
     from PyQt5.QtGui import QIcon, QKeyEvent
     from PyQt5.QtWidgets import QHBoxLayout, QLabel, QPushButton, QTextEdit, QVBoxLayout, QWidget
 
-from ghermez import DataBase
+import ghermez
 from persepolis.constants import APP_NAME, LONG_NAME, ORG_NAME, REPO_LINK
 from persepolis.gui import resources  # noqa: F401
-from persepolis.scripts import osCommands
 
 
 class ErrorWindow(QWidget):
@@ -68,7 +67,7 @@ class ErrorWindow(QWidget):
         self.close_pushButton.clicked.connect(self.closePushButtonPressed)
 
     def reportPushButtonPressed(self, _button: QPushButton) -> None:
-        osCommands.xdgOpen(f'{REPO_LINK}/issues')
+        ghermez.xdgOpen(f'{REPO_LINK}/issues')
 
     # close window with ESC key
     def keyPressEvent(self, event: QKeyEvent) -> None:
@@ -81,7 +80,7 @@ class ErrorWindow(QWidget):
 
     def resetPushButtonPressed(self, _button: QPushButton) -> None:
         # create an object for DataBase
-        persepolis_db = DataBase()
+        persepolis_db = ghermez.DataBase()
 
         # Reset data base
         persepolis_db.resetDataBase()

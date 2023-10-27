@@ -23,10 +23,10 @@ except ImportError:
 
 
 import os
-
-from persepolis.gui.after_download_ui import AfterDownloadWindow_Ui
-from persepolis.scripts import osCommands
 from typing import TYPE_CHECKING
+
+import ghermez
+from persepolis.gui.after_download_ui import AfterDownloadWindow_Ui
 
 if TYPE_CHECKING:
     from PyQt5.QtWidgets import QWidget
@@ -99,7 +99,7 @@ class AfterDownloadWindow(AfterDownloadWindow_Ui):
         file_path = self.add_link_dict['download_path']
 
         if os.path.isfile(file_path):
-            osCommands.xdgOpen(file_path)
+            ghermez.xdgOpen(file_path)
 
         # close window
         self.close()
@@ -109,7 +109,7 @@ class AfterDownloadWindow(AfterDownloadWindow_Ui):
         download_path = self.add_link_dict['download_path']
 
         if os.path.isfile(download_path):
-            osCommands.xdgOpen(download_path, 'folder', 'file')
+            ghermez.xdgOpen(download_path, 'folder', 'file')
 
         # close window
         self.close()

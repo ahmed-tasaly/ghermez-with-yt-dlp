@@ -19,7 +19,6 @@ import os
 
 import ghermez
 from persepolis.constants import APP_NAME, ORG_NAME
-from persepolis.scripts import osCommands
 from persepolis.scripts.browser_integration import browserIntegration
 from persepolis.scripts.useful_tools import returnDefaultSettings
 
@@ -108,7 +107,7 @@ if persepolis_setting.value('subfolder') == 'yes':
 
 # create folders in folder_list
 for folder in folder_list:
-    osCommands.makeDirs(folder)
+    ghermez.makeDirs(folder)
 
 persepolis_setting.endGroup()
 

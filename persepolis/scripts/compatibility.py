@@ -13,12 +13,11 @@
 
 import os
 
-from ghermez import DataBase, determineConfigFolder
+import ghermez
 from persepolis.scripts.newopen import readList
-from persepolis.scripts.osCommands import remove, removeDir
 
 # config_folder
-config_folder = determineConfigFolder()
+config_folder = ghermez.determineConfigFolder()
 
 download_info_folder = os.path.join(config_folder, 'download_info')
 
@@ -49,7 +48,7 @@ single_downloads_list_file = os.path.join(category_folder, 'Single Downloads')
 
 def compatibility() -> None:
     if os.path.isfile(queues_list_file):
-        persepolis_db = DataBase()
+        persepolis_db = ghermez.DataBase()
 
         # add categories to category_db_table in data_base
         f = open(queues_list_file)
@@ -57,7 +56,7 @@ def compatibility() -> None:
         f.close()
 
         # remove queues_list_file
-        remove(queues_list_file)
+        ghermez.remove(queues_list_file)
     else:
         return
 
@@ -172,7 +171,7 @@ def compatibility() -> None:
 
     # remove unwanted files and folders
     for file in [download_list_file, download_list_file_active]:
-        remove(file)
+        ghermez.remove(file)
 
     for folder in [category_folder, queue_info_folder]:
-        removeDir(folder)
+        ghermez.removeDir(folder)

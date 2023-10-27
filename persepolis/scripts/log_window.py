@@ -13,10 +13,9 @@
 
 import os
 
-from ghermez import determineConfigFolder
+import ghermez
 from persepolis.constants import REPO_LINK
 from persepolis.gui.log_window_ui import LogWindow_Ui
-from persepolis.scripts import osCommands
 
 try:
     from PySide6.QtCore import QPoint, QSettings, QSize, Qt
@@ -28,7 +27,7 @@ except ImportError:
     from PyQt5.QtWidgets import QLayout, QPushButton
 
 # config_folder
-config_folder = determineConfigFolder()
+config_folder = ghermez.determineConfigFolder()
 
 
 class LogWindow(LogWindow_Ui):
@@ -90,7 +89,7 @@ class LogWindow(LogWindow_Ui):
         self.text_edit.insertPlainText(self.text)
 
     def reportPushButtonPressed(self, _button: QPushButton) -> None:
-        osCommands.xdgOpen(f'{REPO_LINK}/issues')
+        ghermez.xdgOpen(f'{REPO_LINK}/issues')
 
     def closePushButtonPressed(self, _button: QPushButton) -> None:
         self.close()

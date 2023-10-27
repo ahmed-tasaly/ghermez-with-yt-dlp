@@ -21,11 +21,11 @@ import urllib.parse
 import xmlrpc.client
 
 import ghermez
-from ghermez import humanReadableSize
+from ghermez import humanReadableSize, moveFile
 from persepolis.constants import APP_NAME, ORG_NAME, OS
 from persepolis.scripts import logger
 from persepolis.scripts.bubble import notifySend
-from persepolis.scripts.osCommands import makeTempDownloadDir, moveFile
+from persepolis.scripts.osCommands import makeTempDownloadDir
 from persepolis.scripts.useful_tools import freeSpace
 
 try:

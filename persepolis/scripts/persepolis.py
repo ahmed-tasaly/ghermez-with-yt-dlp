@@ -28,15 +28,14 @@ import sys
 import traceback
 from copy import deepcopy
 
-from ghermez import determineConfigFolder, osAndDesktopEnvironment
+import ghermez
 from persepolis.constants import APP_NAME, LONG_NAME, ORG_NAME, OS, VERSION
 from persepolis.gui import resources  # noqa: F401
 from persepolis.gui.palettes import DarkFusionPalette, LightFusionPalette
-from persepolis.scripts import osCommands
 from persepolis.scripts.error_window import ErrorWindow
 
 # finding os platform
-os_type, desktop_env = osAndDesktopEnvironment()
+os_type, desktop_env = ghermez.osAndDesktopEnvironment()
 
 # Don't run persepolis as root!
 if os_type in ([*OS.UNIX_LIKE, OS.OSX]):
@@ -49,7 +48,7 @@ if os_type in ([*OS.UNIX_LIKE, OS.OSX]):
 # initialization
 
 # persepolis config_folder
-config_folder = determineConfigFolder()
+config_folder = ghermez.determineConfigFolder()
 
 # persepolis tmp folder path
 persepolis_tmp = os.path.join(config_folder, 'persepolis_tmp')
@@ -351,7 +350,7 @@ if len(plugin_list) != 0:
 
     # notify that a link is added!
     plugin_ready = os.path.join(persepolis_tmp, 'persepolis-plugin-ready')
-    osCommands.touch(plugin_ready)
+    ghermez.touch(plugin_ready)
 
     # start persepolis in system tray
     start_in_tray = True

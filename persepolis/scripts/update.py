@@ -28,8 +28,8 @@ import platform
 
 import requests
 
+import ghermez
 from persepolis.constants import APP_NAME, LONG_NAME, OS, REPO_LINK, VERSION
-from persepolis.scripts import osCommands
 
 # finding os_type
 os_type = platform.system()
@@ -132,14 +132,14 @@ class checkupdate(QWidget):
                     # find system architect
                     if platform.architecture()[0] == '64bit':
 
-                        osCommands.xdgOpen(updatesource_dict['win64dlurl'])
+                        ghermez.xdgOpen(updatesource_dict['win64dlurl'])
 
                     elif platform.architecture()[0] == '32bit':
 
-                        osCommands.xdgOpen(updatesource_dict['win32dlurl'])
+                        ghermez.xdgOpen(updatesource_dict['win32dlurl'])
 
                 elif os_type == OS.OSX:
-                    osCommands.xdgOpen(updatesource_dict['macdlurl'])  # it will download latest release for mac
+                    ghermez.xdgOpen(updatesource_dict['macdlurl'])  # it will download latest release for mac
 
             elif float(server_version) == float(self.client_version):
                 self.status_label.setText(QCoreApplication.translate(
