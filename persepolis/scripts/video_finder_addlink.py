@@ -98,7 +98,7 @@ class MediaListFetcherThread(QThread):
 
         # load_cookies
         if 'load_cookies' in video_dict and video_dict['load_cookies']:
-            # We need to convert raw cookies to http cookie file to use with youtube-dl.
+            # We need to convert raw cookies to http cookie file to use with yt-dlp.
             self.cookies = self.makeHttpCookie(video_dict['load_cookies'])
 
         # Proxy
