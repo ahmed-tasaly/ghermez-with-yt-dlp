@@ -76,11 +76,11 @@ except:
 
 # youtube_dl
 try:
-    import youtube_dl
-    print('youtube-dl is found')
+    import yt-dlp
+    print('yt-dlp is found')
 except:
-    print('Warning: youtube-dl is not installed!')
-    not_installed = not_installed + 'youtube-dl, '
+    print('Warning: yt-dlp is not installed!')
+    not_installed = not_installed + 'yt-dlp, '
 
 # aria2
 answer = os.system('aria2c --version 1>/dev/null')
