@@ -24,7 +24,7 @@ addons:
       ffmpeg
 
 before_install:
-  - sudo pip3 install youtube-dl requests setproctitle
+  - sudo pip3 install yt-dlp requests setproctitle
 
 install: true
 
