@@ -5678,7 +5678,7 @@ class MainWindow(MainWindow_Ui):
             error_message = ''
 
             if not(youtube_dl_is_installed):
-                error_message = QCoreApplication.translate('mainwindow_src_ui_tr', 'youtube-dl is not installed!')
+                error_message = QCoreApplication.translate('mainwindow_src_ui_tr', 'yt-dlp is not installed!')
                 error_message = error_message + '\n'
 
             if not(ffmpeg_is_installed):
