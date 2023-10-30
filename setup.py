@@ -74,7 +74,7 @@ except:
     print('Warning: python3-psutil is not installed!')
     not_installed = not_installed + 'psutil, '
 
-# youtube_dl
+# yt-dlp
 try:
     import yt-dlp
     print('yt-dlp is found')
