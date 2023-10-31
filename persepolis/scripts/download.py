@@ -26,7 +26,6 @@ from persepolis.constants import APP_NAME, ORG_NAME, OS
 from persepolis.scripts import logger
 from persepolis.scripts.bubble import notifySend
 from persepolis.scripts.osCommands import makeTempDownloadDir
-from persepolis.scripts.useful_tools import freeSpace
 
 try:
     from PySide6.QtCore import QSettings
@@ -541,7 +540,7 @@ def downloadCompleteAction(parent, path, download_path, file_name, file_size):
         file_path = os.path.join(download_path, new_name)
         i = i + 1
 
-    free_space = freeSpace(download_path)
+    free_space = ghermez.freeSpace(download_path)
 
     if free_space is not None and file_size is not None:
 

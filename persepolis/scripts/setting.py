@@ -57,6 +57,7 @@ import ghermez
 from persepolis.constants import OS
 from persepolis.gui.setting_ui import KeyCapturingWindow_Ui, Setting_Ui
 from persepolis.scripts import startup
+from persepolis.scripts.useful_tools import returnDefaultSettings
 
 home_address = os.path.expanduser('~')
 os_type = platform.system()
@@ -708,7 +709,7 @@ class PreferencesWindow(Setting_Ui):
 
         self.persepolis_setting.beginGroup('settings')
 
-        self.setting_dict = ghermez.returnDefaultSettings()
+        self.setting_dict = returnDefaultSettings()
 
         self.tries_spinBox.setValue(int(self.setting_dict['max-tries']))
         self.wait_spinBox.setValue(int(self.setting_dict['retry-wait']))

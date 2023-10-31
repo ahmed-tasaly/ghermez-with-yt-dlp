@@ -7,7 +7,9 @@ use std::{collections::HashMap, path::PathBuf};
 use std::{env, fs, path::Path};
 
 use home::home_dir;
+use log::error;
 use once_cell::sync::Lazy;
+use psutil::disk;
 use pyo3::prelude::*;
 
 static HOME_ADDRESS: Lazy<PathBuf> = Lazy::new(|| home_dir().unwrap());
@@ -124,6 +126,17 @@ pub fn convertToByte(file_size: &str) -> f32 {
 fn round(x: f32, decimals: u32) -> f32 {
     let y = 10i32.pow(decimals) as f32;
     (x * y).round() / y
+}
+
+#[pyfunction]
+pub fn freeSpace(directory: &str) -> Option<u64> {
+    match disk::disk_usage(directory) {
+        Ok(dir_info) => Some(dir_info.free()),
+        Err(e) => {
+            error!("ghermez couldn't find free space value:\n{e}");
+            None
+        }
+    }
 }
 
 #[pyfunction]

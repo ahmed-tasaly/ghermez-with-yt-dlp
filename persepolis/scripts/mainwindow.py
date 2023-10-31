@@ -88,7 +88,7 @@ from persepolis.scripts.setting import PreferencesWindow
 from persepolis.scripts.shutdown import shutDown
 from persepolis.scripts.text_queue import TextQueue
 from persepolis.scripts.update import checkupdate
-from persepolis.scripts.useful_tools import freeSpace, muxer
+from persepolis.scripts.useful_tools import muxer
 from persepolis.scripts.video_finder_progress import VideoFinderProgressWindow
 
 global youtube_dl_is_installed
@@ -1827,7 +1827,7 @@ class MainWindow(MainWindow_Ui):
                 # check free space in temp_download_folder!
                 # perhaps insufficient space in hard disk caused this error!
                 # find free space in KiB
-                free_space = freeSpace(temp_download_folder)
+                free_space = ghermez.freeSpace(temp_download_folder)
 
                 # find file size
                 file_size = download_dict['size']
