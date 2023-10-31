@@ -29,7 +29,10 @@ import ghermez
 from persepolis.gui.after_download_ui import AfterDownloadWindow_Ui
 
 if TYPE_CHECKING:
-    from PyQt5.QtWidgets import QWidget
+    try:
+        from PySide6.QtWidgets import QWidget
+    except ImportError:
+        from PyQt5.QtWidgets import QWidget
 
 
 class AfterDownloadWindow(AfterDownloadWindow_Ui):

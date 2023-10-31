@@ -23,8 +23,10 @@ from persepolis.gui import resources  # noqa: F401
 from persepolis.scripts.play import playNotification
 
 if TYPE_CHECKING:
-    from PyQt5.QtWidgets import QWidget
-    from PySide6.QtWidgets import QWidget
+    try:
+        from PySide6.QtWidgets import QWidget
+    except ImportError:
+        from PyQt5.QtWidgets import QWidget
 
 try:
     from PySide6.QtCore import QSettings

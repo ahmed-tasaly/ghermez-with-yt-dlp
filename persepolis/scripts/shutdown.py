@@ -28,7 +28,10 @@ from persepolis.constants import OS
 from persepolis.scripts import logger
 
 if TYPE_CHECKING:
-    from PyQt5.QtWidgets import QWidget
+    try:
+        from PySide6.QtWidgets import QWidget
+    except ImportError:
+        from PyQt5.QtWidgets import QWidget
 
 os_type = platform.system()
 
