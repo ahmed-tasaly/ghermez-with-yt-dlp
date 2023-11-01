@@ -23,7 +23,6 @@ import xmlrpc.client
 import ghermez
 from ghermez import humanReadableSize, moveFile
 from persepolis.constants import APP_NAME, ORG_NAME, OS
-from persepolis.scripts import logger
 from persepolis.scripts.bubble import notifySend
 from persepolis.scripts.osCommands import makeTempDownloadDir
 
@@ -74,7 +73,7 @@ def aria2Version():
         answer = server.aria2.getVersion()
     except Exception:
         # write ERROR messages in terminal and log
-        logger.sendToLog("Aria2 didn't respond!", 'ERROR')
+        ghermez.sendToLog("Aria2 didn't respond!", 'ERROR')
         answer = 'did not respond'
 
     return answer
@@ -210,8 +209,8 @@ def downloadAria(gid, parent):
             # Please checkout osCommands.py for more information.
             download_path_temp = makeTempDownloadDir(download_path)
     else:
-        # write an error in logger
-        logger.sendToLog('download_path is not found!', 'ERROR')
+        # write an error in ghermez
+        ghermez.sendToLog('download_path is not found!', 'ERROR')
 
     if start_time_status != 'stopped':
         # send download request to aria2
@@ -253,7 +252,7 @@ def downloadAria(gid, parent):
         try:
             answer = server.aria2.addUri([link], aria_dict)
 
-            logger.sendToLog(answer + ' Starts', 'INFO')
+            ghermez.sendToLog(answer + ' Starts', 'INFO')
             if end_time:
                 endTime(end_time, gid, parent)
 
@@ -264,15 +263,15 @@ def downloadAria(gid, parent):
             parent.persepolis_db.updateDownloadTable([download_dict])
 
             # write ERROR messages in log
-            logger.sendToLog('Download did not start', 'ERROR')
+            ghermez.sendToLog('Download did not start', 'ERROR')
             error_message = str(traceback.format_exc())
-            logger.sendToLog(error_message, 'ERROR')
+            ghermez.sendToLog(error_message, 'ERROR')
 
             # return False!
             return False
     else:
         # if start_time_status is "stopped" it means download Canceled by user
-        logger.sendToLog('Download Canceled', 'INFO')
+        ghermez.sendToLog('Download Canceled', 'INFO')
         return None
 
 # this function returns list of download information
@@ -552,14 +551,14 @@ def downloadCompleteAction(parent, path, download_path, file_name, file_size):
 
             if not(move_answer):
                 # write error message in log
-                logger.sendToLog('Persepolis can not move file', 'ERROR')
+                ghermez.sendToLog('Persepolis can not move file', 'ERROR')
                 file_path = path
 
         else:
             # notify user if we have insufficient disk space
             # and do not move file from temp download folder to download folder
             file_path = path
-            logger.sendToLog('Insufficient disk space in download folder', 'ERROR')
+            ghermez.sendToLog('Insufficient disk space in download folder', 'ERROR')
 
             # show notification
             notifySend('Insufficient disk space!', 'Please change download folder',
@@ -570,7 +569,7 @@ def downloadCompleteAction(parent, path, download_path, file_name, file_size):
         move_answer = moveFile(str(path), str(file_path), 'file')
 
         if not(move_answer):
-            logger.sendToLog('Persepolis can not move file', 'ERROR')
+            ghermez.sendToLog('Persepolis can not move file', 'ERROR')
             file_path = path
 
     return str(file_path)
@@ -637,10 +636,10 @@ def findDownloadPath(file_name, download_path, subfolder):
 def shutDown():
     try:
         answer = server.aria2.shutdown()
-        logger.sendToLog('Aria2 Shutdown : ' + str(answer), 'INFO')
+        ghermez.sendToLog('Aria2 Shutdown : ' + str(answer), 'INFO')
         return True
     except Exception:
-        logger.sendToLog('Aria2 Shutdown Error', 'ERROR')
+        ghermez.sendToLog('Aria2 Shutdown Error', 'ERROR')
         return False
 
 # downloadStop stops download completely
@@ -667,7 +666,7 @@ def downloadStop(gid, parent):
             answer = 'None'
 
         # write a messages in log and terminal
-        logger.sendToLog(answer + ' stopped', 'INFO')
+        ghermez.sendToLog(answer + ' stopped', 'INFO')
 
     # if download has not been completed yet,
     # so just chang status of download to "stopped" in data base.
@@ -696,7 +695,7 @@ def downloadPause(gid):
     except Exception:
         answer = None
 
-    logger.sendToLog(str(answer) + ' paused', 'INFO')
+    ghermez.sendToLog(str(answer) + ' paused', 'INFO')
     return answer
 
 
@@ -708,7 +707,7 @@ def downloadUnpause(gid):
     except Exception:
         answer = None
 
-    logger.sendToLog(str(answer) + ' unpaused', 'INFO')
+    ghermez.sendToLog(str(answer) + ' unpaused', 'INFO')
 
     return answer
 
@@ -731,10 +730,10 @@ def limitSpeed(gid, limit):
 
     try:
         server.aria2.changeOption(gid, {'max-download-limit': limit})
-        logger.sendToLog('Download speed limit  value is changed', 'INFO')
+        ghermez.sendToLog('Download speed limit  value is changed', 'INFO')
 
     except Exception:
-        logger.sendToLog('Speed limitation was unsuccessful', 'ERROR')
+        ghermez.sendToLog('Speed limitation was unsuccessful', 'ERROR')
 
 
 # this function returns GID of active downloads in list format.
@@ -782,7 +781,7 @@ def nowTime():
 
 def startTime(start_time, gid, parent):
     # write some messages
-    logger.sendToLog('Download starts at ' + start_time, 'INFO')
+    ghermez.sendToLog('Download starts at ' + start_time, 'INFO')
 
     # start_time that specified by user
     sigma_start = sigmaTime(start_time)
@@ -813,7 +812,7 @@ def startTime(start_time, gid, parent):
 
 
 def endTime(end_time, gid, parent):
-    logger.sendToLog('End time is activated ' + gid, 'INFO')
+    ghermez.sendToLog('End time is activated ' + gid, 'INFO')
     sigma_end = sigmaTime(end_time)
 
     # get current time
@@ -838,7 +837,7 @@ def endTime(end_time, gid, parent):
             # Download completed or stopped by user
             # so break the loop
             answer = 'end'
-            logger.sendToLog('Download has been finished! ' + str(gid), 'INFO')
+            ghermez.sendToLog('Download has been finished! ' + str(gid), 'INFO')
             break
 
         # get current time
@@ -847,7 +846,7 @@ def endTime(end_time, gid, parent):
 
     # Time is up!
     if answer != 'end':
-        logger.sendToLog('Time is up!', 'INFO')
+        ghermez.sendToLog('Time is up!', 'INFO')
         answer = downloadStop(gid, parent)
         i = 0
         # try to stop download 10 times

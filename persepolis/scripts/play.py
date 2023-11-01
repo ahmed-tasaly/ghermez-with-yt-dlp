@@ -19,8 +19,8 @@ except ImportError:
 import platform
 import subprocess
 
+import ghermez
 from persepolis.constants import APP_NAME, ORG_NAME, OS
-from persepolis.scripts import logger
 
 os_type = platform.system()
 
@@ -51,7 +51,7 @@ def playNotification(file: str) -> None:
             answer = pipe.wait()
 
             if answer != 0:
-                logger.sendToLog(
+                ghermez.sendToLog(
                     'paplay not installed!Install it for playing sound notification', 'WARNING')
 
         elif os_type == OS.OSX:

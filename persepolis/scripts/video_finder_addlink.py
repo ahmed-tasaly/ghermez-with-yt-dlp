@@ -51,12 +51,11 @@ from time import time
 import youtube_dl
 
 import ghermez
-from persepolis.scripts import logger
 from persepolis.scripts.addlink import AddLinkWindow
 from persepolis.scripts.spider import spider
 
 # write youtube_dl version in log
-logger.sendToLog('youtube_dl version: '
+ghermez.sendToLog('youtube_dl version: '
                  + str(youtube_dl.version.__version__),
                  'INFO')
 
@@ -152,7 +151,7 @@ class MediaListFetcherThread(QThread):
                 ghermez.remove(self.cookie_path)
 
             except Exception as ex:
-                logger.sendToLog(ex, 'ERROR')
+                ghermez.sendToLog(ex, 'ERROR')
 
         self.RESULT.emit(ret_val)
 
@@ -449,7 +448,7 @@ class VideoFinderAddLink(AddLinkWindow):
                     self.change_name_checkBox.setChecked(False)
 
         except Exception as ex:
-            logger.sendToLog(ex, 'ERROR')
+            ghermez.sendToLog(ex, 'ERROR')
 
     def fetchedResult(self, media_dict: dict[str, str]) -> None:
 
@@ -590,7 +589,7 @@ class VideoFinderAddLink(AddLinkWindow):
                         self.mediaSelectionChanged('video_audio', int(self.media_comboBox.currentIndex()))
 
             except Exception as ex:
-                logger.sendToLog(ex, 'ERROR')
+                ghermez.sendToLog(ex, 'ERROR')
 
     def findFileSize(self, result: dict[str, str]) -> None:
         try:
@@ -599,7 +598,7 @@ class VideoFinderAddLink(AddLinkWindow):
                 text = self.media_comboBox.itemText(item_id)
                 self.media_comboBox.setItemText(item_id, '{} - {}'.format(text, result['file_size']))
         except Exception as ex:
-            logger.sendToLog(ex, 'ERROR')
+            ghermez.sendToLog(ex, 'ERROR')
 
     def linkLineChangedHere(self, lineEdit: str) -> None:
         if str(lineEdit) == '':

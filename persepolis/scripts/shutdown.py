@@ -24,8 +24,8 @@ import subprocess
 from time import sleep
 from typing import TYPE_CHECKING
 
+import ghermez
 from persepolis.constants import OS
-from persepolis.scripts import logger
 
 if TYPE_CHECKING:
     try:
@@ -68,7 +68,7 @@ def shutDown(parent: QWidget, gid: str | None=None, category: str | None=None, p
 
     if shutdown_status == 'shutdown':
 
-        logger.sendToLog('Shutting down in 20 seconds', 'INFO')
+        ghermez.sendToLog('Shutting down in 20 seconds', 'INFO')
         sleep(20)
 
         if os_type == OS.LINUX:

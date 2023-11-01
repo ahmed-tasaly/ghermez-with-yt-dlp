@@ -28,8 +28,9 @@ except ImportError:
 import os
 from functools import partial
 
+import ghermez
 from persepolis.gui.addlink_ui import AddLinkWindow_Ui
-from persepolis.scripts import logger, spider
+from persepolis.scripts import spider
 from persepolis.scripts.check_proxy import getProxy
 
 # find file name and file size
@@ -54,15 +55,15 @@ class AddLinkSpiderThread(QThread):
 
             # write an ERROR in log, If spider couldn't find file_name or file_size.
             if not(file_name):
-                logger.sendToLog(
+                ghermez.sendToLog(
                     "Spider couldn't find file name", 'ERROR')
             if not(file_size):
-                logger.sendToLog(
+                ghermez.sendToLog(
                     "Spider couldn't find file size", 'ERROR')
         except Exception as e:
-            logger.sendToLog(
+            ghermez.sendToLog(
                 "Spider couldn't find download information", 'ERROR')
-            logger.sendToLog(
+            ghermez.sendToLog(
                 str(e), 'ERROR')
 
 

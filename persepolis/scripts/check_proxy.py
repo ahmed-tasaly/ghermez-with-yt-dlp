@@ -18,9 +18,8 @@ import re
 import subprocess
 import urllib
 
-from ghermez import osAndDesktopEnvironment
+import ghermez
 from persepolis.constants import OS
-from persepolis.scripts import logger
 
 # get proxy function
 
@@ -29,7 +28,7 @@ def getProxy() -> dict[str, str]:
     socks_proxy = False
 
     # find os and desktop environment
-    os_type, desktop = osAndDesktopEnvironment()
+    os_type, desktop = ghermez.osAndDesktopEnvironment()
 
     # destop == 'ubuntu:GNOME' to destop == 'GNOME'
     tmp = re.search(r'.*:(.*)', desktop)
@@ -38,7 +37,7 @@ def getProxy() -> dict[str, str]:
 
     # write in log
     platform = 'platform : ' + os_type
-    logger.sendToLog(platform, 'INFO')
+    ghermez.sendToLog(platform, 'INFO')
 
     proxy = {}
     if os_type in OS.UNIX_LIKE:
@@ -47,7 +46,7 @@ def getProxy() -> dict[str, str]:
         else:
             desktop_env_type = 'Desktop environment: ' + str(desktop)
 
-        logger.sendToLog(desktop_env_type, 'INFO')
+        ghermez.sendToLog(desktop_env_type, 'INFO')
 
     # check if it is KDE
     if desktop == 'KDE':
@@ -64,7 +63,7 @@ def getProxy() -> dict[str, str]:
                 'kioslaverc',
             )
         except Exception:
-            logger.sendToLog('no proxy file detected', 'INFO')
+            ghermez.sendToLog('no proxy file detected', 'INFO')
 
         # check if proxy file exists
         if os.path.isfile(plasma_proxy_config_file_path):
@@ -75,7 +74,7 @@ def getProxy() -> dict[str, str]:
                         name, var = line.partition('=')[::2]
                         proxysource[name.strip()] = str(var)
             except Exception:
-                logger.sendToLog('no proxy file detected', 'INFO')
+                ghermez.sendToLog('no proxy file detected', 'INFO')
 
             # check proxy enabled as manually
             if proxysource['ProxyType'].split('\n')[0] == '1':
@@ -84,14 +83,14 @@ def getProxy() -> dict[str, str]:
                     proxy['ftp_proxy_port'] = proxysource['ftpProxy'].split(' ')[1].replace('/', '').replace('\n', '')
                     proxy['ftp_proxy_ip'] = proxysource['ftpProxy'].split(' ')[0].split('//')[1]
                 except Exception:
-                    logger.sendToLog('no manual ftp proxy detected', 'INFO')
+                    ghermez.sendToLog('no manual ftp proxy detected', 'INFO')
 
                 # get http proxy
                 try:
                     proxy['http_proxy_port'] = proxysource['httpProxy'].split(' ')[1].replace('/', '').replace('\n', '')
                     proxy['http_proxy_ip'] = proxysource['httpProxy'].split(' ')[0].split('//')[1]
                 except Exception:
-                    logger.sendToLog('no manual http proxy detected', 'INFO')
+                    ghermez.sendToLog('no manual http proxy detected', 'INFO')
 
                 # get https proxy
                 try:
@@ -99,7 +98,7 @@ def getProxy() -> dict[str, str]:
                         ' ')[1].replace('/', '').replace('\n', '')
                     proxy['https_proxy_ip'] = proxysource['httpsProxy'].split(' ')[0].split('//')[1]
                 except Exception:
-                    logger.sendToLog('no manual https proxy detected', 'INFO')
+                    ghermez.sendToLog('no manual https proxy detected', 'INFO')
 
                 # get socks proxy
                 try:
@@ -110,11 +109,11 @@ def getProxy() -> dict[str, str]:
 
             # proxy disabled
             else:
-                logger.sendToLog('no manual proxy detected', 'INFO')
+                ghermez.sendToLog('no manual proxy detected', 'INFO')
 
         # proxy file not exists
         else:
-            logger.sendToLog('no proxy file detected', 'INFO')
+            ghermez.sendToLog('no proxy file detected', 'INFO')
 
     # Detect proxy from GNOME Desktop
     elif desktop == 'GNOME':
@@ -131,7 +130,7 @@ def getProxy() -> dict[str, str]:
                 )
                 proxy['http_proxy_port'] = process.stdout.decode('utf-8')
             except Exception:
-                logger.sendToLog('no http proxy detected', 'INFO')
+                ghermez.sendToLog('no http proxy detected', 'INFO')
 
             try:
                 process = subprocess.run(
@@ -143,7 +142,7 @@ def getProxy() -> dict[str, str]:
                 )
                 proxy['https_proxy_port'] = process.stdout.decode('utf-8')
             except Exception:
-                logger.sendToLog('no https proxy detected', 'INFO')
+                ghermez.sendToLog('no https proxy detected', 'INFO')
 
             try:
                 process = subprocess.run(
@@ -155,7 +154,7 @@ def getProxy() -> dict[str, str]:
                 )
                 proxy['ftp_proxy_port'] = process.stdout.decode('utf-8')
             except Exception:
-                logger.sendToLog('no ftp proxy detected', 'INFO')
+                ghermez.sendToLog('no ftp proxy detected', 'INFO')
 
             try:
                 process = subprocess.run(
@@ -166,7 +165,7 @@ def getProxy() -> dict[str, str]:
                 socks_proxy = False
 
         else:
-            logger.sendToLog('no manual proxy detected', 'INFO')
+            ghermez.sendToLog('no manual proxy detected', 'INFO')
 
     # if it is windows,mac and other linux desktop
     else:
@@ -177,21 +176,21 @@ def getProxy() -> dict[str, str]:
             proxy['http_proxy_ip'] = proxysource['http'].split(':')[1].replace('//', '')
             proxy['http_proxy_port'] = proxysource['http'].split(':')[2].replace('/', '').replace('\n', '')
         except Exception:
-            logger.sendToLog('no http proxy detected', 'INFO')
+            ghermez.sendToLog('no http proxy detected', 'INFO')
 
         # get https proxy
         try:
             proxy['https_proxy_ip'] = proxysource['https'].split(':')[1].replace('//', '')
             proxy['https_proxy_port'] = proxysource['https'].split(':')[2].replace('/', '').replace('\n', '')
         except Exception:
-            logger.sendToLog('no https proxy detected', 'INFO')
+            ghermez.sendToLog('no https proxy detected', 'INFO')
 
         # get ftp proxy
         try:
             proxy['ftp_proxy_ip'] = proxysource['ftp'].split(':')[1].replace('//', '')
             proxy['ftp_proxy_port'] = proxysource['ftp'].split(':')[2].replace('/', '').replace('\n', '')
         except Exception:
-            logger.sendToLog('no ftp proxy detected', 'INFO')
+            ghermez.sendToLog('no ftp proxy detected', 'INFO')
 
         # get socks proxy
         try:
@@ -234,9 +233,9 @@ def getProxy() -> dict[str, str]:
         you must convert socks proxy to http proxy.\n\
         Please read this for more help:\n\
             https://github.com/persepolisdm/persepolis/wiki/Privoxy"
-        logger.sendToLog(socks_message, 'ERROR')
+        ghermez.sendToLog(socks_message, 'ERROR')
 
     # results
     proxy_log_message = 'proxy: ' + str(proxy)
-    logger.sendToLog(proxy_log_message, 'INFO')
+    ghermez.sendToLog(proxy_log_message, 'INFO')
     return proxy

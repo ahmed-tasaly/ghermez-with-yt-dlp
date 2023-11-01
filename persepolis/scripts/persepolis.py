@@ -98,8 +98,7 @@ if lock_file_validation:
             from setproctitle import setproctitle
             setproctitle(APP_NAME)
         except ImportError:
-            from persepolis.scripts import logger
-            logger.sendToLog('setproctitle is not installed!', 'ERROR')
+            ghermez.sendToLog('setproctitle is not installed!', 'ERROR')
 
 
 # load persepolis_settings
@@ -383,10 +382,8 @@ def main():
         try:
             QApplication.setAttribute(Qt.AA_EnableHighDpiScaling)
         except AttributeError:
-            from persepolis.scripts import logger
-
             # write error_message in log file.
-            logger.sendToLog('Qt.AA_EnableHighDpiScaling is not available!', 'ERROR')
+            ghermez.sendToLog('Qt.AA_EnableHighDpiScaling is not available!', 'ERROR')
 
 
         # create QApplication
@@ -401,10 +398,8 @@ def main():
             if hasattr(QStyleFactory, 'AA_UseHighDpiPixmaps'):
                 persepolis_download_manager.setAttribute(Qt.AA_UseHighDpiPixmaps)
         except AttributeError:
-            from persepolis.scripts import logger
-
             # write error_message in log file.
-            logger.sendToLog('Qt.AA_UseHighDpiPixmaps is not available!', 'ERROR')
+            ghermez.sendToLog('Qt.AA_UseHighDpiPixmaps is not available!', 'ERROR')
 
         # set organization name and domain and application name
         QCoreApplication.setOrganizationName(ORG_NAME)
@@ -446,11 +441,10 @@ def main():
                 mainwindow.show()
 
         except Exception:
-            from persepolis.scripts import logger
             error_message = str(traceback.format_exc())
 
             # write error_message in log file.
-            logger.sendToLog(error_message, 'ERROR')
+            ghermez.sendToLog(error_message, 'ERROR')
 
             # Reset persepolis
             error_window = ErrorWindow(error_message)

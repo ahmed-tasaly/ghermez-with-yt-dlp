@@ -33,7 +33,7 @@ except ImportError:
 ghermez.init_create_folders()
 
 # persepolisdm.log file contains persepolis log.
-from persepolis.scripts import logger  # noqa: E402
+ghermez.initLogger()
 
 # refresh logs!
 ghermez.init_log_file()
@@ -129,7 +129,7 @@ for browser in ['chrome', 'chromium', 'opera', 'vivaldi', 'firefox', 'brave']:
     elif native_done is False:
         log_message = log_message + ': ' + 'persepolis executer file ERROR!\n'
 
-    logger.sendToLog(log_message)
+    ghermez.sendToLog(log_message)
 
 # get locale and set ui direction
 locale = str(persepolis_setting.value('settings/locale'))
@@ -164,9 +164,9 @@ if persepolis_version < 2.6:
         del persepolis_db
 
         # write error in log
-        logger.sendToLog(
+        ghermez.sendToLog(
             'compatibility ERROR!', 'ERROR')
-        logger.sendToLog(
+        ghermez.sendToLog(
             str(e), 'ERROR')
 
     persepolis_version = 2.6

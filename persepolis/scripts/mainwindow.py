@@ -75,7 +75,7 @@ import ghermez
 from persepolis.constants import APP_NAME, OS, REPO_LINK
 from persepolis.gui import resources  # noqa: F401
 from persepolis.gui.mainwindow_ui import MainWindow_Ui, QTableWidgetItem
-from persepolis.scripts import download, logger, spider
+from persepolis.scripts import download, spider
 from persepolis.scripts.about import AboutWindow
 from persepolis.scripts.addlink import AddLinkWindow
 from persepolis.scripts.after_download import AfterDownloadWindow
@@ -97,7 +97,7 @@ try:
     youtube_dl_is_installed = True
 except ModuleNotFoundError:
     # if youtube_dl module is not installed:
-    logger.sendToLog(
+    ghermez.sendToLog(
         'youtube_dl is not installed.', 'ERROR')
     youtube_dl_is_installed = False
 
@@ -228,14 +228,14 @@ class CheckVersionsThread(QThread):
             + str(ffmpeg_output)\
             + '\n**********\n'
 
-        logger.sendToLog(ffmpeg_output, 'INFO')
+        ghermez.sendToLog(ffmpeg_output, 'INFO')
 
         # log python version
-        logger.sendToLog('python version: '
+        ghermez.sendToLog('python version: '
                          + str(sys.version))
 
         # log qt version
-        logger.sendToLog('QT version: '
+        ghermez.sendToLog('QT version: '
                          + str(QT_VERSION_STR))
         # log pyqt version
         if pyside6_is_installed:
@@ -243,16 +243,16 @@ class CheckVersionsThread(QThread):
         else:
             madule_str = 'PyQt version: '
 
-        logger.sendToLog(madule_str
+        ghermez.sendToLog(madule_str
                          + str(PYQT_VERSION_STR))
 
         # log os and desktop env.
-        logger.sendToLog('Operating system: '
+        ghermez.sendToLog('Operating system: '
                          + os_type)
 
         # windows and mac haven't desktop_env
         if desktop_env:
-            logger.sendToLog('Desktop env.: '
+            ghermez.sendToLog('Desktop env.: '
                              + str(desktop_env))
 
 # start aria2 when Persepolis starts
@@ -279,7 +279,7 @@ class StartAria2Thread(QThread):
         if answer == 'did not respond':
 
             # write in log file.
-            logger.sendToLog('Starting Aria2', 'INFO')
+            ghermez.sendToLog('Starting Aria2', 'INFO')
 
             # try 5 time if aria2 doesn't respond!
             for i in range(5):
@@ -305,8 +305,8 @@ class StartAria2Thread(QThread):
 
             # Aria2 is responding :)
             signal_str = 'yes'
-            logger.sendToLog('Aria2 is running', 'INFO')
-            logger.sendToLog('Aria2 version: '
+            ghermez.sendToLog('Aria2 is running', 'INFO')
+            ghermez.sendToLog('Aria2 version: '
                              + answer, 'INFO')
 
         # emit the signal
@@ -493,7 +493,7 @@ class SpiderThread(QThread):
 
         except Exception:
             # write ERROR message
-            logger.sendToLog(
+            ghermez.sendToLog(
                 "Spider couldn't find download information", 'ERROR')
 
 # this thread sending download request to aria2
@@ -657,7 +657,7 @@ class VideoFinder(QThread):
             ffmpeg_error_message = result_dictionary['ffmpeg_error_message']
 
             if ffmpeg_error_message:
-                logger.sendToLog('ffmpeg error: ' + str(ffmpeg_error_message), 'ERROR')
+                ghermez.sendToLog('ffmpeg error: ' + str(ffmpeg_error_message), 'ERROR')
 
             if error_message == 'no error':
                 self.video_finder_dictionary['muxing_status'] = 'complete'
@@ -880,14 +880,14 @@ class Queue(QThread):
                             + '- Message : '\
                             + error
 
-                        logger.sendToLog(error_message, 'ERROR')
+                        ghermez.sendToLog(error_message, 'ERROR')
 
                     elif status == 'complete':
                         complete_message = 'Download complete - GID : '\
                             + str(gid)
 
                         # write in log the complete_message
-                        logger.sendToLog(complete_message, 'INFO')
+                        ghermez.sendToLog(complete_message, 'INFO')
 
                         # check that is this related to video finder thread or not.
                         if gid in self.parent.all_video_finder_gid_list:
@@ -1007,7 +1007,7 @@ class Queue(QThread):
                                10000, 'no', parent=self.parent)
 
                     # write message in log
-                    logger.sendToLog('Queue stopped', 'INFO')
+                    ghermez.sendToLog('Queue stopped', 'INFO')
 
                     break
 
@@ -1048,7 +1048,7 @@ class Queue(QThread):
                        10000, 'queue', parent=self.parent)
 
             # write a message in log
-            logger.sendToLog('Queue completed', 'INFO')
+            ghermez.sendToLog('Queue completed', 'INFO')
 
             self.stop = True
             self.limit = False
@@ -1661,7 +1661,7 @@ class MainWindow(MainWindow_Ui):
             self.statusbar.showMessage(
                 QCoreApplication.translate('mainwindow_src_ui_tr',
                                            "Aria2 didn't respond! be patient! Persepolis tries again in 2 seconds!"))
-            logger.sendToLog(
+            ghermez.sendToLog(
                 "Aria2 didn't respond! be patient!Persepolis tries again in 2 seconds!",
                 'WARNING')
 
@@ -1671,7 +1671,7 @@ class MainWindow(MainWindow_Ui):
                        QCoreApplication.translate('mainwindow_src_ui_tr', 'Check your network & Restart Persepolis'),
                        10000, 'critical', parent=self)
 
-            logger.sendToLog('Persepolis can not connect to Aria2', 'ERROR')
+            ghermez.sendToLog('Persepolis can not connect to Aria2', 'ERROR')
 
             self.propertiesAction.setEnabled(True)
             self.category_tree_qwidget.setEnabled(True)
@@ -1687,10 +1687,10 @@ class MainWindow(MainWindow_Ui):
                        QCoreApplication.translate('mainwindow_src_ui_tr', 'Restart Persepolis'),
                        10000, 'critical', parent=self)
 
-            logger.sendToLog('Persepolis can not connect to Aria2', 'ERROR')
+            ghermez.sendToLog('Persepolis can not connect to Aria2', 'ERROR')
         else:
             self.statusbar.showMessage(QCoreApplication.translate('mainwindow_src_ui_tr', 'Reconnecting Aria2...'))
-            logger.sendToLog('Reconnecting Aria2 ...', 'INFO')
+            ghermez.sendToLog('Reconnecting Aria2 ...', 'INFO')
 
             # get items with 'downloading' or 'waiting' status from data base and restart them.
             downloading_gid_list = self.persepolis_db.returnDownloadingItems()
@@ -1709,7 +1709,7 @@ class MainWindow(MainWindow_Ui):
 
             self.statusbar.showMessage(
                 QCoreApplication.translate('mainwindow_src_ui_tr', 'Persepolis reconnected aria2 successfully'))
-            logger.sendToLog('Persepolis reconnected aria2 successfully', 'INFO')
+            ghermez.sendToLog('Persepolis reconnected aria2 successfully', 'INFO')
 
 # when this function is called , aria2_disconnected value is changing to
 # 1! and it means that aria2 rpc connection disconnected.so CheckingThread
@@ -1873,7 +1873,7 @@ class MainWindow(MainWindow_Ui):
                                 + '- Message : '\
                                 + error
 
-                            logger.sendToLog(error_message, 'ERROR')
+                            ghermez.sendToLog(error_message, 'ERROR')
 
                             # show notification
                             notifySend(QCoreApplication.translate('mainwindow_src_ui_tr', 'Error: ') + error,
@@ -1910,9 +1910,9 @@ class MainWindow(MainWindow_Ui):
                     try:
                         self.download_table.setItem(row, i, item)
                     except Exception as problem:
-                        logger.sendToLog(
+                        ghermez.sendToLog(
                             'Error occurred while updating download table', 'INFO')
-                        logger.sendToLog(problem, 'ERROR')
+                        ghermez.sendToLog(problem, 'ERROR')
 
                 # update download_table (refreshing!)
                 self.download_table.viewport().update()
@@ -2083,7 +2083,7 @@ class MainWindow(MainWindow_Ui):
                         stop_message = 'Download stopped - GID : '\
                             + str(gid)
 
-                        logger.sendToLog(stop_message, 'INFO')
+                        ghermez.sendToLog(stop_message, 'INFO')
 
                         # show notification
                         notifySend(QCoreApplication.translate('mainwindow_src_ui_tr', 'Download Stopped'),
@@ -2104,7 +2104,7 @@ class MainWindow(MainWindow_Ui):
                             + '- Message : '\
                             + error
 
-                        logger.sendToLog(error_message, 'ERROR')
+                        ghermez.sendToLog(error_message, 'ERROR')
 
                         # show notification
                         notifySend(QCoreApplication.translate('mainwindow_src_ui_tr', 'Error - ') + error,
@@ -2160,7 +2160,7 @@ class MainWindow(MainWindow_Ui):
                         complete_message = 'Download complete - GID : '\
                             + str(gid)
 
-                        logger.sendToLog(complete_message, 'INFO')
+                        ghermez.sendToLog(complete_message, 'INFO')
 
                         # play notification
                         notifySend(QCoreApplication.translate('mainwindow_src_ui_tr', 'Download Complete'),
@@ -3162,7 +3162,7 @@ class MainWindow(MainWindow_Ui):
         self.hide()
 
         # write message in log and console
-        logger.sendToLog('Please wait ...', 'INFO')
+        ghermez.sendToLog('Please wait ...', 'INFO')
 
         # stop all downloads
         self.stopAllDownloads(event)
@@ -3186,7 +3186,7 @@ class MainWindow(MainWindow_Ui):
             del db
 
         QCoreApplication.instance().quit
-        logger.sendToLog('Persepolis closed!', 'INFO')
+        ghermez.sendToLog('Persepolis closed!', 'INFO')
         sys.exit(0)
 
     # showTray method shows/hides persepolis's icon in system tray icon
@@ -5614,9 +5614,9 @@ class MainWindow(MainWindow_Ui):
                 try:
                     self.download_table.setItem(row, i, item)
                 except Exception as problem:
-                    logger.sendToLog(
+                    ghermez.sendToLog(
                         'Error occurred while updating download table', 'INFO')
-                    logger.sendToLog(problem, 'ERROR')
+                    ghermez.sendToLog(problem, 'ERROR')
 
     # this method deletes all items in data base
     def clearDownloadList(self, item):

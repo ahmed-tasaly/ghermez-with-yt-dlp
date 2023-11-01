@@ -3,6 +3,7 @@ use pyo3::prelude::*;
 mod aria2c;
 mod database;
 mod initialization;
+mod logger;
 mod os_command;
 mod startup;
 mod useful_tools;
@@ -10,6 +11,7 @@ mod useful_tools;
 use aria2c::{aria2Version, new_date, startAria};
 use database::{DataBase, PluginsDB, TempDB};
 use initialization::{init_create_folders, init_log_file};
+use logger::{initLogger, sendToLog};
 use os_command::{makeDirs, moveFile, remove, removeDir, touch, xdgOpen};
 use startup::{addstartup, checkstartup, removestartup};
 use useful_tools::{
@@ -19,8 +21,6 @@ use useful_tools::{
 
 #[pymodule]
 fn ghermez(_py: Python, m: &PyModule) -> PyResult<()> {
-    pyo3_log::init();
-
     m.add_function(wrap_pyfunction!(startAria, m)?)?;
     m.add_function(wrap_pyfunction!(aria2Version, m)?)?;
     m.add_function(wrap_pyfunction!(new_date, m)?)?;
@@ -42,6 +42,9 @@ fn ghermez(_py: Python, m: &PyModule) -> PyResult<()> {
 
     m.add_function(wrap_pyfunction!(init_create_folders, m)?)?;
     m.add_function(wrap_pyfunction!(init_log_file, m)?)?;
+
+    m.add_function(wrap_pyfunction!(initLogger, m)?)?;
+    m.add_function(wrap_pyfunction!(sendToLog, m)?)?;
 
     m.add_function(wrap_pyfunction!(touch, m)?)?;
     m.add_function(wrap_pyfunction!(xdgOpen, m)?)?;
