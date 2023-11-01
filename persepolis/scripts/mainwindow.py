@@ -146,6 +146,11 @@ plugin_links_checked = False
 # find os platform
 os_type, desktop_env = ghermez.osAndDesktopEnvironment()
 
+if os_type == OS.WINDOWS:
+    from persepolis.scripts.useful_tools import freeSpace
+else:
+    from ghermez import freeSpace
+
 # config_folder
 config_folder = ghermez.determineConfigFolder()
 
@@ -306,8 +311,7 @@ class StartAria2Thread(QThread):
             # Aria2 is responding :)
             signal_str = 'yes'
             ghermez.sendToLog('Aria2 is running', 'INFO')
-            ghermez.sendToLog('Aria2 version: '
-                             + answer, 'INFO')
+            ghermez.sendToLog('Aria2 version: ' + str(answer), 'INFO')
 
         # emit the signal
         # ARIA2RESPONDSIGNAL have 3 conditions >>>
@@ -1827,7 +1831,7 @@ class MainWindow(MainWindow_Ui):
                 # check free space in temp_download_folder!
                 # perhaps insufficient space in hard disk caused this error!
                 # find free space in KiB
-                free_space = ghermez.freeSpace(temp_download_folder)
+                free_space = freeSpace(temp_download_folder)
 
                 # find file size
                 file_size = download_dict['size']

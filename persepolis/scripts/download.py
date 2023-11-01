@@ -40,6 +40,11 @@ home_address = os.path.expanduser('~')
 
 os_type = platform.system()
 
+if os_type == OS.WINDOWS:
+    from persepolis.scripts.useful_tools import freeSpace
+else:
+    from ghermez import freeSpace
+
 # persepolis setting
 persepolis_setting = QSettings(ORG_NAME, APP_NAME)
 
@@ -60,7 +65,7 @@ server = xmlrpc.client.ServerProxy(server_uri, allow_none=True)
 # start aria2 with RPC
 
 
-def startAria():
+def startAria() -> str:
     # return that starting is successful or not!
     return ghermez.startAria(port, aria2_path)
 
@@ -539,7 +544,7 @@ def downloadCompleteAction(parent, path, download_path, file_name, file_size):
         file_path = os.path.join(download_path, new_name)
         i = i + 1
 
-    free_space = ghermez.freeSpace(download_path)
+    free_space = freeSpace(download_path)
 
     if free_space is not None and file_size is not None:
 

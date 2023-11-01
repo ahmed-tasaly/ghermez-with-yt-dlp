@@ -7,8 +7,10 @@ use std::{collections::HashMap, path::PathBuf};
 use std::{env, fs, path::Path};
 
 use home::home_dir;
+#[cfg(not(target_os = "windows"))]
 use log::error;
 use once_cell::sync::Lazy;
+#[cfg(not(target_os = "windows"))]
 use psutil::disk;
 use pyo3::prelude::*;
 
@@ -50,16 +52,20 @@ pub fn determineConfigFolder() -> PathBuf {
 // this function returns operating system and desktop environment(for linux and bsd).
 #[pyfunction]
 pub fn osAndDesktopEnvironment() -> (&'static str, Option<String>) {
-    let mut desktop_env: Option<String> = None;
-
     #[cfg(any(target_os = "linux", target_os = "freebsd", target_os = "openbsd"))]
     {
-        desktop_env = match env::var("XDG_CURRENT_DESKTOP") {
+        let desktop_env = match env::var("XDG_CURRENT_DESKTOP") {
             Ok(val) => Some(val),
             Err(_) => None,
         };
+        (OS_TYPE, desktop_env)
     }
-    (OS_TYPE, desktop_env)
+
+    #[cfg(not(any(target_os = "linux", target_os = "freebsd", target_os = "openbsd")))]
+    {
+        let desktop_env: Option<String> = None;
+        (OS_TYPE, desktop_env)
+    }
 }
 
 // this function converts file_size to KiB or MiB or GiB
@@ -128,6 +134,7 @@ fn round(x: f32, decimals: u32) -> f32 {
     (x * y).round() / y
 }
 
+#[cfg(not(target_os = "windows"))]
 #[pyfunction]
 pub fn freeSpace(directory: &str) -> Option<u64> {
     match disk::disk_usage(directory) {

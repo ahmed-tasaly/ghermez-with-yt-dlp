@@ -15,9 +15,12 @@ use logger::{initLogger, sendToLog};
 use os_command::{makeDirs, moveFile, remove, removeDir, touch, xdgOpen};
 use startup::{addstartup, checkstartup, removestartup};
 use useful_tools::{
-    convertToByte, determineConfigFolder, freeSpace, humanReadableSize, osAndDesktopEnvironment,
+    convertToByte, determineConfigFolder, humanReadableSize, osAndDesktopEnvironment,
     returnDefaultSettings,
 };
+
+#[cfg(not(target_os = "windows"))]
+use useful_tools::freeSpace;
 
 #[pymodule]
 fn ghermez(_py: Python, m: &PyModule) -> PyResult<()> {
@@ -32,7 +35,10 @@ fn ghermez(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(determineConfigFolder, m)?)?;
     m.add_function(wrap_pyfunction!(humanReadableSize, m)?)?;
     m.add_function(wrap_pyfunction!(convertToByte, m)?)?;
+
+    #[cfg(not(target_os = "windows"))]
     m.add_function(wrap_pyfunction!(freeSpace, m)?)?;
+
     m.add_function(wrap_pyfunction!(osAndDesktopEnvironment, m)?)?;
     m.add_function(wrap_pyfunction!(returnDefaultSettings, m)?)?;
 

@@ -4,6 +4,9 @@ use std::fs::{self, OpenOptions};
 use std::path::Path;
 use std::process::{Command, Stdio};
 
+#[cfg(target_os = "windows")]
+use std::os::windows::process::CommandExt;
+
 use pyo3::prelude::*;
 
 #[cfg(target_os = "linux")]
