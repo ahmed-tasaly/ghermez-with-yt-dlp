@@ -33,19 +33,24 @@ pub fn checkstartup() -> bool {
     // check if the startup exists
     #[cfg(any(target_os = "linux", target_os = "freebsd", target_os = "openbsd"))]
     return HOME_ADDRESS
-        .join("/.config/autostart/persepolis.desktop")
+        .join("/.config/autostart/ghermez.desktop")
         .is_file();
 
     #[cfg(target_os = "macos")]
     return HOME_ADDRESS
-        .join("/Library/LaunchAgents/com.persepolisdm.plist")
+        .join("/Library/LaunchAgents/com.ghermez.plist")
         .is_file();
 
     #[cfg(target_os = "windows")]
     {
-        let hklm = RegKey::predef(HKEY_CURRENT_USER);
-        hklm.open_subkey("Software\\Microsoft\\Windows\\CurrentVersion\\Run")
-            .is_ok()
+        let key = RegKey::predef(HKEY_CURRENT_USER).open_subkey_with_flags(
+            "Software\\Microsoft\\Windows\\CurrentVersion\\Run",
+            KEY_ALL_ACCESS,
+        );
+        match key {
+            Ok(key) => key.get_value::<String, &str>("ghermez").is_ok(),
+            Err(_) => false,
+        }
     }
 }
 
@@ -54,8 +59,8 @@ pub fn addstartup() {
     #[cfg(any(target_os = "linux", target_os = "freebsd", target_os = "openbsd"))]
     {
         let entry = "[Desktop Entry]
-    Name=Persepolis Download Manager
-    Name[fa]=پرسپولیس
+    Name=Ghermez Download Manager
+    Name[fa]=قرمز
     Comment=Download Manager
     GenericName=Download Manager
     GenericName[fa]=نرم افزار مدیریت بارگیری
@@ -64,38 +69,32 @@ pub fn addstartup() {
     Type=Application
     Categories=Qt;Network;
     StartupNotify=true
-    Exec=persepolis --tray
-    Icon=persepolis
-    StartupWMClass=persepolis-download-Manager
+    Exec=ghermez --tray
+    Icon=ghermez
+    StartupWMClass=ghermez-download-Manager
     ";
-        if !HOME_ADDRESS.join("/.config/autostart").exists() {
-            fs::create_dir_all(HOME_ADDRESS.join("/.config/autostart")).unwrap();
+        let autostart_dir = Path::new(&home_address).join(".config").join("autostart");
+        if !autostart_dir.exists() {
+            fs::create_dir_all(&autostart_dir).unwrap();
+            fs::set_permissions(&autostart_dir, fs::Permissions::from_mode(0o755));
         }
-        fs::write(
-            HOME_ADDRESS.join("/.config/autostart/persepolis.desktop"),
-            entry,
-        )
-        .unwrap();
-        fs::set_permissions(
-            HOME_ADDRESS.join("/.config/autostart/persepolis.desktop"),
-            fs::Permissions::from_mode(0o644),
-        )
-        .unwrap();
+        let desktop_file_path = autostart_dir.join("ghermez.desktop");
+        let mut desktop_file = File::create(&desktop_file_path);
+        desktop_file.write_all(entry.as_bytes());
+        fs::set_permissions(&desktop_file_path, fs::Permissions::from_mode(0o644));
     }
 
     #[cfg(target_os = "macos")]
     {
-        let args: Vec<String> = env::args().collect();
-        let current_directory = &args[0];
-        let cwd = Path::new(current_directory).parent().unwrap();
+        let cwd = std::env::current_dir().unwrap();
         let entry = format!("<?xml version=\"1.0\" encoding=\"UTF-8\"?>
     <!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">
     <plist version=\"1.0\">
     <dict>
       <key>Label</key>
-      <string>com.persepolisdm.persepolis</string>
+      <string>ir.iamrezamousavi.ghermez</string>
       <key>Program</key>
-      <string>''' {} '''/Persepolis Download Manager</string>
+      <string>''' {} '''/Ghermez Download Manager</string>
       <key>ProgramArguments</key>
       <array>
         <string>--tray</string>
@@ -105,7 +104,7 @@ pub fn addstartup() {
     </dict>
     </plist>\n", cwd.display());
         fs::write(
-            HOME_ADDRESS.join("/Library/LaunchAgents/com.persepolisdm.plist"),
+            HOME_ADDRESS.join("/Library/LaunchAgents/com.ghermez.plist"),
             entry,
         )
         .unwrap();
@@ -113,7 +112,7 @@ pub fn addstartup() {
             .args(&[
                 "load",
                 HOME_ADDRESS
-                    .join("/Library/LaunchAgents/com.persepolisdm.plist")
+                    .join("/Library/LaunchAgents/com.ghermez.plist")
                     .to_str()
                     .unwrap(),
             ])
@@ -123,18 +122,25 @@ pub fn addstartup() {
 
     #[cfg(target_os = "windows")]
     {
-        let hklm = RegKey::predef(HKEY_CURRENT_USER);
-        let _cur_ver = hklm
-            .open_subkey("Software\\Microsoft\\Windows\\CurrentVersion\\Run")
+        let key = RegKey::predef(HKEY_CURRENT_USER)
+            .open_subkey_with_flags(
+                "Software\\Microsoft\\Windows\\CurrentVersion\\Run",
+                KEY_ALL_ACCESS,
+            )
             .unwrap();
-        // TODO
+
+        let cwd = std::env::current_dir().unwrap();
+        let ghermez_exe_tray =
+            format!("\"{}\\Ghermez Download Manager.exe\" --tray", cwd.display());
+
+        let _ = key.set_value("ghermez", &ghermez_exe_tray);
     }
 }
 
 #[pyfunction]
 pub fn removestartup() {
     #[cfg(any(target_os = "linux", target_os = "freebsd", target_os = "openbsd"))]
-    fs::remove_file(HOME_ADDRESS.join("/.config/autostart/persepolis.desktop")).unwrap();
+    fs::remove_file(HOME_ADDRESS.join("/.config/autostart/ghermez.desktop")).unwrap();
 
     #[cfg(target_os = "macos")]
     {
@@ -143,14 +149,26 @@ pub fn removestartup() {
                 .args(&[
                     "unload",
                     HOME_ADDRESS
-                        .join("/Library/LaunchAgents/com.persepolisdm.plist")
+                        .join("/Library/LaunchAgents/com.ghermez.plist")
                         .to_str()
                         .unwrap(),
                 ])
                 .status()
                 .unwrap();
-            fs::remove_file(HOME_ADDRESS.join("/Library/LaunchAgents/com.persepolisdm.plist"))
+            fs::remove_file(HOME_ADDRESS.join("/Library/LaunchAgents/com.ghermez.plist")).unwrap();
+        }
+    }
+
+    #[cfg(target_os = "windows")]
+    {
+        if checkstartup() {
+            let key = RegKey::predef(HKEY_CURRENT_USER)
+                .open_subkey_with_flags(
+                    "Software\\Microsoft\\Windows\\CurrentVersion\\Run",
+                    KEY_ALL_ACCESS,
+                )
                 .unwrap();
+            let _ = key.delete_value("ghermez");
         }
     }
 }
