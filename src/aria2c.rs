@@ -1,6 +1,7 @@
 #![allow(non_snake_case)]
 
 use std::{
+    collections::HashMap,
     ffi::OsStr,
     path::{Path, PathBuf},
     process::{Command, Stdio},
@@ -16,13 +17,16 @@ use std::os::windows::process::CommandExt;
 use log::{error, info};
 use once_cell::sync::Lazy;
 use pyo3::prelude::*;
-use serde_json::Map;
+use serde_json::{Map, Value};
 use tokio::{runtime::Runtime, sync::RwLock};
 
 use aria2_ws::{Client, TaskOptions};
 
+use crate::useful_tools::humanReadableSize;
+
 static SERVER_URL: Lazy<RwLock<String>> = Lazy::new(|| RwLock::new(String::new()));
 
+// start aria2 with RPC
 #[pyfunction]
 #[pyo3(signature = (port, _aria2_path=None))]
 pub fn startAria(port: u16, _aria2_path: Option<String>) -> Option<String> {
@@ -124,6 +128,8 @@ pub fn startAria(port: u16, _aria2_path: Option<String>) -> Option<String> {
     Some(answer)
 }
 
+// check aria2 release version . Ghermez uses this function to
+// check that aria2 RPC connection is available or not.
 #[pyfunction]
 pub fn aria2Version() -> String {
     let version = Runtime::new().unwrap().handle().block_on(async {
@@ -158,7 +164,12 @@ fn _download_aria(url: &str) -> String {
     gid
 }
 
-fn _tell_active() -> Vec<Map<String, serde_json::Value>> {
+type GidList = Vec<String>;
+type DownloadStatusList = Vec<HashMap<String, Option<String>>>;
+
+// this function returns list of download information
+#[pyfunction]
+pub fn tellActive() -> (Option<GidList>, Option<DownloadStatusList>) {
     let args = vec![
         "gid".to_string(),
         "status".to_string(),
@@ -172,13 +183,33 @@ fn _tell_active() -> Vec<Map<String, serde_json::Value>> {
         "completedLength".to_string(),
         "files".to_string(),
     ];
-    let status = Runtime::new().unwrap().handle().block_on(async {
+    // get download information from aria2
+    let downloads_status = Runtime::new().unwrap().handle().block_on(async {
         let server_url = SERVER_URL.read().await;
         let client = Client::connect(&server_url, None).await.unwrap();
-        client.custom_tell_active(Some(args)).await.unwrap()
+        client.custom_tell_active(Some(args)).await
     });
 
-    status
+    let download_status = match downloads_status {
+        Ok(download_status) => download_status,
+        Err(_) => return (None, None),
+    };
+
+    let mut download_status_list = vec![];
+    let mut gid_list = vec![];
+
+    // convert download information in desired format.
+    for download_dict in download_status {
+        let converted_info_dict = convertDownloadInformation(download_dict.clone());
+
+        // add gid to gid_list
+        gid_list.push(download_dict.get("gid").unwrap().to_string());
+
+        // add converted information to download_status_list
+        download_status_list.push(converted_info_dict);
+    }
+
+    (Some(gid_list), Some(download_status_list))
 }
 
 fn _tell_status(gid: &str) -> Map<String, serde_json::Value> {
@@ -308,6 +339,143 @@ fn _limit_speed(gid: &str, limit: &str) {
         Ok(_) => info!("Download speed limit  value is changed"),
         Err(_) => error!("Speed limitation was unsuccessful"),
     }
+}
+
+fn convertDownloadInformation(
+    download_status: Map<String, Value>,
+) -> HashMap<String, Option<String>> {
+    // find file_name
+    let file_status = download_status.get("files").map(|x| x.to_owned());
+    let file_name;
+    let link;
+    if let Some(file_status) = file_status {
+        // file_status contains name of download file and link of download file
+        let file_status: Value = serde_json::from_value(file_status).unwrap();
+        let path = file_status["path"].to_string();
+        file_name = Some(
+            Path::new(&path)
+                .parent()
+                .unwrap()
+                .to_str()
+                .unwrap()
+                .to_string(),
+        );
+
+        let uris = &file_status["uris"];
+        let uri = &uris[0];
+        link = Some(uri["uri"].to_string());
+    } else {
+        file_name = None;
+        link = None;
+    }
+
+    // find file_size
+    let file_size = download_status
+        .get("totalLength")
+        .map(|x| x.to_owned().to_string());
+    // find downloaded size
+    let downloaded = download_status
+        .get("completedLength")
+        .map(|x| x.to_owned().to_string());
+
+    let percent_str;
+    let size_str;
+    let downloaded_str;
+    // convert file_size and downloaded_size to KiB and MiB and GiB
+    if downloaded.as_ref().is_some() && file_size.as_ref().is_some_and(|s| s != "0") {
+        let file_size: f32 = file_size.as_ref().unwrap().parse().unwrap();
+        let downloaded: f32 = downloaded.as_ref().unwrap().parse().unwrap();
+
+        // find download percent from file_size and downloaded_size
+        let percent = downloaded * 100.0 / file_size;
+
+        // converting file_size to KiB or MiB or GiB
+        size_str = Some(humanReadableSize(file_size, "file_size"));
+        downloaded_str = Some(humanReadableSize(downloaded, "file_size"));
+
+        percent_str = Some(format!("{percent}%"));
+    } else {
+        size_str = None;
+        downloaded_str = None;
+        percent_str = None;
+    }
+
+    // find download_speed
+    let download_speed = match download_status.get("downloadSpeed") {
+        Some(downloadSpeed) => downloadSpeed.to_string().parse().unwrap(),
+        None => 0.0,
+    };
+
+    // convert download_speed to desired units.
+    // and find estimate_time_left
+    let mut estimate_time_left_str;
+    let download_speed_str;
+    if downloaded.as_ref().is_some() && download_speed != 0.0 {
+        let file_size: f32 = file_size.as_ref().unwrap().parse().unwrap();
+        let downloaded: f32 = downloaded.as_ref().unwrap().parse().unwrap();
+        let mut estimate_time_left = (file_size - downloaded) / download_speed;
+
+        // converting file_size to KiB or MiB or GiB
+        download_speed_str = Some(humanReadableSize(download_speed, "speed") + "/s");
+
+        let mut eta = String::new();
+        if estimate_time_left >= 3600.0 {
+            eta += &(format!("{}", estimate_time_left / 3600.0) + "h");
+            estimate_time_left %= 3600.0;
+            eta += &(format!("{}", estimate_time_left / 60.0) + "m");
+            estimate_time_left %= 60.0;
+            eta += &(format!("{}", estimate_time_left) + "s");
+        } else if estimate_time_left >= 60.0 {
+            eta += &(format!("{}", estimate_time_left / 60.0) + "m");
+            estimate_time_left %= 60.0;
+            eta += &(format!("{}", estimate_time_left) + "s");
+        } else {
+            eta += &(format!("{}", estimate_time_left) + "s");
+        }
+        estimate_time_left_str = Some(eta);
+    } else {
+        download_speed_str = Some("0".to_string());
+        estimate_time_left_str = None;
+    }
+
+    // find number of connections
+    let connections_str = download_status
+        .get("connections")
+        .map(|x| x.to_owned().to_string());
+
+    // find status of download
+    let mut status_str = download_status
+        .get("status")
+        .map(|x| x.to_owned().to_string());
+
+    // rename active status to downloading
+    if status_str.clone().is_some_and(|s| s == "active") {
+        status_str = Some("downloading".to_string());
+    }
+    // rename removed status to stopped
+    else if status_str.clone().is_some_and(|s| s == "removed") {
+        status_str = Some("stopped".to_string());
+    }
+    // set 0 second for estimate_time_left_str if download is completed.
+    else if status_str.clone().is_some_and(|s| s == "complete") {
+        estimate_time_left_str = Some("0s".to_string());
+    }
+
+    HashMap::from([
+        (
+            "gid".to_string(),
+            download_status.get("gid").map(|x| x.to_owned().to_string()),
+        ),
+        ("file_name".to_string(), file_name),
+        ("status".to_string(), status_str),
+        ("size".to_string(), size_str),
+        ("downloaded_size".to_string(), downloaded_str),
+        ("percent".to_string(), percent_str),
+        ("connections".to_string(), connections_str),
+        ("rate".to_string(), download_speed_str),
+        ("estimate_time_left".to_string(), estimate_time_left_str),
+        ("link".to_string(), link),
+    ])
 }
 
 #[pyfunction]

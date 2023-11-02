@@ -63,16 +63,13 @@ server_uri = SERVER_URI_FORMAT.format(host, port)
 server = xmlrpc.client.ServerProxy(server_uri, allow_none=True)
 
 # start aria2 with RPC
-
-
 def startAria() -> str:
     # return that starting is successful or not!
     return ghermez.startAria(port, aria2_path)
 
+
 # check aria2 release version . Persepolis uses this function to
 # check that aria2 RPC connection is available or not.
-
-
 def aria2Version():
     try:
         answer = server.aria2.getVersion()
@@ -84,8 +81,6 @@ def aria2Version():
     return answer
 
 # this function sends download request to aria2
-
-
 def downloadAria(gid, parent):
     # add_link_dictionary is a dictionary that contains user download request
     # information.
@@ -497,7 +492,7 @@ def convertDownloadInformation(download_status):
     if status_str == 'complete':
         estimate_time_left_str = '0s'
 
-# return information in dictionary format
+    # return information in dictionary format
     return {
         'gid': download_status['gid'],
         'file_name': file_name,

@@ -390,7 +390,7 @@ class CheckDownloadInfoThread(QThread):
                 # every dictionary contains download information.
                 # gid_list is a list that contains gid of downloads in download_status_list.
                 # see download.py file for more information.
-                gid_list, download_status_list = download.tellActive()
+                gid_list, download_status_list = ghermez.tellActive()
 
                 try:
                     for gid in active_gid_list:
