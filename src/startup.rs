@@ -10,10 +10,8 @@ use once_cell::sync::Lazy;
 #[cfg(target_os = "linux")]
 use std::os::unix::prelude::PermissionsExt;
 
-#[cfg(target_os = "macos")]
+#[cfg(any(target_os = "macos", target_os = "windows"))]
 use std::env;
-#[cfg(target_os = "macos")]
-use std::path::Path;
 #[cfg(target_os = "macos")]
 use std::process::Command;
 
@@ -73,20 +71,19 @@ pub fn addstartup() {
     Icon=ghermez
     StartupWMClass=ghermez-download-Manager
     ";
-        let autostart_dir = Path::new(&home_address).join(".config").join("autostart");
+        let autostart_dir = HOME_ADDRESS.join(".config").join("autostart");
         if !autostart_dir.exists() {
             fs::create_dir_all(&autostart_dir).unwrap();
-            fs::set_permissions(&autostart_dir, fs::Permissions::from_mode(0o755));
+            let _ = fs::set_permissions(&autostart_dir, fs::Permissions::from_mode(0o755));
         }
         let desktop_file_path = autostart_dir.join("ghermez.desktop");
-        let mut desktop_file = File::create(&desktop_file_path);
-        desktop_file.write_all(entry.as_bytes());
-        fs::set_permissions(&desktop_file_path, fs::Permissions::from_mode(0o644));
+        let _ = fs::write(&desktop_file_path, entry);
+        let _ = fs::set_permissions(&desktop_file_path, fs::Permissions::from_mode(0o644));
     }
 
     #[cfg(target_os = "macos")]
     {
-        let cwd = std::env::current_dir().unwrap();
+        let cwd = env::current_dir().unwrap();
         let entry = format!("<?xml version=\"1.0\" encoding=\"UTF-8\"?>
     <!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">
     <plist version=\"1.0\">
@@ -103,19 +100,10 @@ pub fn addstartup() {
       <true/>
     </dict>
     </plist>\n", cwd.display());
-        fs::write(
-            HOME_ADDRESS.join("/Library/LaunchAgents/com.ghermez.plist"),
-            entry,
-        )
-        .unwrap();
+        let startup_file_path = HOME_ADDRESS.join("/Library/LaunchAgents/com.ghermez.plist");
+        fs::write(&startup_file_path, entry).unwrap();
         Command::new("launchctl")
-            .args(&[
-                "load",
-                HOME_ADDRESS
-                    .join("/Library/LaunchAgents/com.ghermez.plist")
-                    .to_str()
-                    .unwrap(),
-            ])
+            .args(["load", startup_file_path.to_str().unwrap()])
             .spawn()
             .unwrap();
     }
@@ -129,7 +117,7 @@ pub fn addstartup() {
             )
             .unwrap();
 
-        let cwd = std::env::current_dir().unwrap();
+        let cwd = env::current_dir().unwrap();
         let ghermez_exe_tray =
             format!("\"{}\\Ghermez Download Manager.exe\" --tray", cwd.display());
 
@@ -145,17 +133,12 @@ pub fn removestartup() {
     #[cfg(target_os = "macos")]
     {
         if checkstartup() {
+            let startup_file_path = HOME_ADDRESS.join("/Library/LaunchAgents/com.ghermez.plist");
             Command::new("launchctl")
-                .args(&[
-                    "unload",
-                    HOME_ADDRESS
-                        .join("/Library/LaunchAgents/com.ghermez.plist")
-                        .to_str()
-                        .unwrap(),
-                ])
+                .args(["unload", startup_file_path.to_str().unwrap()])
                 .status()
                 .unwrap();
-            fs::remove_file(HOME_ADDRESS.join("/Library/LaunchAgents/com.ghermez.plist")).unwrap();
+            let _ = fs::remove_file(startup_file_path);
         }
     }
 

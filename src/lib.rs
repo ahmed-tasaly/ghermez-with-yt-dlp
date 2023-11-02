@@ -8,7 +8,7 @@ mod os_command;
 mod startup;
 mod useful_tools;
 
-use aria2c::{aria2Version, new_date, startAria};
+use aria2c::{aria2Version, findDownloadPath, new_date, startAria};
 use database::{DataBase, PluginsDB, TempDB};
 use initialization::{init_create_folders, init_log_file};
 use logger::{initLogger, sendToLog};
@@ -27,6 +27,7 @@ fn ghermez(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(startAria, m)?)?;
     m.add_function(wrap_pyfunction!(aria2Version, m)?)?;
     m.add_function(wrap_pyfunction!(new_date, m)?)?;
+    m.add_function(wrap_pyfunction!(findDownloadPath, m)?)?;
 
     m.add_class::<DataBase>()?;
     m.add_class::<TempDB>()?;

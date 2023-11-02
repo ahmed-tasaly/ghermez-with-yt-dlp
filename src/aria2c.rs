@@ -203,12 +203,22 @@ fn _tell_status(gid: &str) -> Map<String, serde_json::Value> {
     status
 }
 
-fn _find_download_path(file_name: &str, download_path: PathBuf, subfolder: bool) -> PathBuf {
-    let file_extension = Path::new(file_name)
+// this function returns folder of download according to file extension
+#[pyfunction]
+pub fn findDownloadPath(file_name: &str, download_path: PathBuf, subfolder: bool) -> PathBuf {
+    let mut file_extension = Path::new(file_name)
         .extension()
         .and_then(OsStr::to_str)
         .unwrap()
+        // convert extension letters to lower case
+        // for example "JPG" will be converted in "jpg"
         .to_lowercase();
+
+    // remove query from file_extension if existed
+    // if '?' in file_extension, then file_name contains query components.
+    if file_extension.contains('?') {
+        file_extension = file_extension.split('?').next().unwrap().to_string();
+    }
 
     // audio formats
     let audio = [
@@ -246,7 +256,9 @@ fn _find_download_path(file_name: &str, download_path: PathBuf, subfolder: bool)
     if subfolder {
         if audio.contains(&file_extension.as_str()) {
             download_path.join("Audios")
-        } else if video.contains(&file_extension.as_str()) {
+        }
+        // aria2c downloads youtube links file_name with 'videoplayback' name?!
+        else if video.contains(&file_extension.as_str()) {
             download_path.join("Videos")
         } else if document.contains(&file_extension.as_str()) {
             download_path.join("Documents")
