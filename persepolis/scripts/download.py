@@ -279,8 +279,8 @@ def tellActive():
     # get download information from aria2
     try:
         downloads_status = server.aria2.tellActive(
-            ['gid', 'status', 'connections', 'errorCode', 'errorMessage', 'downloadSpeed',
-             'connections', 'dir', 'totalLength', 'completedLength', 'files'])
+            ['gid', 'status', 'connections', 'errorCode', 'errorMessage',
+             'downloadSpeed', 'dir', 'totalLength', 'completedLength', 'files'])
     except Exception:
         return None, None
 
@@ -328,7 +328,7 @@ def tellStatus(gid, parent):
         # if user specified download_path is equal to persepolis_setting download_path,
         # then subfolder must added to download path.
         if persepolis_setting.value('settings/download_path') == download_path:
-            download_path = ghermez.findDownloadPath(
+            download_path = findDownloadPath(
                 file_name, download_path, persepolis_setting.value('settings/subfolder'))
 
         # find temp download path

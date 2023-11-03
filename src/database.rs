@@ -851,11 +851,9 @@ impl DataBase {
         // lock data base
         let connection = self.connection.lock().unwrap();
 
-        let result = connection
-            .execute("SELECT * FROM addlink_db_table WHERE link = (?1)", [link])
-            .unwrap();
+        let result = connection.execute("SELECT * FROM addlink_db_table WHERE link = (?1)", [link]);
 
-        if result > 0 {
+        if result.is_ok_and(|r| r > 0) {
             return true;
         }
         false

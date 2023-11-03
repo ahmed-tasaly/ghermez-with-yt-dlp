@@ -21,6 +21,7 @@ use useful_tools::{
     convertToByte, determineConfigFolder, humanReadableSize, osAndDesktopEnvironment,
     returnDefaultSettings,
 };
+mod response;
 
 #[cfg(not(target_os = "windows"))]
 use useful_tools::freeSpace;

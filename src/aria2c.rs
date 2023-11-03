@@ -18,12 +18,15 @@ use chrono::Local;
 use log::{error, info};
 use once_cell::sync::Lazy;
 use pyo3::prelude::*;
-use serde_json::{Map, Value};
+use serde_json::{from_value, to_value, Map};
 use tokio::{runtime::Runtime, sync::RwLock};
 
 use aria2_ws::{Client, TaskOptions};
 
-use crate::useful_tools::{humanReadableSize, round};
+use crate::{
+    response::{CustomStatus, ValuesToString as _},
+    useful_tools::{humanReadableSize, round},
+};
 
 static SERVER_URL: Lazy<RwLock<String>> = Lazy::new(|| RwLock::new(String::new()));
 
@@ -178,21 +181,20 @@ pub fn tellActive() -> (Option<GidList>, Option<DownloadStatusList>) {
         "errorCode".to_string(),
         "errorMessage".to_string(),
         "downloadSpeed".to_string(),
-        "connections".to_string(),
         "dir".to_string(),
         "totalLength".to_string(),
         "completedLength".to_string(),
         "files".to_string(),
     ];
     // get download information from aria2
-    let downloads_status = Runtime::new().unwrap().handle().block_on(async {
+    let downloads_status_result = Runtime::new().unwrap().handle().block_on(async {
         let server_url = SERVER_URL.read().await;
         let client = Client::connect(&server_url, None).await.unwrap();
         client.custom_tell_active(Some(args)).await
     });
 
-    let download_status = match downloads_status {
-        Ok(download_status) => download_status,
+    let downloads_status: Vec<CustomStatus> = match downloads_status_result {
+        Ok(downloads_status) => from_value(to_value(downloads_status).unwrap()).unwrap(),
         Err(_) => return (None, None),
     };
 
@@ -200,11 +202,11 @@ pub fn tellActive() -> (Option<GidList>, Option<DownloadStatusList>) {
     let mut gid_list = vec![];
 
     // convert download information in desired format.
-    for download_dict in download_status {
+    for download_dict in downloads_status {
         let converted_info_dict = convertDownloadInformation(download_dict.clone());
 
         // add gid to gid_list
-        gid_list.push(download_dict.get("gid").unwrap().to_string());
+        gid_list.push(download_dict.gid);
 
         // add converted information to download_status_list
         download_status_list.push(converted_info_dict);
@@ -237,57 +239,37 @@ fn _tellStatus(gid: &str) -> Map<String, serde_json::Value> {
 
 // this function converts download information that received from aria2 in desired format.
 // input format must be a dictionary.
-fn convertDownloadInformation(
-    download_status: Map<String, Value>,
-) -> HashMap<String, Option<String>> {
+fn convertDownloadInformation(download_status: CustomStatus) -> HashMap<String, Option<String>> {
     // find file_name
-    let file_status = download_status.get("files").map(|x| x.to_owned());
-    let file_name;
-    let link;
-    if let Some(file_status) = file_status {
-        // file_status contains name of download file and link of download file
-        let file_status: Value = serde_json::from_value(file_status).unwrap();
-        let path = file_status["path"].to_string();
-        file_name = Some(
-            Path::new(&path)
-                .parent()
-                .unwrap()
-                .to_str()
-                .unwrap()
-                .to_string(),
-        );
-
-        let uris = &file_status["uris"];
-        let uri = &uris[0];
-        link = Some(uri["uri"].to_string());
+    let file_status = download_status.files;
+    // file_status contains name of download file and link of download file
+    let path = &file_status[0].path;
+    let file_name = if !path.is_empty() {
+        Path::new(&path)
+            .parent()
+            .map(|parent| parent.to_str().unwrap().to_string())
     } else {
-        file_name = None;
-        link = None;
-    }
+        None
+    };
+
+    let link = Some(file_status[0].uris[0].uri.to_owned());
 
     // find file_size
-    let file_size = download_status
-        .get("totalLength")
-        .map(|x| x.to_owned().to_string());
+    let file_size = download_status.total_length;
     // find downloaded size
-    let downloaded = download_status
-        .get("completedLength")
-        .map(|x| x.to_owned().to_string());
+    let downloaded = download_status.completed_length;
 
     let percent_str;
     let size_str;
     let downloaded_str;
     // convert file_size and downloaded_size to KiB and MiB and GiB
-    if downloaded.as_ref().is_some() && file_size.as_ref().is_some_and(|s| s != "0") {
-        let file_size: f32 = file_size.as_ref().unwrap().parse().unwrap();
-        let downloaded: f32 = downloaded.as_ref().unwrap().parse().unwrap();
-
+    if file_size != 0 {
         // find download percent from file_size and downloaded_size
-        let percent = downloaded * 100.0 / file_size;
+        let percent = downloaded as f32 * 100.0 / file_size as f32;
 
         // converting file_size to KiB or MiB or GiB
-        size_str = Some(humanReadableSize(file_size, "file_size"));
-        downloaded_str = Some(humanReadableSize(downloaded, "file_size"));
+        size_str = Some(humanReadableSize(file_size as f32, "file_size"));
+        downloaded_str = Some(humanReadableSize(downloaded as f32, "file_size"));
 
         percent_str = Some(format!("{percent}%"));
     } else {
@@ -297,22 +279,17 @@ fn convertDownloadInformation(
     }
 
     // find download_speed
-    let download_speed = match download_status.get("downloadSpeed") {
-        Some(downloadSpeed) => downloadSpeed.to_string().parse().unwrap(),
-        None => 0.0,
-    };
+    let download_speed = download_status.download_speed;
 
     // convert download_speed to desired units.
     // and find estimate_time_left
     let mut estimate_time_left_str;
     let download_speed_str;
-    if downloaded.as_ref().is_some() && download_speed != 0.0 {
-        let file_size: f32 = file_size.as_ref().unwrap().parse().unwrap();
-        let downloaded: f32 = downloaded.as_ref().unwrap().parse().unwrap();
-        let mut estimate_time_left = (file_size - downloaded) / download_speed;
+    if file_size != 0 && download_speed != 0 {
+        let mut estimate_time_left = (file_size - downloaded) as f32 / download_speed as f32;
 
         // converting file_size to KiB or MiB or GiB
-        download_speed_str = Some(humanReadableSize(download_speed, "speed") + "/s");
+        download_speed_str = Some(humanReadableSize(download_speed as f32, "speed") + "/s");
 
         let mut eta = String::new();
         if estimate_time_left >= 3600.0 {
@@ -335,33 +312,28 @@ fn convertDownloadInformation(
     }
 
     // find number of connections
-    let connections_str = download_status
-        .get("connections")
-        .map(|x| x.to_owned().to_string());
+    let connections_str = Some(download_status.connections.to_string());
 
     // find status of download
-    let mut status_str = download_status
-        .get("status")
-        .map(|x| x.to_owned().to_string());
+    let mut status_str = Some(download_status.status.to_string());
 
     // rename active status to downloading
-    if status_str.clone().is_some_and(|s| s == "active") {
+    if status_str.as_ref().is_some_and(|s| s == "active") {
         status_str = Some("downloading".to_string());
     }
     // rename removed status to stopped
-    else if status_str.clone().is_some_and(|s| s == "removed") {
+    else if status_str.as_ref().is_some_and(|s| s == "removed") {
         status_str = Some("stopped".to_string());
+    } else if status_str.as_ref().is_some_and(|s| s == "None") {
+        status_str = None;
     }
     // set 0 second for estimate_time_left_str if download is completed.
-    else if status_str.clone().is_some_and(|s| s == "complete") {
+    else if status_str.as_ref().is_some_and(|s| s == "complete") {
         estimate_time_left_str = Some("0s".to_string());
     }
 
     HashMap::from([
-        (
-            "gid".to_string(),
-            download_status.get("gid").map(|x| x.to_owned().to_string()),
-        ),
+        ("gid".to_string(), Some(download_status.gid)),
         ("file_name".to_string(), file_name),
         ("status".to_string(), status_str),
         ("size".to_string(), size_str),
