@@ -25,6 +25,7 @@ except ImportError:
 import platform
 import subprocess
 
+import ghermez
 from persepolis.constants import OS
 from persepolis.gui.progress_ui import ProgressWindow_Ui
 from persepolis.scripts import download
@@ -117,13 +118,13 @@ class ProgressWindow(ProgressWindow_Ui):
     def resumePushButtonPressed(self, _button: QPushButton) -> None:
 
         if self.status == 'paused':
-            answer = download.downloadUnpause(self.gid)
+            answer = ghermez.downloadUnpause(self.gid)
 
             # if aria2 did not respond , then this function is checking for aria2
             # availability , and if aria2 disconnected then aria2Disconnected is
             # executed
             if not(answer):
-                version_answer = download.aria2Version()
+                version_answer = ghermez.aria2Version()
                 if version_answer == 'did not respond':
                     self.parent.aria2Disconnected()
                     notifySend(QCoreApplication.translate('progress_src_ui_tr', 'Aria2 disconnected!'),
@@ -138,13 +139,13 @@ class ProgressWindow(ProgressWindow_Ui):
     def pausePushButtonPressed(self, _button: QPushButton) -> None:
 
         if self.status == 'downloading':
-            answer = download.downloadPause(self.gid)
+            answer = ghermez.downloadPause(self.gid)
 
             # if aria2 did not respond , then this function is checking for aria2
             # availability , and if aria2 disconnected then aria2Disconnected is
             # executed
             if not(answer):
-                version_answer = download.aria2Version()
+                version_answer = ghermez.aria2Version()
                 if version_answer == 'did not respond':
                     self.parent.aria2Disconnected()
                     download.downloadStop(self.gid, self.parent)
@@ -168,7 +169,7 @@ class ProgressWindow(ProgressWindow_Ui):
         # availability , and if aria2 disconnected then aria2Disconnected is
         # executed
         if answer == 'None':
-            version_answer = download.aria2Version()
+            version_answer = ghermez.aria2Version()
             if version_answer == 'did not respond':
                 self.parent.aria2Disconnected()
                 notifySend(QCoreApplication.translate('progress_src_ui_tr', 'Aria2 disconnected!'),
@@ -190,7 +191,7 @@ class ProgressWindow(ProgressWindow_Ui):
             # check download status is "scheduled" or not!
             if self.status != 'scheduled':
                 # tell aria2 for unlimited speed
-                download.limitSpeed(self.gid, '0')
+                ghermez.limitSpeed(self.gid, '0')
             else:
                 # update limit value in data_base
                 add_link_dictionary = {'gid': self.gid, 'limit_value': '0'}
@@ -292,7 +293,7 @@ class ProgressWindow(ProgressWindow_Ui):
     # else save the request in data_base
 
         if self.status != 'scheduled':
-            download.limitSpeed(self.gid, limit_value)
+            ghermez.limitSpeed(self.gid, limit_value)
         else:
             # update limit value in data_base
             add_link_dictionary = {'gid': self.gid, 'limit_value': limit_value}

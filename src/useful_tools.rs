@@ -129,7 +129,7 @@ pub fn convertToByte(file_size: &str) -> f32 {
     round(in_byte_value, 0)
 }
 
-fn round(x: f32, decimals: u32) -> f32 {
+pub fn round(x: f32, decimals: u32) -> f32 {
     let y = 10i32.pow(decimals) as f32;
     (x * y).round() / y
 }

@@ -14,6 +14,7 @@ use std::env;
 #[cfg(target_os = "windows")]
 use std::os::windows::process::CommandExt;
 
+use chrono::Local;
 use log::{error, info};
 use once_cell::sync::Lazy;
 use pyo3::prelude::*;
@@ -22,7 +23,7 @@ use tokio::{runtime::Runtime, sync::RwLock};
 
 use aria2_ws::{Client, TaskOptions};
 
-use crate::useful_tools::humanReadableSize;
+use crate::useful_tools::{humanReadableSize, round};
 
 static SERVER_URL: Lazy<RwLock<String>> = Lazy::new(|| RwLock::new(String::new()));
 
@@ -212,7 +213,7 @@ pub fn tellActive() -> (Option<GidList>, Option<DownloadStatusList>) {
     (Some(gid_list), Some(download_status_list))
 }
 
-fn _tell_status(gid: &str) -> Map<String, serde_json::Value> {
+fn _tellStatus(gid: &str) -> Map<String, serde_json::Value> {
     let args = vec![
         "status".to_string(),
         "connections".to_string(),
@@ -234,113 +235,8 @@ fn _tell_status(gid: &str) -> Map<String, serde_json::Value> {
     status
 }
 
-// this function returns folder of download according to file extension
-#[pyfunction]
-pub fn findDownloadPath(file_name: &str, download_path: PathBuf, subfolder: bool) -> PathBuf {
-    let mut file_extension = Path::new(file_name)
-        .extension()
-        .and_then(OsStr::to_str)
-        .unwrap()
-        // convert extension letters to lower case
-        // for example "JPG" will be converted in "jpg"
-        .to_lowercase();
-
-    // remove query from file_extension if existed
-    // if '?' in file_extension, then file_name contains query components.
-    if file_extension.contains('?') {
-        file_extension = file_extension.split('?').next().unwrap().to_string();
-    }
-
-    // audio formats
-    let audio = [
-        "act", "aiff", "aac", "amr", "ape", "au", "awb", "dct", "dss", "dvf", "flac", "gsm",
-        "iklax", "ivs", "m4a", "m4p", "mmf", "mp3", "mpc", "msv", "ogg", "oga", "opus", "ra",
-        "raw", "sln", "tta", "vox", "wav", "wma", "wv",
-    ];
-
-    // video formats
-    let video = [
-        "3g2", "3gp", "asf", "avi", "drc", "flv", "m4v", "mkv", "mng", "mov", "qt", "mp4", "m4p",
-        "mpg", "mp2", "mpeg", "mpe", "mpv", "m2v", "mxf", "nsv", "ogv", "rmvb", "roq", "svi",
-        "vob", "webm", "wmv", "yuv", "rm",
-    ];
-
-    // document formats
-    let document = [
-        "doc", "docx", "html", "htm", "fb2", "odt", "sxw", "pdf", "ps", "rtf", "tex", "txt",
-        "epub", "pub", "mobi", "azw", "azw3", "azw4", "kf8", "chm", "cbt", "cbr", "cbz", "cb7",
-        "cba", "ibooks", "djvu", "md",
-    ];
-
-    // compressed formats
-    let compressed = [
-        "a", "ar", "cpio", "shar", "LBR", "iso", "lbr", "mar", "tar", "bz2", "F", "gz", "lz",
-        "lzma", "lzo", "rz", "sfark", "sz", "xz", "Z", "z", "infl", "7z", "s7z", "ace", "afa",
-        "alz", "apk", "arc", "arj", "b1", "ba", "bh", "cab", "cfs", "cpt", "dar", "dd", "dgc",
-        "dmg", "ear", "gca", "ha", "hki", "ice", "jar", "kgb", "lzh", "lha", "lzx", "pac",
-        "partimg", "paq6", "paq7", "paq8", "pea", "pim", "pit", "qda", "rar", "rk", "sda", "sea",
-        "sen", "sfx", "sit", "sitx", "sqx", "tar.gz", "tgz", "tar.Z", "tar.bz2", "tbz2",
-        "tar.lzma", "tlz", "uc", "uc0", "uc2", "ucn", "ur2", "ue2", "uca", "uha", "war", "wim",
-        "xar", "xp3", "yz1", "zip", "zipx", "zoo", "zpaq", "zz", "ecc", "par", "par2",
-    ];
-
-    if subfolder {
-        if audio.contains(&file_extension.as_str()) {
-            download_path.join("Audios")
-        }
-        // aria2c downloads youtube links file_name with 'videoplayback' name?!
-        else if video.contains(&file_extension.as_str()) {
-            download_path.join("Videos")
-        } else if document.contains(&file_extension.as_str()) {
-            download_path.join("Documents")
-        } else if compressed.contains(&file_extension.as_str()) {
-            download_path.join("Compressed")
-        } else {
-            download_path.join("Other")
-        }
-    } else {
-        download_path
-    }
-}
-
-fn _download_pause(gid: &str) -> Result<(), aria2_ws::Error> {
-    let answer = Runtime::new().unwrap().handle().block_on(async {
-        let server_url = SERVER_URL.read().await;
-        let client = Client::connect(&server_url, None).await.unwrap();
-        client.pause(gid).await
-    });
-    info!("{:?} paused", answer);
-    answer
-}
-
-fn _download_unpause(gid: &str) -> Result<(), aria2_ws::Error> {
-    let answer = Runtime::new().unwrap().handle().block_on(async {
-        let server_url = SERVER_URL.read().await;
-        let client = Client::connect(&server_url, None).await.unwrap();
-        client.unpause(gid).await
-    });
-    info!("{:?} paused", answer);
-    answer
-}
-
-fn _limit_speed(gid: &str, limit: &str) {
-    let options = TaskOptions {
-        max_download_limit: Some(limit.to_string()),
-        ..Default::default()
-    };
-
-    let answer = Runtime::new().unwrap().handle().block_on(async {
-        let server_url = SERVER_URL.read().await;
-        let client = Client::connect(&server_url, None).await.unwrap();
-        client.change_option(gid, options).await
-    });
-
-    match answer {
-        Ok(_) => info!("Download speed limit  value is changed"),
-        Err(_) => error!("Speed limitation was unsuccessful"),
-    }
-}
-
+// this function converts download information that received from aria2 in desired format.
+// input format must be a dictionary.
 fn convertDownloadInformation(
     download_status: Map<String, Value>,
 ) -> HashMap<String, Option<String>> {
@@ -478,8 +374,206 @@ fn convertDownloadInformation(
     ])
 }
 
+// this function returns folder of download according to file extension
 #[pyfunction]
-pub fn new_date() -> String {
-    let now = chrono::Local::now();
+pub fn findDownloadPath(file_name: &str, download_path: PathBuf, subfolder: bool) -> PathBuf {
+    let mut file_extension = Path::new(file_name)
+        .extension()
+        .and_then(OsStr::to_str)
+        .unwrap()
+        // convert extension letters to lower case
+        // for example "JPG" will be converted in "jpg"
+        .to_lowercase();
+
+    // remove query from file_extension if existed
+    // if '?' in file_extension, then file_name contains query components.
+    if file_extension.contains('?') {
+        file_extension = file_extension.split('?').next().unwrap().to_string();
+    }
+
+    // audio formats
+    let audio = [
+        "act", "aiff", "aac", "amr", "ape", "au", "awb", "dct", "dss", "dvf", "flac", "gsm",
+        "iklax", "ivs", "m4a", "m4p", "mmf", "mp3", "mpc", "msv", "ogg", "oga", "opus", "ra",
+        "raw", "sln", "tta", "vox", "wav", "wma", "wv",
+    ];
+
+    // video formats
+    let video = [
+        "3g2", "3gp", "asf", "avi", "drc", "flv", "m4v", "mkv", "mng", "mov", "qt", "mp4", "m4p",
+        "mpg", "mp2", "mpeg", "mpe", "mpv", "m2v", "mxf", "nsv", "ogv", "rmvb", "roq", "svi",
+        "vob", "webm", "wmv", "yuv", "rm",
+    ];
+
+    // document formats
+    let document = [
+        "doc", "docx", "html", "htm", "fb2", "odt", "sxw", "pdf", "ps", "rtf", "tex", "txt",
+        "epub", "pub", "mobi", "azw", "azw3", "azw4", "kf8", "chm", "cbt", "cbr", "cbz", "cb7",
+        "cba", "ibooks", "djvu", "md",
+    ];
+
+    // compressed formats
+    let compressed = [
+        "a", "ar", "cpio", "shar", "LBR", "iso", "lbr", "mar", "tar", "bz2", "F", "gz", "lz",
+        "lzma", "lzo", "rz", "sfark", "sz", "xz", "Z", "z", "infl", "7z", "s7z", "ace", "afa",
+        "alz", "apk", "arc", "arj", "b1", "ba", "bh", "cab", "cfs", "cpt", "dar", "dd", "dgc",
+        "dmg", "ear", "gca", "ha", "hki", "ice", "jar", "kgb", "lzh", "lha", "lzx", "pac",
+        "partimg", "paq6", "paq7", "paq8", "pea", "pim", "pit", "qda", "rar", "rk", "sda", "sea",
+        "sen", "sfx", "sit", "sitx", "sqx", "tar.gz", "tgz", "tar.Z", "tar.bz2", "tbz2",
+        "tar.lzma", "tlz", "uc", "uc0", "uc2", "ucn", "ur2", "ue2", "uca", "uha", "war", "wim",
+        "xar", "xp3", "yz1", "zip", "zipx", "zoo", "zpaq", "zz", "ecc", "par", "par2",
+    ];
+
+    if subfolder {
+        if audio.contains(&file_extension.as_str()) {
+            download_path.join("Audios")
+        }
+        // aria2c downloads youtube links file_name with 'videoplayback' name?!
+        else if video.contains(&file_extension.as_str()) {
+            download_path.join("Videos")
+        } else if document.contains(&file_extension.as_str()) {
+            download_path.join("Documents")
+        } else if compressed.contains(&file_extension.as_str()) {
+            download_path.join("Compressed")
+        } else {
+            download_path.join("Other")
+        }
+    } else {
+        download_path
+    }
+}
+
+// shutdown aria2
+#[pyfunction]
+pub fn shutDown() -> bool {
+    let answer = Runtime::new().unwrap().handle().block_on(async {
+        let server_url = SERVER_URL.read().await;
+        let client = Client::connect(&server_url, None).await.unwrap();
+        client.shutdown().await
+    });
+    match answer {
+        Ok(_) => {
+            info!("Aria2 Shutdown: Ok");
+            true
+        }
+        Err(e) => {
+            error!("Aria2 Shutdown Error: {e}");
+            false
+        }
+    }
+}
+
+// downloadPause pauses download
+#[pyfunction]
+pub fn downloadPause(gid: &str) -> Option<String> {
+    // see aria2 documentation for more information
+
+    // send pause request to aria2.
+    let answer = Runtime::new().unwrap().handle().block_on(async {
+        let server_url = SERVER_URL.read().await;
+        let client = Client::connect(&server_url, None).await.unwrap();
+        client.pause(gid).await
+    });
+    info!("{answer:?} paused");
+    match answer {
+        Ok(_) => Some("Ok".to_string()),
+        Err(_) => None,
+    }
+}
+
+// downloadUnpause unpauses download
+#[pyfunction]
+pub fn downloadUnpause(gid: &str) -> Option<String> {
+    // send unpause request to aria2
+    let answer = Runtime::new().unwrap().handle().block_on(async {
+        let server_url = SERVER_URL.read().await;
+        let client = Client::connect(&server_url, None).await.unwrap();
+        client.unpause(gid).await
+    });
+    info!("{answer:?} paused");
+    match answer {
+        Ok(_) => Some("Ok".to_string()),
+        Err(_) => None,
+    }
+}
+
+// limitSpeed limits download speed
+#[pyfunction]
+pub fn limitSpeed(gid: &str, limit: &str) {
+    let mut editedlimit = limit.to_string();
+    // convert Mega to Kilo, RPC does not Support floating point numbers.
+    if limit != "0" {
+        let mut limit_number: f32 = limit[0..limit.len() - 1].parse().unwrap();
+        let mut limit_unit = limit.chars().last().unwrap();
+        if limit_unit == 'K' {
+            limit_number = round(limit_number, 0);
+        } else {
+            limit_number = round(1024.0 * limit_number, 0);
+            limit_unit = 'K';
+        }
+        editedlimit = format!("{limit_number}{limit_unit}");
+    }
+
+    let options = TaskOptions {
+        max_download_limit: Some(editedlimit),
+        ..Default::default()
+    };
+
+    let answer = Runtime::new().unwrap().handle().block_on(async {
+        let server_url = SERVER_URL.read().await;
+        let client = Client::connect(&server_url, None).await.unwrap();
+        client.change_option(gid, options).await
+    });
+
+    match answer {
+        Ok(_) => info!("Download speed limit value is changed"),
+        Err(_) => error!("Speed limitation was unsuccessful"),
+    }
+}
+
+// this function returns GID of active downloads in list format.
+#[pyfunction]
+pub fn activeDownloads() -> Vec<String> {
+    let answer = Runtime::new().unwrap().handle().block_on(async {
+        let server_url = SERVER_URL.read().await;
+        let client = Client::connect(&server_url, None).await.unwrap();
+        client
+            .custom_tell_active(Some(vec!["gid".to_string()]))
+            .await
+    });
+
+    let answer = match answer {
+        Ok(answer) => answer,
+        Err(_) => vec![],
+    };
+    let mut active_gids = vec![];
+    for download_dict in answer {
+        // add gid to list
+        active_gids.push(download_dict.get("gid").unwrap().to_string());
+    }
+    active_gids
+}
+
+// This function returns data and time in string format
+// for example >> 2017/09/09 , 13:12:26
+#[pyfunction]
+pub fn nowDate() -> String {
+    let now = Local::now();
     now.format("%Y/%m/%d , %H:%M:%S").to_string()
+}
+
+// sigmaTime gets hours and minutes for input.
+// and converts hours to minutes and returns summation in minutes
+// input format is HH:MM
+fn _sigmaTime(time: String) -> i32 {
+    let splitedTime: Vec<&str> = time.split(':').collect();
+    let hour: i32 = splitedTime[0].parse().unwrap();
+    let minute: i32 = splitedTime[1].parse().unwrap();
+    hour * 60 + minute
+}
+
+// nowTime returns now time in HH:MM format!
+fn _nowTime() -> i32 {
+    let now_time = Local::now().format("%H:%M");
+    _sigmaTime(now_time.to_string())
 }

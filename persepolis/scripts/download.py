@@ -300,8 +300,6 @@ def tellActive():
     return gid_list, download_status_list
 
 # this function returns download status that specified by gid!
-
-
 def tellStatus(gid, parent):
     # get download status from aria2
     try:
@@ -330,7 +328,7 @@ def tellStatus(gid, parent):
         # if user specified download_path is equal to persepolis_setting download_path,
         # then subfolder must added to download path.
         if persepolis_setting.value('settings/download_path') == download_path:
-            download_path = findDownloadPath(
+            download_path = ghermez.findDownloadPath(
                 file_name, download_path, persepolis_setting.value('settings/subfolder'))
 
         # find temp download path
@@ -373,8 +371,6 @@ def tellStatus(gid, parent):
 
 # this function converts download information that received from aria2 in desired format.
 # input format must be a dictionary.
-
-
 def convertDownloadInformation(download_status):
     # find file_name
     try:
@@ -510,8 +506,6 @@ def convertDownloadInformation(download_status):
 # download complete actions!
 # this method is returning file_path of file in the user's download folder
 # and move downloaded file after download completion.
-
-
 def downloadCompleteAction(parent, path, download_path, file_name, file_size):
 
     # remove query from name, If file_name contains query components.
@@ -645,8 +639,6 @@ def shutDown():
 # downloadStop stops download completely
 # this function sends remove request to aria2
 # and changes status of download to "stopped" in data_base
-
-
 def downloadStop(gid, parent):
     # get download status from data_base
     download_dict = parent.persepolis_db.searchGidInDownloadTable(gid)
@@ -712,11 +704,9 @@ def downloadUnpause(gid):
     return answer
 
 #  limitSpeed limits download speed
-
-
 def limitSpeed(gid, limit):
     limit = str(limit)
-# convert Mega to Kilo, RPC does not Support floating point numbers.
+    # convert Mega to Kilo, RPC does not Support floating point numbers.
     if limit != '0':
         limit_number = limit[:-1]
         limit_number = float(limit_number)
@@ -763,22 +753,16 @@ def nowDate():
 # sigmaTime gets hours and minutes for input.
 # and converts hours to minutes and returns summation in minutes
 # input format is HH:MM
-
-
 def sigmaTime(time):
     hour, minute = time.split(':')
     return (int(hour)*60 + int(minute))
 
 # nowTime returns now time in HH:MM format!
-
-
 def nowTime():
     now_time = time.strftime('%H:%M')
     return sigmaTime(now_time)
 
 # this function creates sleep time,if user sets "start time" for download.
-
-
 def startTime(start_time, gid, parent):
     # write some messages
     ghermez.sendToLog('Download starts at ' + start_time, 'INFO')
@@ -791,7 +775,7 @@ def startTime(start_time, gid, parent):
 
     status = 'scheduled'
 
-  # this loop is continuing until download time arrival!
+    # this loop is continuing until download time arrival!
     while sigma_start != sigma_now:
         time.sleep(2.1)
         sigma_now = nowTime()
@@ -807,7 +791,7 @@ def startTime(start_time, gid, parent):
             break
         status = 'scheduled'
 
-# if user canceled download , then return 'stopped' and if download time arrived then return 'scheduled'!
+    # if user canceled download , then return 'stopped' and if download time arrived then return 'scheduled'!
     return status
 
 

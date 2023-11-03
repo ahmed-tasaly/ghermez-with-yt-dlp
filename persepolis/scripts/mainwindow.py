@@ -278,7 +278,7 @@ class StartAria2Thread(QThread):
         global aria_startup_answer
 
         # check that aria2 is running or not!
-        answer = download.aria2Version()
+        answer = ghermez.aria2Version()
 
         # if Aria2 wasn't started before, so start it!
         if answer == 'did not respond':
@@ -455,7 +455,7 @@ class CheckDownloadInfoThread(QThread):
         global aria2_disconnected
         aria2_disconnected = 0
         # check aria2 availability by aria2Version function(see download.py file fore more information)
-        answer = download.aria2Version()
+        answer = ghermez.aria2Version()
 
         if answer == 'did not respond':
             # so aria2 connection in disconnected!
@@ -523,10 +523,10 @@ class DownloadLink(QThread):
             self.parent.temp_db.updateSingleTable(dictionary)
 
         # if request is not successful then persepolis is checking rpc
-        # connection with download.aria2Version() function
+        # connection with ghermez.aria2Version() function
         answer = download.downloadAria(self.gid, self.parent)
         if answer is False:
-            version_answer = download.aria2Version()
+            version_answer = ghermez.aria2Version()
 
             if version_answer == 'did not respond':
                 self.ARIA2NOTRESPOND.emit()
@@ -925,7 +925,7 @@ class Queue(QThread):
                         # for aria2 availability , and if aria2 disconnected then
                         # aria2Disconnected is executed
                         if answer == 'None':
-                            version_answer = download.aria2Version()
+                            version_answer = ghermez.aria2Version()
                             if version_answer == 'did not respond':
                                 self.parent.aria2Disconnected()
                         status = 'stopped'
@@ -941,7 +941,7 @@ class Queue(QThread):
                             limit = str(self.limit_spinBox_value) + 'M'
 
                         # apply limitation
-                        download.limitSpeed(gid, limit)
+                        ghermez.limitSpeed(gid, limit)
 
                         # done!
                         self.limit_changed = False
@@ -949,7 +949,7 @@ class Queue(QThread):
                     if not(self.limit) and status == 'downloading' and self.limit_changed:
                         # speed limitation is canceled by user!
                         # cancel limitation
-                        download.limitSpeed(gid, '0')
+                        ghermez.limitSpeed(gid, '0')
 
                         # done!
                         self.limit_changed = False
@@ -1026,7 +1026,7 @@ class Queue(QThread):
             # select shutdown for after download)
             if self.after:
                 # shutdown aria2c
-                answer = download.shutDown()
+                answer = ghermez.shutDown()
 
                 # KILL aria2c if didn't respond. R.I.P :))
                 if not(answer) and (os_type != OS.WINDOWS):
@@ -2136,7 +2136,7 @@ class MainWindow(MainWindow_Ui):
                     if shutdown_status == 'wait':
 
                         # shutdown aria!
-                        answer = download.shutDown()
+                        answer = ghermez.shutDown()
 
                         # KILL aria2c in Unix like systems, if didn't respond. R.I.P :))
                         if not(answer) and (os_type != OS.WINDOWS):
@@ -2664,7 +2664,7 @@ class MainWindow(MainWindow_Ui):
             status = 'stopped'
 
         # get now time and date
-        date = download.nowDate()
+        date = ghermez.nowDate()
 
         download_dict = {'file_name': file_name,
                 'status': status,
@@ -2773,13 +2773,13 @@ class MainWindow(MainWindow_Ui):
             # download thread must be created !
             if download_status == 'paused':
 
-                answer = download.downloadUnpause(gid)
+                answer = ghermez.downloadUnpause(gid)
 
                 # if aria2 did not respond , then this function checks for aria2
                 # availability , and if aria2 disconnected then aria2Disconnected is
                 # called.
                 if not(answer):
-                    version_answer = download.aria2Version()
+                    version_answer = ghermez.aria2Version()
                     if version_answer == 'did not respond':
                         self.aria2Disconnected()
                         notifySend(QCoreApplication.translate('mainwindow_src_ui_tr', 'Aria2 disconnected!'),
@@ -2891,7 +2891,7 @@ class MainWindow(MainWindow_Ui):
             # availability , and if aria2 disconnected then aria2Disconnected is
             # executed
             if answer == 'None':
-                version_answer = download.aria2Version()
+                version_answer = ghermez.aria2Version()
                 if version_answer == 'did not respond':
                     self.aria2Disconnected()
                     notifySend(QCoreApplication.translate('mainwindow_src_ui_tr', 'Aria2 disconnected!'),
@@ -2924,12 +2924,12 @@ class MainWindow(MainWindow_Ui):
             gid = self.download_table.item(selected_row_return, 8).text()
 
             # send pause request to aria2
-            answer = download.downloadPause(gid)
+            answer = ghermez.downloadPause(gid)
 
             # if aria2 did not respond , then check aria2 availability!
             # and if aria2 disconnected then call aria2Disconnected
             if not(answer):
-                version_answer = download.aria2Version()
+                version_answer = ghermez.aria2Version()
                 if version_answer == 'did not respond':
                     self.aria2Disconnected()
                     download.downloadStop(gid, self)
@@ -3174,7 +3174,7 @@ class MainWindow(MainWindow_Ui):
         # hide system_tray_icon
         self.system_tray_icon.hide()
 
-        download.shutDown()  # shutting down Aria2
+        ghermez.shutDown()  # shutting down Aria2
         sleep(0.5)
         global shutdown_notification  # see start of this script and see inherited QThreads
 
@@ -3305,7 +3305,7 @@ class MainWindow(MainWindow_Ui):
             # aria2 availability , and if aria2 disconnected then
             # aria2Disconnected is executed
             if answer == 'None':
-                version_answer = download.aria2Version()
+                version_answer = ghermez.aria2Version()
                 if version_answer == 'did not respond':
                     self.aria2Disconnected()
 
@@ -4368,7 +4368,7 @@ class MainWindow(MainWindow_Ui):
         download_table_list = []
 
         # get now time and date
-        date = download.nowDate()
+        date = ghermez.nowDate()
 
         # add dictionary of downloads to data base
         for add_link_dictionary in add_link_dictionary_list:
@@ -5741,7 +5741,7 @@ class MainWindow(MainWindow_Ui):
                 status = 'stopped'
 
             # get now time and date
-            date = download.nowDate()
+            date = ghermez.nowDate()
 
             dictionary = {'file_name': file_name,
                           'status': status,
