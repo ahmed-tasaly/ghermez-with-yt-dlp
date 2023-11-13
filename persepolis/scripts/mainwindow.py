@@ -2030,7 +2030,7 @@ class MainWindow(MainWindow_Ui):
                     windows_title = '(' + str(value) + ')' + str(file_name)
                     progress_window.setWindowTitle(windows_title)
                 try:
-                    value = int(value[:-1])
+                    value = round(float(value[:-1]))
                 except (ValueError, TypeError):
                     value = 0
                 progress_window.download_progressBar.setValue(value)
