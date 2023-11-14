@@ -243,7 +243,7 @@ class CategoryTreeView(QTreeView):
         self.category_tree_menu.popup(QCursor.pos())
 
 
-class MainWindow_Ui(QMainWindow):
+class MainWindow_Ui(QMainWindow):  # noqa: N801
     def __init__(self, persepolis_setting: QSettings) -> None:
         super().__init__()
         # MainWindow
@@ -645,7 +645,7 @@ class MainWindow_Ui(QMainWindow):
             'add_new_download_shortcut'), self, self.addLinkButtonPressed)
         fileMenu.addAction(self.addlinkAction)
 
-        # importText
+        # addTextFileAction
         self.addtextfileAction = QAction(
             QIcon(icons + 'file'), QCoreApplication.translate('mainwindow_ui_tr', 'Import Links from Text File...'),
             self, statusTip=QCoreApplication.translate(

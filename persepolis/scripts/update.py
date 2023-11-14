@@ -35,17 +35,15 @@ from persepolis.constants import APP_NAME, LONG_NAME, OS, REPO_LINK, VERSION
 os_type = platform.system()
 
 
-class checkupdate(QWidget):
+class checkupdate(QWidget):  # noqa: N801
     def __init__(self, persepolis_setting: QSettings) -> None:
         super().__init__()
 
-# defining UI
+        # defining UI
         self.persepolis_setting = persepolis_setting
-        # icons = ':/' + \
-        #     str(self.persepolis_setting.value('settings/icons')) + '/'
         self.setWindowIcon(QIcon.fromTheme(APP_NAME, QIcon(':/ghermez.png')))
 
-# add support for other languages
+        # add support for other languages
         locale = str(self.persepolis_setting.value('settings/locale'))
         QLocale.setDefault(QLocale(locale))
         self.translator = QTranslator()
@@ -113,7 +111,7 @@ class checkupdate(QWidget):
 
         try:
             # get information dictionary from github
-            updatesource = requests.get('https://persepolisdm.github.io/version')
+            updatesource = requests.get('https://persepolisdm.github.io/version')  # noqa: S113
 
             updatesource_text = updatesource.text
             updatesource_dict = ast.literal_eval(updatesource_text)

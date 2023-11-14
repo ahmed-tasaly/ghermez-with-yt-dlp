@@ -35,7 +35,7 @@ def findFileManager() -> str:
 
 def touch(file_path: str) -> None:
     if not(os.path.isfile(file_path)):
-        f = open(file_path, 'w')
+        f = open(file_path, 'w')  # noqa: SIM115
         f.close()
 
 # xdgOpen opens files or folders
@@ -44,10 +44,7 @@ def xdgOpen(file_path: str, f_type: str='file', path: str='file') -> None:
     # we have a file path and we want to open it's directory.
     # highlit(select) file in file manager after opening.
     # it's help to find file easier :)
-    if f_type == 'folder' and path == 'file':
-        highlight = True
-    else:
-        highlight = False
+    highlight = bool(f_type == 'folder' and path == 'file')
 
     # for linux and bsd
     if os_type in OS.UNIX_LIKE:
@@ -269,11 +266,8 @@ def moveFile(old_file_path: str, new_path: str, new_path_type: str='folder') -> 
     # if it's folder so we have folder path
     # else we have new file path that includes file name
     if os.path.isfile(old_file_path):
-        if new_path_type == 'folder':
-            # check availability of directory
-            check_path = os.path.isdir(new_path)
-        else:
-            check_path = True
+        # check availability of directory
+        check_path = os.path.isdir(new_path) if new_path_type == 'folder' else True
         if check_path:
             try:
                 # move file to new_path

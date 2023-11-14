@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
 #    the Free Software Foundation, either version 3 of the License, or
@@ -10,14 +11,8 @@
 #
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
 
-class BROWSER:
-    CHROME = 'chrome'
-    CHROMIUM = 'chromium'
-    OPERA = 'opera'
-    VIVALDI = 'vivaldi'
-    FIREFOX = 'firefox'
-    BRAVE = 'brave'
-    CHROME_FAMILY = [CHROME, CHROMIUM, VIVALDI, OPERA, BRAVE]
-    LIST = [CHROME, CHROMIUM, OPERA, VIVALDI, FIREFOX, BRAVE]
+# this file is created for building persepolis with pyinstaller.
+from persepolis.scripts import persepolis
+
+persepolis.main()

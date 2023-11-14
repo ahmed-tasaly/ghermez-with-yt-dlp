@@ -20,7 +20,7 @@ except ImportError:
     from PyQt5.QtCore import QCoreApplication, QSettings
     from PyQt5.QtWidgets import QLabel, QVBoxLayout, QWidget
 
-class VideoFinderProgressWindow_Ui(ProgressWindow_Ui):
+class VideoFinderProgressWindow_Ui(ProgressWindow_Ui):  # noqa: N801
     def __init__(self, persepolis_setting: QSettings) -> None:
         super().__init__(persepolis_setting)
 

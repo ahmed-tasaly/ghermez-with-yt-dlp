@@ -23,7 +23,7 @@ except ImportError:
 
 from time import sleep
 
-from persepolis.gui.windows_notification_ui import Windows_Notification_UI
+from persepolis.gui.windows_notification_ui import WindowsNotification_UI
 
 
 class TimerThread(QThread):
@@ -38,7 +38,7 @@ class TimerThread(QThread):
         self.TIMEISUP.emit()
 
 
-class Windows_Notification(Windows_Notification_UI):
+class WindowsNotification(WindowsNotification_UI):
     def __init__(self, parent: QWidget, time: str, text1: str, text2: str, persepolis_setting: QSettings) -> None:
         super().__init__(parent, persepolis_setting)
 

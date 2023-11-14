@@ -51,9 +51,8 @@ def compatibility() -> None:
         persepolis_db = ghermez.DataBase()
 
         # add categories to category_db_table in data_base
-        f = open(queues_list_file)
-        queues_list = f.readlines()
-        f.close()
+        with open(queues_list_file) as f:
+            queues_list = f.readlines()
 
         # remove queues_list_file
         ghermez.remove(queues_list_file)
@@ -73,9 +72,8 @@ def compatibility() -> None:
         else:
             category_info_file = os.path.join(category_folder, category)
 
-        f = open(category_info_file)
-        category_info_file_list = f.readlines()
-        f.close()
+        with open(category_info_file) as f:
+            category_info_file_list = f.readlines()
 
         for item in category_info_file_list:
             gid = item.strip()
@@ -100,9 +98,8 @@ def compatibility() -> None:
             persepolis_db.insertInCategoryTable(category_dict)
 
     # add items to download_db_table in data base
-    f_download_list_file = open(download_list_file)
-    download_list_file_lines = f_download_list_file.readlines()
-    f_download_list_file.close()
+    with open(download_list_file) as f:
+        download_list_file_lines = f.readlines()
 
     for line in download_list_file_lines:
         gid = line.strip()
@@ -166,7 +163,6 @@ def compatibility() -> None:
         persepolis_db.insertInAddLinkTable([add_link_dictionary])
 
     # close connections
-    # persepolis_db.closeConnections()
     del persepolis_db
 
     # remove unwanted files and folders

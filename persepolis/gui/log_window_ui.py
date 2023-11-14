@@ -26,7 +26,7 @@ from persepolis.constants import APP_NAME
 from persepolis.gui import resources  # noqa: F401
 
 
-class LogWindow_Ui(QWidget):
+class LogWindow_Ui(QWidget):  # noqa: N801
     def __init__(self, persepolis_setting: QSettings) -> None:
         super().__init__()
 

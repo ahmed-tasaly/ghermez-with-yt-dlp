@@ -1,10 +1,12 @@
 line-length = 120
 select = ["ALL"]
-ignore = ["ANN101", "D107", "FBT001", "FBT003", "N802", "N803", "N806", "PLR2004", "SIM108"]
+ignore = ["ANN", "BLE001", "C90", "D1", "FBT", "N802", "N803", "N806", "PLR09", "PLW0603", "PTH", "S60", "SIM105", "TRY300"]
 
 [per-file-ignores]
 "__init__.py" = ["F401"]
 "mainwindow.py" = ["E402"]
+"check_proxy.py" = ["PLW1510"]
+"data_base.py" = ["ALL"]
 
 [flake8-quotes]
 inline-quotes = "single"

@@ -47,19 +47,23 @@ class QueueSpiderThread(QThread):
             if filename:
                 self.QUEUESPIDERRETURNEDFILENAME.emit(filename)
             else:
-                logger.logObj.error(
+                logger.LOG_OBJ.error(
                     "Spider couldn't find download information", exc_info=True)
 
         except Exception as e:
-            logger.logObj.error(
+            logger.LOG_OBJ.error(
                 "Spider couldn't find download information", exc_info=True)
 
-            logger.logObj.error(
-                str(e), exc_info=True)
+            logger.LOG_OBJ.error(str(e), exc_info=True)
 
 
 class BrowserPluginQueue(TextQueue_Ui):
-    def __init__(self, parent: QWidget, list_of_links: list[str], callback: Callable[[list[dict], str], None], persepolis_setting: QSettings) -> None:
+    def __init__(
+            self, parent: QWidget,
+            list_of_links: list[str],
+            callback: Callable[[list[dict], str], None],
+            persepolis_setting: QSettings,
+    ) -> None:
         super().__init__(persepolis_setting)
         self.persepolis_setting = persepolis_setting
         self.callback = callback
@@ -78,13 +82,7 @@ class BrowserPluginQueue(TextQueue_Ui):
             self.links_table.insertRow(0)
 
             # file_name
-            if 'out' in link_dict:
-                if link_dict['out']:
-                    file_name = link_dict['out']
-                else:
-                    file_name = '***'
-            else:
-                file_name = '***'
+            file_name = (link_dict['out'] if link_dict['out'] else '***') if 'out' in link_dict else '***'
 
             if file_name == '***':
                 # spider finds file name
@@ -111,7 +109,7 @@ class BrowserPluginQueue(TextQueue_Ui):
             # insert link
             self.links_table.setItem(0, 1, item)
 
-# get categories name and add them to add_queue_comboBox
+        # get categories name and add them to add_queue_comboBox
         categories_list = self.parent.persepolis_db.categoriesList()
 
         for queue in categories_list:
@@ -122,7 +120,7 @@ class BrowserPluginQueue(TextQueue_Ui):
             QIcon(icons + 'add_queue'), 'Create new queue')
 
 
-# entry initialization
+        # entry initialization
         global connections
         connections = int(
             self.persepolis_setting.value('settings/connections'))
@@ -131,52 +129,51 @@ class BrowserPluginQueue(TextQueue_Ui):
             self.persepolis_setting.value('settings/download_path'))
 
 
-# initialization
+        # initialization
         self.connections_spinBox.setValue(connections)
         self.download_folder_lineEdit.setText(download_path)
         self.download_folder_lineEdit.setEnabled(False)
 
-# ip_lineEdit initialization
+        # ip_lineEdit initialization
         settings_ip = self.persepolis_setting.value(
             'add_link_initialization/ip', None)
         if settings_ip:
             self.ip_lineEdit.setText(str(settings_ip))
 
-# proxy user lineEdit initialization
+        # proxy user lineEdit initialization
         settings_proxy_user = self.persepolis_setting.value(
             'add_link_initialization/proxy_user', None)
         if settings_proxy_user:
             self.proxy_user_lineEdit.setText(str(settings_proxy_user))
 
-# port_spinBox initialization
+        # port_spinBox initialization
         settings_port = self.persepolis_setting.value(
             'add_link_initialization/port', 0)
 
         self.port_spinBox.setValue(int(int(settings_port)))
 
 
-# download UserName initialization
+        # download UserName initialization
         settings_download_user = self.persepolis_setting.value(
             'add_link_initialization/download_user', None)
         if settings_download_user:
             self.download_user_lineEdit.setText(str(settings_download_user))
 
 
-# connect folder_pushButton
+        # connect folder_pushButton
         self.folder_pushButton.clicked.connect(self.changeFolder)
 
-# connect OK and cancel button
-
+        # connect OK and cancel button
         self.cancel_pushButton.clicked.connect(self.close)
         self.ok_pushButton.clicked.connect(self.okButtonPressed)
 
-# connect select_all_pushButton  deselect_all_pushButton
+        # connect select_all_pushButton  deselect_all_pushButton
         self.select_all_pushButton.clicked.connect(self.selectAll)
 
         self.deselect_all_pushButton.clicked.connect(self.deselectAll)
 
 
-#frames and checkBoxes
+        #frames and checkBoxes
         self.proxy_frame.setEnabled(False)
         self.proxy_checkBox.toggled.connect(self.proxyFrame)
 
@@ -189,29 +186,29 @@ class BrowserPluginQueue(TextQueue_Ui):
         # set focus to ok button
         self.ok_pushButton.setFocus()
 
-# add_queue_comboBox event
+        # add_queue_comboBox event
         self.add_queue_comboBox.currentIndexChanged.connect(self.queueChanged)
 
-# set window size and position
+        # set window size and position
         size = self.persepolis_setting.value('TextQueue/size', QSize(700, 500))
         position = self.persepolis_setting.value(
             'TextQueue/position', QPoint(300, 300))
         self.resize(size)
         self.move(position)
 
-# this method selects all links in links_table
+    # this method selects all links in links_table
     def selectAll(self, _button: QPushButton) -> None:
         for i in range(self.links_table.rowCount()):
             item = self.links_table.item(i, 0)
             item.setCheckState(Qt.Checked)
 
-# this method unchecks all check boxes
+    # this method unchecks all check boxes
     def deselectAll(self, _button: QPushButton) -> None:
         for i in range(self.links_table.rowCount()):
             item = self.links_table.item(i, 0)
             item.setCheckState(Qt.Unchecked)
 
-# this method is called, when user changes add_queue_comboBox
+    # this method is called, when user changes add_queue_comboBox
     def queueChanged(self, combo: int) -> None:
         if str(self.add_queue_comboBox.currentText()) == 'Create new queue':
             # if user want to create new queue, then call createQueue method from mainwindow(parent)
@@ -237,7 +234,7 @@ class BrowserPluginQueue(TextQueue_Ui):
                 self.add_queue_comboBox.setCurrentIndex(0)
 
 
-# activate frames if checkBoxes checked
+    # activate frames if checkBoxes checked
     def proxyFrame(self, _checkBox: bool) -> None:
 
         if self.proxy_checkBox.isChecked():
@@ -316,11 +313,10 @@ class BrowserPluginQueue(TextQueue_Ui):
 
         if not(self.limit_checkBox.isChecked()):
             limit = 0
+        elif self.limit_comboBox.currentText() == 'KiB/s':
+            limit = str(self.limit_spinBox.value()) + 'K'
         else:
-            if self.limit_comboBox.currentText() == 'KiB/s':
-                limit = str(self.limit_spinBox.value()) + 'K'
-            else:
-                limit = str(self.limit_spinBox.value()) + 'M'
+            limit = str(self.limit_spinBox.value()) + 'M'
 
         category = str(self.add_queue_comboBox.currentText())
 
@@ -348,8 +344,7 @@ class BrowserPluginQueue(TextQueue_Ui):
                 }
 
 
-# find checked links in links_table
-
+        # find checked links in links_table
         self.list_of_links.reverse()
         self.add_link_dictionary_list = []
         i = 0
@@ -357,7 +352,7 @@ class BrowserPluginQueue(TextQueue_Ui):
             item = self.links_table.item(row, 0)
 
             # if item is checked
-            if (item.checkState() == 2):
+            if (item.checkState() == 2):  # noqa: PLR2004
                 # Create a copy from dict and add it to add_link_dictionary_list
                 self.add_link_dictionary_list.append(
                     deepcopy(addlink_dict))

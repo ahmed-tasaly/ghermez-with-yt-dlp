@@ -28,7 +28,7 @@ from persepolis.gui import resources  # noqa: F401
 class ErrorWindow(QWidget):
     def __init__(self, text: str) -> None:
         super().__init__()
-# finding windows_size
+        # finding windows_size
         self.setMinimumSize(QSize(363, 300))
         self.setWindowIcon(QIcon.fromTheme(APP_NAME, QIcon(':/ghermez.png')))
         self.setWindowTitle(LONG_NAME)
@@ -86,7 +86,6 @@ class ErrorWindow(QWidget):
         persepolis_db.resetDataBase()
 
         # close connections
-        # persepolis_db.closeConnections()
         del persepolis_db
 
         # Reset persepolis_setting

@@ -10,8 +10,19 @@
 #
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
 
-# this file is created for building persepolis with pyinstaller.
-from persepolis.scripts import persepolis
+from __future__ import annotations
 
-persepolis.main()
+from typing import ClassVar
+
+
+class OS:
+    LINUX = 'Linux'
+    WINDOWS = 'Windows'
+    FREE_BSD = 'FreeBSD'
+    OPEN_BSD = 'OpenBSD'
+    OSX = DARWIN = 'Darwin'
+    BSD_FAMILY: ClassVar[list[str]] = [FREE_BSD, OPEN_BSD]
+    UNIX_LIKE: ClassVar[list[str]] = [*BSD_FAMILY, LINUX]
+    LIST: ClassVar[list[str]] = [LINUX, WINDOWS, FREE_BSD, OPEN_BSD, OSX]

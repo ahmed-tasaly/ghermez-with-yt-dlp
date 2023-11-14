@@ -66,14 +66,14 @@ class ProgressWindow(ProgressWindow_Ui):
 
         self.after_pushButton.clicked.connect(self.afterPushButtonPressed)
 
-# add support for other languages
+        # add support for other languages
         locale = str(self.persepolis_setting.value('settings/locale'))
         QLocale.setDefault(QLocale(locale))
         self.translator = QTranslator()
         if self.translator.load(':/translations/locales/ui_' + locale, 'ts'):
             QCoreApplication.installTranslator(self.translator)
 
-# check if limit speed activated by user or not
+        # check if limit speed activated by user or not
         add_link_dictionary = self.parent.persepolis_db.searchGidInAddLinkTable(gid)
 
         limit = str(add_link_dictionary['limit_value'])
@@ -93,7 +93,7 @@ class ProgressWindow(ProgressWindow_Ui):
 
         self.limit_spinBox.valueChanged.connect(self.limitComboBoxChanged)
 
-  # set window size and position
+        # set window size and position
         size = self.persepolis_setting.value(
             'ProgressWindow/size', QSize(595, 274))
         position = self.persepolis_setting.value(
@@ -289,9 +289,8 @@ class ProgressWindow(ProgressWindow_Ui):
         else:
             limit_value = str(self.limit_spinBox.value()) + 'M'
 
-    # if download was started before , send the limit_speed request to aria2 .
-    # else save the request in data_base
-
+        # if download was started before , send the limit_speed request to aria2 .
+        # else save the request in data_base
         if self.status != 'scheduled':
             ghermez.limitSpeed(self.gid, limit_value)
         else:

@@ -48,7 +48,7 @@ from persepolis.constants import APP_NAME, LONG_NAME
 from persepolis.gui import resources  # noqa: F401
 
 
-class ProgressWindow_Ui(QWidget):
+class ProgressWindow_Ui(QWidget):  # noqa: N801
     def __init__(self, persepolis_setting: QSettings) -> None:
         super().__init__()
         self.persepolis_setting = persepolis_setting
@@ -71,7 +71,7 @@ class ProgressWindow_Ui(QWidget):
             self.setLayoutDirection(Qt.LeftToRight)
 
 
-# window
+        # window
         self.setMinimumSize(QSize(595, 284))
 
         self.setWindowIcon(QIcon.fromTheme(APP_NAME, QIcon(':/ghermez.png')))
@@ -79,75 +79,75 @@ class ProgressWindow_Ui(QWidget):
 
         verticalLayout = QVBoxLayout(self)
 
-# progress_tabWidget
+        # progress_tabWidget
         self.progress_tabWidget = QTabWidget(self)
 
-# information_tab
+        # information_tab
         self.information_tab = QWidget()
         information_verticalLayout = QVBoxLayout(self.information_tab)
 
-# link_label
+        # link_label
         self.link_label = QLabel(self.information_tab)
         information_verticalLayout.addWidget(self.link_label)
 
-# status_label
+        # status_label
         self.status_label = QLabel(self.information_tab)
         information_verticalLayout.addWidget(self.status_label)
 
-# downloaded_label
+        # downloaded_label
         self.downloaded_label = QLabel(self.information_tab)
         information_verticalLayout.addWidget(self.downloaded_label)
 
-# rate_label
+        # rate_label
         self.rate_label = QLabel(self.information_tab)
         information_verticalLayout.addWidget(self.rate_label)
 
-# time_label
+        # time_label
         self.time_label = QLabel(self.information_tab)
         information_verticalLayout.addWidget(self.time_label)
 
-# connections_label
+        # connections_label
         self.connections_label = QLabel(self.information_tab)
         information_verticalLayout.addWidget(self.connections_label)
 
         information_verticalLayout.addStretch(1)
 
-# add information_tab to progress_tabWidget
+        # add information_tab to progress_tabWidget
         self.progress_tabWidget.addTab(self.information_tab, '')
 
-# options_tab
+        # options_tab
         self.options_tab = QWidget()
         options_tab_verticalLayout = QVBoxLayout(self.options_tab)
         options_tab_horizontalLayout = QHBoxLayout()
 
 
-# limit_checkBox
+        # limit_checkBox
         self.limit_checkBox = QCheckBox(self.options_tab)
 
         limit_verticalLayout = QVBoxLayout()
         limit_verticalLayout.addWidget(self.limit_checkBox)
 
-# limit_frame
+        # limit_frame
         self.limit_frame = QFrame(self.options_tab)
         self.limit_frame.setFrameShape(QFrame.StyledPanel)
         self.limit_frame.setFrameShadow(QFrame.Raised)
         limit_frame_verticalLayout = QVBoxLayout(self.limit_frame)
         limit_frame_horizontalLayout = QHBoxLayout()
 
-# limit_spinBox
+        # limit_spinBox
         self.limit_spinBox = QDoubleSpinBox(self.options_tab)
         self.limit_spinBox.setMinimum(1)
         self.limit_spinBox.setMaximum(1023)
         limit_frame_horizontalLayout.addWidget(self.limit_spinBox)
 
-# limit_comboBox
+        # limit_comboBox
         self.limit_comboBox = QComboBox(self.options_tab)
         self.limit_comboBox.addItem('')
         self.limit_comboBox.addItem('')
 
         limit_frame_horizontalLayout.addWidget(self.limit_comboBox)
 
-# limit_pushButton
+        # limit_pushButton
         self.limit_pushButton = QPushButton(self.options_tab)
 
         limit_frame_verticalLayout.addLayout(limit_frame_horizontalLayout)
@@ -162,13 +162,13 @@ class ProgressWindow_Ui(QWidget):
         options_tab_verticalLayout.addLayout(options_tab_horizontalLayout)
         options_tab_verticalLayout.addStretch(1)
 
-# after_checkBox
+        # after_checkBox
         self.after_checkBox = QCheckBox(self.options_tab)
 
         after_verticalLayout = QVBoxLayout()
         after_verticalLayout.addWidget(self.after_checkBox)
 
-# after_frame
+        # after_frame
         self.after_frame = QFrame(self.options_tab)
         self.after_frame.setFrameShape(QFrame.StyledPanel)
         self.after_frame.setFrameShadow(QFrame.Raised)
@@ -176,13 +176,13 @@ class ProgressWindow_Ui(QWidget):
         after_frame_verticalLayout = QVBoxLayout(self.after_frame)
 
 
-# after_comboBox
+        # after_comboBox
         self.after_comboBox = QComboBox(self.options_tab)
         self.after_comboBox.addItem('')
 
         after_frame_verticalLayout.addWidget(self.after_comboBox)
 
-# after_pushButton
+        # after_pushButton
         self.after_pushButton = QPushButton(self.options_tab)
         after_frame_verticalLayout.addWidget(self.after_pushButton)
 
@@ -196,26 +196,26 @@ class ProgressWindow_Ui(QWidget):
         verticalLayout.addWidget(self.progress_tabWidget)
 
 
-# download_progressBar
+        # download_progressBar
         self.download_progressBar = QProgressBar(self)
         verticalLayout.addWidget(self.download_progressBar)
         self.download_progressBar.setTextVisible(False)
 
-# buttons
+        # buttons
         button_horizontalLayout = QHBoxLayout()
         button_horizontalLayout.addStretch(1)
 
-# resume_pushButton
+        # resume_pushButton
         self.resume_pushButton = QPushButton(self)
         self.resume_pushButton.setIcon(QIcon(icons + 'play'))
         button_horizontalLayout.addWidget(self.resume_pushButton)
 
-# pause_pushButton
+        # pause_pushButton
         self.pause_pushButton = QPushButton(self)
         self.pause_pushButton.setIcon(QIcon(icons + 'pause'))
         button_horizontalLayout.addWidget(self.pause_pushButton)
 
-# stop_pushButton
+        # stop_pushButton
         self.stop_pushButton = QPushButton(self)
         self.stop_pushButton.setIcon(QIcon(icons + 'stop'))
         button_horizontalLayout.addWidget(self.stop_pushButton)
@@ -223,7 +223,7 @@ class ProgressWindow_Ui(QWidget):
         verticalLayout.addLayout(button_horizontalLayout)
 
         self.progress_tabWidget.setCurrentIndex(0)
-# labels
+        # labels
         self.link_label.setText(QCoreApplication.translate('progress_ui_tr', 'Link: '))
         self.status_label.setText(QCoreApplication.translate('progress_ui_tr', 'Status: '))
         self.downloaded_label.setText(QCoreApplication.translate('progress_ui_tr', 'Downloaded:'))

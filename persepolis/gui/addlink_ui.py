@@ -55,7 +55,7 @@ from persepolis.gui import resources  # noqa: F401
 from persepolis.gui.customized_widgets import MyQDateTimeEdit
 
 
-class AddLinkWindow_Ui(QWidget):
+class AddLinkWindow_Ui(QWidget):  # noqa: N801
     def __init__(self, persepolis_setting: QSettings) -> None:
         super().__init__()
         self.persepolis_setting = persepolis_setting

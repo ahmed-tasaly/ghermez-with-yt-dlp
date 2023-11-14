@@ -51,7 +51,6 @@ def checkstartup() -> (bool | None):
         try:
             aKey = winreg.OpenKey(
                 winreg.HKEY_CURRENT_USER, 'Software\\Microsoft\\Windows\\CurrentVersion\\Run', 0, winreg.KEY_ALL_ACCESS)
-            # startupvalue = winreg.QueryValueEx(aKey, 'persepolis')
             startup = True
         except WindowsError:
             startup = False
@@ -68,8 +67,6 @@ def checkstartup() -> (bool | None):
     return None
 
 # add startup file
-
-
 def addstartup() -> None:
     # check if it is linux
     if os_type in OS.UNIX_LIKE:
@@ -93,11 +90,9 @@ StartupWMClass=persepolis-download-Manager
         # check if the autostart directory exists & create entry
         if not os.path.exists(home_address + '/.config/autostart'):
             os.makedirs(home_address + '/.config/autostart', 0o755)
-        startupfile = open(
-            home_address + '/.config/autostart/persepolis.desktop', 'w+')
-        startupfile.write(entry)
-        os.chmod(home_address +
-                 '/.config/autostart/persepolis.desktop', 0o644)
+        with open(home_address + '/.config/autostart/persepolis.desktop', 'w+') as startupfile:
+            startupfile.write(entry)
+        os.chmod(home_address + '/.config/autostart/persepolis.desktop', 0o644)
     # check if it is mac
     elif os_type == OS.OSX:
         # OS X
@@ -119,9 +114,8 @@ StartupWMClass=persepolis-download-Manager
 	<true/>
 </dict>
 </plist>\n'''
-        startupfile = open(
-            home_address + '/Library/LaunchAgents/com.persepolisdm.plist', 'w+')
-        startupfile.write(entry)
+        with open(home_address + '/Library/LaunchAgents/com.persepolisdm.plist', 'w+') as startupfile:
+            startupfile.write(entry)
         os.system('launchctl load ' + home_address +
                   '/Library/LaunchAgents/com.persepolisdm.plist')
     # check if it is Windows
@@ -141,8 +135,6 @@ StartupWMClass=persepolis-download-Manager
         winreg.CloseKey(key)
 
 # remove startup file
-
-
 def removestartup() -> None:
     # check if it is linux
     if os_type in OS.BSD_FAMILY:
@@ -160,14 +152,13 @@ def removestartup() -> None:
                       '/Library/LaunchAgents/com.persepolisdm.plist')
 
     # check if it is Windows
-    elif os_type == OS.WINDOWS:
-        if checkstartup():
-            # Connect to the startup path in Registry
-            key = winreg.OpenKey(
-                winreg.HKEY_CURRENT_USER, 'Software\\Microsoft\\Windows\\CurrentVersion\\Run', 0, winreg.KEY_ALL_ACCESS)
+    elif os_type == OS.WINDOWS and checkstartup():
+        # Connect to the startup path in Registry
+        key = winreg.OpenKey(
+            winreg.HKEY_CURRENT_USER, 'Software\\Microsoft\\Windows\\CurrentVersion\\Run', 0, winreg.KEY_ALL_ACCESS)
 
-            # remove persepolis from startup
-            winreg.DeleteValue(key, 'persepolis')
+        # remove persepolis from startup
+        winreg.DeleteValue(key, 'persepolis')
 
-            # Close connection
-            winreg.CloseKey(key)
+        # Close connection
+        winreg.CloseKey(key)

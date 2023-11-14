@@ -12,8 +12,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-from .Browser import BROWSER
-from .Os import OS
+from .browser import BROWSER
+from .os import OS
 
 APP_NAME = 'ghermez'
 ORG_NAME = 'ghermez_download_manager'

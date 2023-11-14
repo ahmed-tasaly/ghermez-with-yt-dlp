@@ -11,23 +11,21 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from __future__ import annotations
+
 import ast
 
 
 # This function is writting a list in file_path in dictionary format
-def writeList(file_path, dir_list):
+def writeList(file_path: str, dir_list: str) -> None:
     dictionary = {'list': dir_list}
-    f = open(file_path, 'w')
-    f.writelines(str(dictionary))
-    f.close()
+    with open(file_path, 'w') as f:
+        f.writelines(str(dictionary))
 
 # This function is reading file_path and return content of file in list format
-
-
-def readList(file_path, mode='dictionary'):
-    f = open(file_path)
-    f_string = f.readline()
-    f.close()
+def readList(file_path: str, mode: str='dictionary') -> list[str]:
+    with open(file_path) as f:
+        f_string = f.readline()
     dictionary = ast.literal_eval(f_string.strip())
     dir_list = dictionary['list']
 
@@ -38,11 +36,8 @@ def readList(file_path, mode='dictionary'):
 
 # this function is reading a file that contains dictionary , and extracts
 # dictionary from it.
-
-
-def readDict(file_path):
-    f = open(file_path)
-    f_lines = f.readlines()
-    f.close()
+def readDict(file_path: str) -> dict[str, str]:
+    with open(file_path) as f:
+        f_lines = f.readlines()
     dict_str = str(f_lines[0].strip())
     return ast.literal_eval(dict_str)

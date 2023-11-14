@@ -38,20 +38,17 @@ ghermez.initLogger()
 # refresh logs!
 ghermez.init_log_file()
 
-from ghermez import DataBase, PluginsDB  # noqa: E402
-
 # create an object for DataBase
-persepolis_db = DataBase()
+persepolis_db = ghermez.DataBase()
 
 # create tables
 persepolis_db.createTables()
 
 # close connections
-# persepolis_db.closeConnections()
 del persepolis_db
 
 # create an object for PluginsDB
-plugins_db = PluginsDB()
+plugins_db = ghermez.PluginsDB()
 
 # create tables
 plugins_db.createTables()
@@ -60,11 +57,10 @@ plugins_db.createTables()
 plugins_db.deleteOldLinks()
 
 # close connections
-# plugins_db.closeConnections()
 del plugins_db
 
 
-# import persepolis_setting
+# load persepolis_setting
 # persepolis is using QSettings for saving windows size and windows
 # position and program settings.
 
@@ -147,44 +143,40 @@ else:
 
 # compatibility
 persepolis_version = float(persepolis_setting.value('version/version', 2.5))
-if persepolis_version < 2.6:
+if persepolis_version < 2.6:  # noqa: PLR2004
     from persepolis.scripts.compatibility import compatibility
     try:
         compatibility()
     except Exception as e:
 
         # create an object for DataBase
-        persepolis_db = DataBase()
+        persepolis_db = ghermez.DataBase()
 
         # create tables
         persepolis_db.resetDataBase()
 
         # close connections
-        # persepolis_db.closeConnections()
         del persepolis_db
 
         # write error in log
-        ghermez.sendToLog(
-            'compatibility ERROR!', 'ERROR')
-        ghermez.sendToLog(
-            str(e), 'ERROR')
+        ghermez.sendToLog('compatibility ERROR!', 'ERROR')
+        ghermez.sendToLog(str(e), 'ERROR')
 
     persepolis_version = 2.6
 
-if persepolis_version < 3.1:
+if persepolis_version < 3.1:  # noqa: PLR2004
     # create an object for DataBase
-    persepolis_db = DataBase()
+    persepolis_db = ghermez.DataBase()
 
     # correct data base
     persepolis_db.correctDataBase()
 
     # close connections
-    # persepolis_db.closeConnections()
     del persepolis_db
 
     persepolis_version = 3.1
 
-if persepolis_version < 3.2:
+if persepolis_version < 3.2:  # noqa: PLR2004
     persepolis_setting.beginGroup('settings')
 
     for key in default_setting_dict:

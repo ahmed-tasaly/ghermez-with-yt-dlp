@@ -59,7 +59,7 @@ from persepolis.gui import resources  # noqa: F401
 from persepolis.gui.customized_widgets import MyQDateTimeEdit
 
 
-class KeyCapturingWindow_Ui(QWidget):
+class KeyCapturingWindow_Ui(QWidget):  # noqa: N801
     def __init__(self, persepolis_setting: QSettings) -> None:
         super().__init__()
         self.persepolis_setting = persepolis_setting
@@ -83,7 +83,6 @@ class KeyCapturingWindow_Ui(QWidget):
         elif ui_direction in 'ltr':
             self.setLayoutDirection(Qt.LeftToRight)
 
-        global icons
         icons = ':/' + str(self.persepolis_setting.value('settings/icons')) + '/'
 
         window_verticalLayout = QVBoxLayout(self)
@@ -114,7 +113,7 @@ class KeyCapturingWindow_Ui(QWidget):
         self.ok_pushButton.setText(QCoreApplication.translate('setting_ui_tr', 'OK'))
 
 
-class Setting_Ui(QWidget):
+class Setting_Ui(QWidget):  # noqa: N801
     def __init__(self, persepolis_setting: QSettings) -> None:
         super().__init__()
 
@@ -139,7 +138,6 @@ class Setting_Ui(QWidget):
         elif ui_direction in 'ltr':
             self.setLayoutDirection(Qt.LeftToRight)
 
-        global icons
         icons = ':/' + str(self.persepolis_setting.value('settings/icons')) + '/'
 
         # main layout

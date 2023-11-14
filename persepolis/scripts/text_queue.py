@@ -47,19 +47,23 @@ class QueueSpiderThread(QThread):
             if filename:
                 self.QUEUESPIDERRETURNEDFILENAME.emit(filename)
             else:
-                logger.logObj.error(
+                logger.LOG_OBJ.error(
                     "Spider couldn't find download information", exc_info=True)
 
         except Exception as e:
             # write error in log
-            logger.logObj.error(
+            logger.LOG_OBJ.error(
                 "Spider couldn't find download information", exc_info=True)
-            logger.logObj.error(
-                str(e), exc_info=True)
+            logger.LOG_OBJ.error(str(e), exc_info=True)
 
 
 class TextQueue(TextQueue_Ui):
-    def __init__(self, parent: QWidget, file_path: str, callback: Callable[[list[dict], str], None], persepolis_setting: QSettings) -> None:
+    def __init__(
+            self, parent: QWidget,
+            file_path: str,
+            callback: Callable[[list[dict], str], None],
+            persepolis_setting: QSettings,
+    ) -> None:
         super().__init__(persepolis_setting)
         self.persepolis_setting = persepolis_setting
         self.callback = callback
@@ -71,9 +75,8 @@ class TextQueue(TextQueue_Ui):
             str(self.persepolis_setting.value('settings/icons')) + '/'
 
         # read text file lines and put links in list format.
-        f = open(self.file_path)
-        f_links_list = f.readlines()
-        f.close()
+        with open(self.file_path) as f:
+            f_links_list = f.readlines()
 
         f_links_list.reverse()
 
@@ -124,7 +127,7 @@ class TextQueue(TextQueue_Ui):
         self.add_queue_comboBox.addItem(
             QIcon(icons + 'add_queue'), 'Create new queue')
 
-# entry initialization
+        # entry initialization
 
         # get values from persepolis_setting
         global connections
@@ -318,11 +321,10 @@ class TextQueue(TextQueue_Ui):
 
         if not(self.limit_checkBox.isChecked()):
             limit = 0
+        elif self.limit_comboBox.currentText() == 'KiB/s':
+            limit = str(self.limit_spinBox.value()) + 'K'
         else:
-            if self.limit_comboBox.currentText() == 'KiB/s':
-                limit = str(self.limit_spinBox.value()) + 'K'
-            else:
-                limit = str(self.limit_spinBox.value()) + 'M'
+            limit = str(self.limit_spinBox.value()) + 'M'
 
         category = str(self.add_queue_comboBox.currentText())
 
@@ -356,7 +358,7 @@ class TextQueue(TextQueue_Ui):
             item = self.links_table.item(row, 0)
 
             # if item is checked
-            if (item.checkState() == 2):
+            if (item.checkState() == 2):  # noqa: PLR2004
                 # Create a copy from dict and add it to add_link_dictionary_list
                 self.add_link_dictionary_list.append(
                     addlink_dict.copy())

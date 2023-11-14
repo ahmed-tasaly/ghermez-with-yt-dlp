@@ -20,7 +20,7 @@ except ImportError:
     from PyQt5.QtCore import QPoint, QRect, QSettings, QSize, Qt
     from PyQt5.QtWidgets import QDesktopWidget, QHBoxLayout, QLabel, QVBoxLayout, QWidget
 
-class Windows_Notification_UI(QWidget):
+class WindowsNotification_UI(QWidget):  # noqa: N801
     def __init__(self, parent: QWidget, persepolis_setting: QSettings) -> None:
         super().__init__(parent)
 
@@ -50,8 +50,7 @@ class Windows_Notification_UI(QWidget):
         self.move(bottom_right_notification.topLeft())
 
         # get persepolis icon path
-        # icons = ':/' + \
-        #     str(self.persepolis_setting.value('settings/icons')) + '/'
+        # icons = ':/' + str(self.persepolis_setting.value('settings/icons')) + '/'  # noqa: ERA001
 
         notification_horizontalLayout = QHBoxLayout(self)
 

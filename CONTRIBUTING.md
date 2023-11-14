@@ -28,7 +28,7 @@ To get a local copy up and running follow these simple example steps.
 
 You need to install `git`, `Python` (>=3.7) and `Rust`
 
-### Installation
+### Develop
 
 1. Clone the repo
 
@@ -46,7 +46,13 @@ You need to install `git`, `Python` (>=3.7) and `Rust`
 3. Install requirement packages
 
    ```sh
-   pip install PyQt5 requests maturin patchelf
+   pip install PyQt5 maturin requests setproctitle psutil youtube_dl
+   ```
+
+   (only for windows)
+
+   ```sh
+   pip install pypiwin32
    ```
 
 4. Build `ghermez` package
@@ -132,13 +138,13 @@ maturin develop --release
 run terminal and enter ghermez folder so build ghermez by pyinstaller with this command:
 
 ```sh
-pyinstaller "./persepolis/Persepolis Download Manager.py"  -w -F -i ./resources/ghermez.ico -n "Ghermez Download Manager" --version-file version.py
+pyinstaller "./persepolis/persepolis_download_manager.py"  -w -F -i ./resources/ghermez.ico -n "GhermezDownloadManager" --version-file version.py
 ```
 
 (for windows)
 
 ```sh
-pyinstaller '.\persepolis\Persepolis Download Manager.py' -p "C:\Program Files (x86)\Windows Kits\10\Redist\ucrt\DLLs\x64" -p C:\python35\Lib\site-packages\PyQt5\Qt\bin\ -w -F -i ./resources/ghermez.ico -n "Ghermez Download Manager" --version-file version.py
+pyinstaller '.\persepolis\persepolis_download_manager.py' -p "C:\Program Files (x86)\Windows Kits\10\Redist\ucrt\DLLs\x64" -p C:\python35\Lib\site-packages\PyQt5\Qt\bin\ -w -F -i ./resources/ghermez.ico -n "GhermezDownloadManager" --version-file version.py
 ```
 
 If you changed windows SDK (step 1-4) and python (step 1-2) installation directory you should change -p(path)
@@ -166,3 +172,10 @@ You have executable ghermez and you can put it everywhere (next to the and ffmpe
 - Build and compile installation if everything goes well, you have a ghermez installer.
 
 Enjoy it. 😊
+
+### step 4: create debian package (for debian-base linux)
+
+You may want to have a deb file, so run:
+
+- Install python package (`pip install stdeb`)
+- build deb file with setuptools (`python setup.py --command-packages=stdeb.command bdist_deb`)

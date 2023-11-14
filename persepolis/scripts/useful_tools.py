@@ -13,6 +13,8 @@
 
 from __future__ import annotations
 
+from typing import Any
+
 try:
     from PySide6.QtWidgets import QStyleFactory, QWidget
 except ImportError:
@@ -43,7 +45,7 @@ home_address = os.path.expanduser('~')
 
 
 # determine the config folder path based on the operating system
-def determineConfigFolder():
+def determineConfigFolder() -> str:
     if os_type in OS.UNIX_LIKE:
         config_folder = os.path.join(
             home_address, '.config/persepolis_download_manager')
@@ -59,7 +61,7 @@ def determineConfigFolder():
 # this function returns operating system and desktop environment(for linux and bsd).
 
 
-def osAndDesktopEnvironment():
+def osAndDesktopEnvironment() -> tuple[str, str | None]:
     desktop_env = None
     if os_type in OS.UNIX_LIKE:
         # find desktop environment('KDE', 'GNOME', ...)
@@ -72,17 +74,15 @@ def osAndDesktopEnvironment():
 def humanReadableSize(size: float, input_type: str='file_size') -> str:
     labels = ['KiB', 'MiB', 'GiB', 'TiB']
     i = -1
-    if size < 1024:
+    ONE_KILOBYTE = 1024
+    if size < ONE_KILOBYTE:
         return str(size) + ' B'
 
-    while size >= 1024:
+    while size >= ONE_KILOBYTE:
         i += 1
-        size = size / 1024
+        size = size / ONE_KILOBYTE
 
-    if input_type == 'speed':
-        j = 0
-    else:
-        j = 1
+    j = 0 if input_type == 'speed' else 1
 
     if i > j:
         return str(round(size, 2)) + ' ' + labels[i]
@@ -99,12 +99,7 @@ def convertToByte(file_size: str) -> int:
         unit = file_size[-3:]
 
         # persepolis uses float type for GiB and TiB
-        if unit in ('GiB', 'TiB'):
-
-            size_value = float(file_size[:-4])
-
-        else:
-            size_value = int(float(file_size[:-4]))
+        size_value = float(file_size[:-4]) if unit in ('GiB', 'TiB') else int(float(file_size[:-4]))
     else:
         unit = None
         size_value = int(float(file_size[:-3]))
@@ -160,7 +155,7 @@ def returnDefaultSettings() -> dict[str, str]:
 
 
 
-def muxer(parent: QWidget, video_finder_dictionary: dict[str, str]):
+def muxer(parent: QWidget, video_finder_dictionary: dict[str, str]) -> dict[str, Any]:
 
     result_dictionary = {'error': 'no_error',
                          'ffmpeg_error_message': None,
@@ -209,8 +204,8 @@ def muxer(parent: QWidget, video_finder_dictionary: dict[str, str]):
 
                 final_file_name = final_file_name[0:-extension_length] + '.mkv'
 
-            if parent.persepolis_setting.value('settings/download_path') == final_path:
-                if parent.persepolis_setting.value('settings/subfolder') == 'yes':
+            if parent.persepolis_setting.value('settings/download_path') == final_path \
+                and parent.persepolis_setting.value('settings/subfolder') == 'yes':
                     final_path = os.path.join(final_path, 'Videos')
 
             # rename file if file already existed

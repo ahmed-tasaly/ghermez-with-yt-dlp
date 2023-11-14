@@ -21,9 +21,8 @@ import urllib
 import ghermez
 from persepolis.constants import OS
 
+
 # get proxy function
-
-
 def getProxy() -> dict[str, str]:
     socks_proxy = False
 
@@ -207,13 +206,10 @@ def getProxy() -> dict[str, str]:
                 proxyList = subprocess.run(['scutil', '--proxy'], stdout=subprocess.PIPE)
                 for line in proxyList.stdout.decode('utf-8').split('\n'):
                     words = line.split()
-                    if len(words) == 3 and words[0] in validKeys:
+                    if len(words) == 3 and words[0] in validKeys:  # noqa: PLR2004
                         mac_tmp_proxies_list[words[0]] = words[2]
 
-                if mac_tmp_proxies_list['SOCKSEnable'] == '1':
-                    socks_proxy = True
-                else:
-                    socks_proxy = False
+                socks_proxy = mac_tmp_proxies_list['SOCKSEnable'] == '1'
             # others except KDE,Mac OS,gnome,unity7
             else:
                 socks_proxy = proxysource['socks'].split(':')[1].replace('//', '')

@@ -33,7 +33,7 @@ config_folder = ghermez.determineConfigFolder()
 
 def browserIntegration(browser: str) -> (bool, bool):
     # for GNU/Linux
-    if os_type == OS.LINUX:
+    if os_type == OS.LINUX or os_type in OS.BSD_FAMILY:
         # find Persepolis execution path
         # persepolis execution path
         exec_path = os.path.join(config_folder, 'persepolis_run_shell')
@@ -61,36 +61,6 @@ def browserIntegration(browser: str) -> (bool, bool):
         elif browser == BROWSER.BRAVE:
             native_message_folder = home_address + \
                 '/.config/BraveSoftware/Brave-Browser/NativeMessagingHosts'
-
-    # for FreeBSD and OpenBSD
-    elif os_type in OS.BSD_FAMILY:
-        # find Persepolis execution path
-        # persepolis execution path
-        exec_path = os.path.join(config_folder, 'persepolis_run_shell')
-
-        # Native Messaging Hosts folder path for every browser
-        if browser == BROWSER.CHROMIUM:
-            native_message_folder = home_address + '/.config/chromium/NativeMessagingHosts'
-
-        elif browser == BROWSER.CHROME:
-            native_message_folder = home_address + \
-                '/.config/google-chrome/NativeMessagingHosts'
-
-        elif browser == BROWSER.FIREFOX:
-            native_message_folder = home_address + \
-                '/.mozilla/native-messaging-hosts'
-        elif browser == BROWSER.VIVALDI:
-            native_message_folder = home_address + \
-                '/.config/vivaldi/NativeMessagingHosts'
-
-        elif browser == BROWSER.OPERA:
-            native_message_folder = home_address + \
-                '/.config/opera/NativeMessagingHosts'
-
-        elif browser == BROWSER.BRAVE:
-            native_message_folder = home_address + \
-                '/.config/BraveSoftware/Brave-Browser/NativeMessagingHosts'
-
 
     # for Mac OSX
     elif os_type == OS.OSX:
@@ -171,9 +141,8 @@ def browserIntegration(browser: str) -> (bool, bool):
     ghermez.makeDirs(native_message_folder)
 
     # Write NMH file
-    f = open(native_message_file, 'w')
-    f.write(str(webextension_json_connector).replace("'", '\"'))
-    f.close()
+    with open(native_message_file, 'w') as f:
+        f.write(str(webextension_json_connector).replace("'", '\"'))
 
     if os_type != OS.WINDOWS:
 
@@ -183,10 +152,7 @@ def browserIntegration(browser: str) -> (bool, bool):
                                      stdin=subprocess.PIPE,
                                      shell=False)
 
-        if pipe_json.wait() == 0:
-            json_done = True
-        else:
-            json_done = False
+        json_done = pipe_json.wait() == 0
 
     else:
         native_done = None
@@ -263,9 +229,8 @@ def browserIntegration(browser: str) -> (bool, bool):
 
         persepolis_run_shell_contents = shebang + '\n' + '"' + persepolis_path + '" "$@"'
 
-        f = open(exec_path, 'w')
-        f.writelines(persepolis_run_shell_contents)
-        f.close()
+        with open(exec_path, 'w') as f:
+            f.writelines(persepolis_run_shell_contents)
 
         # make persepolis_run_shell executable
 
@@ -275,9 +240,6 @@ def browserIntegration(browser: str) -> (bool, bool):
                                        stdin=subprocess.PIPE,
                                        shell=False)
 
-        if pipe_native.wait() == 0:
-            native_done = True
-        else:
-            native_done = False
+        native_done = pipe_native.wait() == 0
 
     return json_done, native_done

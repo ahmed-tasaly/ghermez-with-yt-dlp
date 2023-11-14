@@ -75,10 +75,9 @@ class KeyCapturingWindow(KeyCapturingWindow_Ui):
         self.installEventFilter(self)
 
     def eventFilter(self, source: QObject, event: QEvent) -> bool:
-        if event.type() == QEvent.KeyPress:
-            if event.key():
-                # show new keys in window
-                self.capturedKeyLabel.setText(str(QKeySequence(event.modifiers() | event.key()).toString()))
+        if event.type() == QEvent.KeyPress and event.key():
+            # show new keys in window
+            self.capturedKeyLabel.setText(str(QKeySequence(event.modifiers() | event.key()).toString()))
         return super().eventFilter(source, event)
 
     def okPushButtonPressed(self, _button: QPushButton) -> None:
@@ -546,10 +545,7 @@ class PreferencesWindow(Setting_Ui):
         selected_size = int(self.icons_size_comboBox.currentText())
 
         if selected_style == 'Fusion':
-            if self.color_comboBox.currentText() == 'Dark Fusion':
-                dark_theme = True
-            else:
-                dark_theme = False
+            dark_theme = self.color_comboBox.currentText() == 'Dark Fusion'
 
         elif selected_style == 'Adwaita-Dark':
             dark_theme = True
@@ -560,10 +556,7 @@ class PreferencesWindow(Setting_Ui):
         if dark_theme:
             self.icon_comboBox.clear()
 
-            if selected_size < 48:
-                icons = ['Breeze-Dark', 'Papirus-Dark']
-            else:
-                icons = ['Breeze-Dark']
+            icons = ['Breeze-Dark', 'Papirus-Dark'] if selected_size < 48 else ['Breeze-Dark']  # noqa: PLR2004
 
             self.icon_comboBox.addItems(icons)
 
@@ -578,10 +571,7 @@ class PreferencesWindow(Setting_Ui):
 
         elif dark_theme is False:
 
-            if selected_size < 48:
-                icons = ['Breeze', 'Papirus', 'Papirus-Light']
-            else:
-                icons = ['Breeze', 'Papirus']
+            icons = ['Breeze', 'Papirus', 'Papirus-Light'] if selected_size < 48 else ['Breeze', 'Papirus']  # noqa: PLR2004
 
 
             self.icon_comboBox.addItems(icons)
@@ -597,7 +587,7 @@ class PreferencesWindow(Setting_Ui):
 
 
         else:
-            if selected_size < 48:
+            if selected_size < 48:  # noqa: PLR2004
                 icons = ['Breeze', 'Breeze-Dark', 'Papirus',
                         'Papirus-Dark', 'Papirus-Light']
             else:
@@ -938,10 +928,7 @@ class PreferencesWindow(Setting_Ui):
         font_size = self.font_size_spinBox.value()
         self.persepolis_setting.setValue('font-size', font_size)
 
-        if self.font_checkBox.isChecked():
-            custom_font = 'yes'
-        else:
-            custom_font = 'no'
+        custom_font = 'yes' if self.font_checkBox.isChecked() else 'no'
 
         self.persepolis_setting.setValue('custom-font', custom_font)
 
@@ -1195,8 +1182,8 @@ class PreferencesWindow(Setting_Ui):
         # comparing first_key_value_dict with second_key_value_dict
         show_message_box = False
         for key in self.first_key_value_dict:
-            if self.first_key_value_dict[key] != self.second_key_value_dict[key]:
-                if key in ['locale', 'aria2_path', 'download_path_temp', 'download_path',
+            if self.first_key_value_dict[key] != self.second_key_value_dict[key] \
+                and key in ['locale', 'aria2_path', 'download_path_temp', 'download_path',
                            'custom-font', 'rpc-port', 'max-tries', 'retry-wait', 'timeout',
                            'connections', 'style', 'font', 'font-size', 'color-scheme']:
                     show_message_box = True

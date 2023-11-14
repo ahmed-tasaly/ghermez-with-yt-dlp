@@ -12,12 +12,17 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-class OS:
-    LINUX = 'Linux'
-    WINDOWS = 'Windows'
-    FREE_BSD = 'FreeBSD'
-    OPEN_BSD = 'OpenBSD'
-    OSX = DARWIN = 'Darwin'
-    BSD_FAMILY = [FREE_BSD, OPEN_BSD]
-    UNIX_LIKE = [*BSD_FAMILY, LINUX]
-    LIST = [LINUX, WINDOWS, FREE_BSD, OPEN_BSD, OSX]
+from __future__ import annotations
+
+from typing import ClassVar
+
+
+class BROWSER:
+    CHROME = 'chrome'
+    CHROMIUM = 'chromium'
+    OPERA = 'opera'
+    VIVALDI = 'vivaldi'
+    FIREFOX = 'firefox'
+    BRAVE = 'brave'
+    CHROME_FAMILY: ClassVar[list[str]] = [CHROME, CHROMIUM, VIVALDI, OPERA, BRAVE]
+    LIST: ClassVar[list[str]] = [CHROME, CHROMIUM, OPERA, VIVALDI, FIREFOX, BRAVE]

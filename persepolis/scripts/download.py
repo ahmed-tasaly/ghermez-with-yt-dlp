@@ -11,6 +11,8 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from __future__ import annotations
+
 import ast
 import os
 import platform
@@ -19,12 +21,19 @@ import time
 import traceback
 import urllib.parse
 import xmlrpc.client
+from typing import TYPE_CHECKING, Any, Literal
 
 import ghermez
 from ghermez import humanReadableSize, moveFile
 from persepolis.constants import APP_NAME, ORG_NAME, OS
 from persepolis.scripts.bubble import notifySend
-from persepolis.scripts.osCommands import makeTempDownloadDir
+from persepolis.scripts.os_commands import makeTempDownloadDir
+
+if TYPE_CHECKING:
+    try:
+        from PySide6.QtWidgets import QWidget
+    except ImportError:
+        from PyQt5.QtWidgets import QWidget
 
 try:
     from PySide6.QtCore import QSettings
@@ -70,7 +79,7 @@ def startAria() -> str:
 
 # check aria2 release version . Persepolis uses this function to
 # check that aria2 RPC connection is available or not.
-def aria2Version():
+def aria2Version() -> str:
     try:
         answer = server.aria2.getVersion()
     except Exception:
@@ -81,7 +90,7 @@ def aria2Version():
     return answer
 
 # this function sends download request to aria2
-def downloadAria(gid, parent):
+def downloadAria(gid: str, parent: QWidget) -> bool | None:
     # add_link_dictionary is a dictionary that contains user download request
     # information.
 
@@ -113,7 +122,7 @@ def downloadAria(gid, parent):
     header_list = []
     header_list.append('Cookie: ' + str(cookies))
 
-# convert Mega to Kilo, RPC does not Support floating point numbers.
+    # convert Mega to Kilo, RPC does not Support floating point numbers.
     if limit != '0':
         limit_number = limit[:-1]
         limit_number = float(limit_number)
@@ -125,7 +134,7 @@ def downloadAria(gid, parent):
             limit_unit = 'K'
         limit = str(limit_number) + limit_unit
 
-# create header list
+    # create header list
     if header is not None:
         semicolon_split_header = header.split('; ')
         for i in semicolon_split_header:
@@ -137,11 +146,8 @@ def downloadAria(gid, parent):
     if len(header_list) == 0:
         header_list = None
 
-# update status and last_try_date in data_base
-    if start_time:
-        status = 'scheduled'
-    else:
-        status = 'waiting'
+    # update status and last_try_date in data_base
+    status = 'scheduled' if start_time else 'waiting'
 
     # get last_try_date
     now_date = nowDate()
@@ -152,18 +158,12 @@ def downloadAria(gid, parent):
 
     # create ip_port from ip and port in desired format.
     # for example "127.0.0.1:8118"
-    if ip:
-        ip_port = str(ip) + ':' + str(port)
-    else:
-        ip_port = ''
+    ip_port = str(ip) + ':' + str(port) if ip else ''
 
     # call startTime if start_time is available
     # startTime creates sleep loop if user set start_time
     # see startTime function for more information.
-    if start_time:
-        start_time_status = startTime(start_time, gid, parent)
-    else:
-        start_time_status = 'downloading'
+    start_time_status = startTime(start_time, gid, parent) if start_time else 'downloading'
 
     if start_time_status == 'scheduled':
         # read limit value again from data_base before starting download!
@@ -275,7 +275,7 @@ def downloadAria(gid, parent):
         return None
 
 # this function returns list of download information
-def tellActive():
+def tellActive() -> (tuple[None, None] | tuple[list, list]):
     # get download information from aria2
     try:
         downloads_status = server.aria2.tellActive(
@@ -300,7 +300,7 @@ def tellActive():
     return gid_list, download_status_list
 
 # this function returns download status that specified by gid!
-def tellStatus(gid, parent):
+def tellStatus(gid: str, parent: QWidget) -> (dict[str, Any] | None):
     # get download status from aria2
     try:
         download_status = server.aria2.tellStatus(
@@ -314,7 +314,7 @@ def tellStatus(gid, parent):
     converted_info_dict = convertDownloadInformation(download_status)
 
 
-# if download has completed , then move file to the download folder
+    # if download has completed , then move file to the download folder
     if (converted_info_dict['status'] == 'complete'):
         file_name = converted_info_dict['file_name']
 
@@ -358,7 +358,7 @@ def tellStatus(gid, parent):
         add_link_dictionary['download_path'] = file_path
         parent.persepolis_db.updateAddLinkTable([add_link_dictionary])
 
-# if an error occurred!
+    # if an error occurred!
     if (converted_info_dict['status'] == 'error'):
         # add errorMessage to converted_info_dict
         converted_info_dict['error'] = str(download_status['errorMessage'])
@@ -371,7 +371,7 @@ def tellStatus(gid, parent):
 
 # this function converts download information that received from aria2 in desired format.
 # input format must be a dictionary.
-def convertDownloadInformation(download_status):
+def convertDownloadInformation(download_status: dict[str, str]) -> dict[str, Any]:
     # find file_name
     try:
         # file_status contains name of download file and link of download file
@@ -443,13 +443,15 @@ def convertDownloadInformation(download_status):
         download_speed_str = humanReadableSize(download_speed, 'speed') + '/s'
 
         eta = ''
-        if estimate_time_left >= 3600:
+        ONE_HOUR = 3600
+        ONE_MIN = 60
+        if estimate_time_left >= ONE_HOUR:
             eta = eta + str(int(estimate_time_left/3600)) + 'h'
             estimate_time_left = estimate_time_left % 3600
             eta = eta + str(int(estimate_time_left/60)) + 'm'
             estimate_time_left = estimate_time_left % 60
             eta = eta + str(estimate_time_left) + 's'
-        elif estimate_time_left >= 60:
+        elif estimate_time_left >= ONE_MIN:
             eta = eta + str(int(estimate_time_left/60)) + 'm'
             estimate_time_left = estimate_time_left % 60
             eta = eta + str(estimate_time_left) + 's'
@@ -506,7 +508,7 @@ def convertDownloadInformation(download_status):
 # download complete actions!
 # this method is returning file_path of file in the user's download folder
 # and move downloaded file after download completion.
-def downloadCompleteAction(parent, path, download_path, file_name, file_size):
+def downloadCompleteAction(parent: QWidget, path: str, download_path: str, file_name: str, file_size: int) -> str:
 
     # remove query from name, If file_name contains query components.
     # check if query existed.
@@ -570,7 +572,7 @@ def downloadCompleteAction(parent, path, download_path, file_name, file_size):
 
 
 # this function returns folder of download according to file extension
-def findDownloadPath(file_name, download_path, subfolder):
+def findDownloadPath(file_name: str, download_path: str, subfolder: str) -> str:
 
     file_name_split = file_name.split('.')
     file_extension = file_name_split[-1]
@@ -627,7 +629,7 @@ def findDownloadPath(file_name, download_path, subfolder):
 
 
 # shutdown aria2
-def shutDown():
+def shutDown() -> bool:
     try:
         answer = server.aria2.shutdown()
         ghermez.sendToLog('Aria2 Shutdown : ' + str(answer), 'INFO')
@@ -639,7 +641,7 @@ def shutDown():
 # downloadStop stops download completely
 # this function sends remove request to aria2
 # and changes status of download to "stopped" in data_base
-def downloadStop(gid, parent):
+def downloadStop(gid: str, parent: QWidget) -> str:
     # get download status from data_base
     download_dict = parent.persepolis_db.searchGidInDownloadTable(gid)
     status = download_dict['status']
@@ -678,7 +680,7 @@ def downloadStop(gid, parent):
 
 
 # downloadPause pauses download
-def downloadPause(gid):
+def downloadPause(gid: str) -> str | None:
     # see aria2 documentation for more information
 
     # send pause request to aria2 .
@@ -692,7 +694,7 @@ def downloadPause(gid):
 
 
 # downloadUnpause unpauses download
-def downloadUnpause(gid):
+def downloadUnpause(gid: str) -> str | None:
     try:
         # send unpause request to aria2
         answer = server.aria2.unpause(gid)
@@ -704,7 +706,7 @@ def downloadUnpause(gid):
     return answer
 
 #  limitSpeed limits download speed
-def limitSpeed(gid, limit):
+def limitSpeed(gid: str, limit: str) -> None:
     limit = str(limit)
     # convert Mega to Kilo, RPC does not Support floating point numbers.
     if limit != '0':
@@ -727,7 +729,7 @@ def limitSpeed(gid, limit):
 
 
 # this function returns GID of active downloads in list format.
-def activeDownloads():
+def activeDownloads() -> list[str]:
     try:
         answer = server.aria2.tellActive(['gid'])
     except Exception:
@@ -747,23 +749,23 @@ def activeDownloads():
 
 # This function returns data and time in string format
 # for example >> 2017/09/09 , 13:12:26
-def nowDate():
+def nowDate() -> str:
     return time.strftime('%Y/%m/%d , %H:%M:%S')
 
 # sigmaTime gets hours and minutes for input.
 # and converts hours to minutes and returns summation in minutes
 # input format is HH:MM
-def sigmaTime(time):
+def sigmaTime(time: str) -> int:
     hour, minute = time.split(':')
     return (int(hour)*60 + int(minute))
 
 # nowTime returns now time in HH:MM format!
-def nowTime():
+def nowTime() -> int:
     now_time = time.strftime('%H:%M')
     return sigmaTime(now_time)
 
 # this function creates sleep time,if user sets "start time" for download.
-def startTime(start_time, gid, parent):
+def startTime(start_time: str, gid: str, parent: QWidget) -> Literal['stopped', 'scheduled']:
     # write some messages
     ghermez.sendToLog('Download starts at ' + start_time, 'INFO')
 
@@ -795,7 +797,7 @@ def startTime(start_time, gid, parent):
     return status
 
 
-def endTime(end_time, gid, parent):
+def endTime(end_time: str, gid: str, parent: QWidget) -> None:
     ghermez.sendToLog('End time is activated ' + gid, 'INFO')
     sigma_end = sigmaTime(end_time)
 
@@ -833,8 +835,9 @@ def endTime(end_time, gid, parent):
         ghermez.sendToLog('Time is up!', 'INFO')
         answer = downloadStop(gid, parent)
         i = 0
+        MAX_TIMES = 10
         # try to stop download 10 times
-        while answer == 'None' and (i <= 9):
+        while answer == 'None' and (i < MAX_TIMES):
             time.sleep(1)
             answer = downloadStop(gid, parent)
             i = i + 1

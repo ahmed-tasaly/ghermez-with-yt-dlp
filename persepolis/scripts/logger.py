@@ -31,11 +31,11 @@ if not os.path.isfile(log_file):
     ghermez.touch(log_file)
 
 # define logging object
-logObj = logging.getLogger(APP_NAME.capitalize())
-logObj.setLevel(logging.INFO)
+LOG_OBJ = logging.getLogger(APP_NAME.capitalize())
+LOG_OBJ.setLevel(logging.INFO)
 
 # don't show log in console
-logObj.propagate = False
+LOG_OBJ.propagate = False
 
 # create a file handler
 handler = logging.FileHandler(log_file)
@@ -46,13 +46,13 @@ formatter = logging.Formatter(
 handler.setFormatter(formatter)
 
 # add the handlers to the logger
-logObj.addHandler(handler)
+LOG_OBJ.addHandler(handler)
 
 
-def sendToLog(text='', level='INFO'):
+def sendToLog(text: str='', level: str='INFO') -> None:
     if level == 'INFO':
-        logObj.info(text)
+        LOG_OBJ.info(text)
     elif level == 'ERROR':
-        logObj.error(text)
+        LOG_OBJ.error(text)
     else:
-        logObj.warning(text)
+        LOG_OBJ.warning(text)

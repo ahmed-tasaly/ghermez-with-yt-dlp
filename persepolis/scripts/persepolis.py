@@ -41,7 +41,7 @@ os_type, desktop_env = ghermez.osAndDesktopEnvironment()
 if os_type in ([*OS.UNIX_LIKE, OS.OSX]):
     uid = os.getuid()
     if uid == 0:
-        print('Do not run persepolis as root.')
+        print('Do not run persepolis as root.')  # noqa: T201
         sys.exit(1)
 
 
@@ -62,10 +62,10 @@ if os_type != OS.WINDOWS:
     import fcntl
 
 # persepolis lock file
-    lock_file = '/tmp/persepolis_exec_' + os.getlogin() + '.lock'
+    lock_file = '/tmp/persepolis_exec_' + os.getlogin() + '.lock'  # noqa: S108
 
 # create lock file
-    fp = open(lock_file, 'w')
+    fp = open(lock_file, 'w')  # noqa: SIM115
 
     try:
         fcntl.lockf(fp, fcntl.LOCK_EX | fcntl.LOCK_NB)
@@ -82,10 +82,7 @@ else:  # for windows
 
     handle = CreateMutex(None, 1, ORG_NAME)
 
-    if GetLastError() == ERROR_ALREADY_EXISTS:
-        lock_file_validation = False
-    else:
-        lock_file_validation = True
+    lock_file_validation = GetLastError() != ERROR_ALREADY_EXISTS
 
 # run persepolis mainwindow
 if lock_file_validation:
@@ -121,8 +118,7 @@ class PersepolisApplication(QApplication):
 
         if custom_font == 'yes':
             self.setFont(QFont(font, font_size))
-# color_scheme
-
+    # color_scheme
     def setPersepolisColorScheme(self, color_scheme: str) -> None:
         self.persepolis_color_scheme = color_scheme
         if color_scheme == 'Dark Fusion':
@@ -258,7 +254,6 @@ if args.clear:
     persepolis_db.resetDataBase()
 
     # close connections
-    # persepolis_db.closeConnections()
     del persepolis_db
 
     # Reset persepolis_setting
@@ -271,7 +266,7 @@ if args.clear:
 if args.default:
     persepolis_setting.clear()
     persepolis_setting.sync()
-    print ('Persepolis restored default')
+    print('Persepolis restored default')  # noqa: T201
     sys.exit(0)
 
 
@@ -306,10 +301,7 @@ if args.name:
 else:
     add_link_dictionary['out'] = None
 
-if args.tray:
-    start_in_tray = True
-else:
-    start_in_tray = False
+start_in_tray = bool(args.tray)
 
 
 # when browsers plugin calls persepolis or user runs persepolis by terminal arguments,
@@ -334,7 +326,6 @@ if ('link' in add_link_dictionary):
 
 if len(plugin_list) != 0:
 
-    # import PluginsDB
     from ghermez import PluginsDB
 
     # create an object for PluginsDB
@@ -344,7 +335,6 @@ if len(plugin_list) != 0:
     plugins_db.insertInPluginsTable(plugin_list)
 
     # Job is done! close connections.
-    # plugins_db.closeConnections()
     del plugins_db
 
     # notify that a link is added!
@@ -364,7 +354,7 @@ else:
     start_persepolis_if_browser_executed = False
 
 
-def main():
+def main() -> None:
     # if lock_file is existed , it means persepolis is still running!
     if lock_file_validation and (not((args.parent_window or unknownargs) and browser_url is False) or \
         ((args.parent_window or unknownargs) and start_persepolis_if_browser_executed)):
@@ -460,7 +450,7 @@ def main():
         if len(plugin_list) == 0:
 
             show_window_file = os.path.join(persepolis_tmp, 'show-window')
-            f = open(show_window_file, 'w')
+            f = open(show_window_file, 'w')  # noqa: SIM115
             f.close()
 
         sys.exit(0)

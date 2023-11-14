@@ -40,7 +40,7 @@ else:
 qtsvg_available = False
 
 
-class AboutWindow_Ui(QWidget):
+class AboutWindow_Ui(QWidget):  # noqa: N801
     def __init__(self, persepolis_setting: QSettings) -> None:
         super().__init__()
 
@@ -110,22 +110,6 @@ class AboutWindow_Ui(QWidget):
         self.site2_label.setTextInteractionFlags(
             Qt.TextBrowserInteraction)
         about_tab_verticalLayout.addWidget(self.site2_label)
-
-        self.telegram_label = QLabel(self.about_tab)
-        self.telegram_label.setTextFormat(Qt.RichText)
-        self.telegram_label.setAlignment(Qt.AlignCenter)
-        self.telegram_label.setOpenExternalLinks(True)
-        self.telegram_label.setTextInteractionFlags(
-            Qt.TextBrowserInteraction)
-        about_tab_verticalLayout.addWidget(self.telegram_label)
-
-        self.twitter_label = QLabel(self.about_tab)
-        self.twitter_label.setTextFormat(Qt.RichText)
-        self.twitter_label.setAlignment(Qt.AlignCenter)
-        self.twitter_label.setOpenExternalLinks(True)
-        self.twitter_label.setTextInteractionFlags(
-            Qt.TextBrowserInteraction)
-        about_tab_verticalLayout.addWidget(self.twitter_label)
 
         about_tab_verticalLayout.addStretch(1)
 
@@ -208,18 +192,6 @@ class AboutWindow_Ui(QWidget):
                                        "TRANSLATORS NOTE: YOU REALLY DON'T NEED TO TRANSLATE THIS PART!"),
         )
 
-        # self.telegram_label.setText(
-        #     QCoreApplication.translate("about_ui_tr",
-        #                                "<a href=https://telegram.me/persepolisdm>https://telegram.me/persepolisdm</a>",
-        #                                "TRANSLATORS NOTE: YOU REALLY DON'T NEED TO TRANSLATE THIS PART!")
-        # )
-
-        # self.twitter_label.setText(
-        #     QCoreApplication.translate("about_ui_tr",
-        #                                "<a href=https://twitter.com/persepolisdm>https://twitter.com/persepolisdm</a>",
-        #                                "TRANSLATORS NOTE: YOU REALLY DON'T NEED TO TRANSLATE THIS PART!")
-        # )
-
         # developers_tab
         self.developers_title_label.setText(QCoreApplication.translate('about_ui_tr', 'Developers:'))
 
@@ -250,7 +222,7 @@ class AboutWindow_Ui(QWidget):
             ''')
 
         # tabs
-        self.about_tabWidget.addTab(self.about_tab, QCoreApplication.translate('about_ui_tr', f'About {APP_NAME.capitalize()}'))
+        self.about_tabWidget.addTab(self.about_tab, QCoreApplication.translate('about_ui_tr', f'About {APP_NAME.capitalize()}'))  # noqa: E501
         self.about_tabWidget.addTab(self.developers_tab, QCoreApplication.translate('about_ui_tr', 'Developers'))
         self.about_tabWidget.addTab(self.translators_tab, QCoreApplication.translate('about_ui_tr', 'Translators'))
         self.about_tabWidget.addTab(self.license_tab, QCoreApplication.translate('about_ui_tr', 'License'))

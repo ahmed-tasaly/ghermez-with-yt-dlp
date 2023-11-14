@@ -55,20 +55,21 @@ class AddLinkSpiderThread(QThread):
 
             # write an ERROR in log, If spider couldn't find file_name or file_size.
             if not(file_name):
-                ghermez.sendToLog(
-                    "Spider couldn't find file name", 'ERROR')
+                ghermez.sendToLog("Spider couldn't find file name", 'ERROR')
             if not(file_size):
-                ghermez.sendToLog(
-                    "Spider couldn't find file size", 'ERROR')
+                ghermez.sendToLog("Spider couldn't find file size", 'ERROR')
         except Exception as e:
-            ghermez.sendToLog(
-                "Spider couldn't find download information", 'ERROR')
-            ghermez.sendToLog(
-                str(e), 'ERROR')
+            ghermez.sendToLog("Spider couldn't find download information", 'ERROR')
+            ghermez.sendToLog(str(e), 'ERROR')
 
 
 class AddLinkWindow(AddLinkWindow_Ui):
-    def __init__(self, parent: QWidget, callback: Callable[[dict[str, str], bool, str], None], persepolis_setting: QSettings, plugin_add_link_dictionary: dict[str, str] | None=None) -> None:
+    def __init__(
+            self, parent: QWidget,
+            callback: Callable[[dict[str, str], bool, str], None],
+            persepolis_setting: QSettings,
+            plugin_add_link_dictionary: dict[str, str] | None=None,
+    ) -> None:
         if plugin_add_link_dictionary is None:
             plugin_add_link_dictionary = {}
         super().__init__(persepolis_setting)
@@ -187,18 +188,16 @@ class AddLinkWindow(AddLinkWindow_Ui):
         # check plugin_add_link_dictionary for finding file name
         # perhaps plugin sended file name in plugin_add_link_dictionary
         # for finding file name "out" key must be checked
-        if ('out' in self.plugin_add_link_dictionary):
-            if self.plugin_add_link_dictionary['out']:
-                self.change_name_lineEdit.setText(
-                    str(self.plugin_add_link_dictionary['out']))
-                self.change_name_checkBox.setChecked(True)
+        if ('out' in self.plugin_add_link_dictionary) and self.plugin_add_link_dictionary['out']:
+            self.change_name_lineEdit.setText(
+                str(self.plugin_add_link_dictionary['out']))
+            self.change_name_checkBox.setChecked(True)
 
         # get referer and header and user_agent and load_cookies in plugin_add_link_dictionary if exits.
         if ('referer' in self.plugin_add_link_dictionary):
             self.referer_lineEdit.setText(str(self.plugin_add_link_dictionary['referer']))
 
-        if ('header' in self.plugin_add_link_dictionary):
-            if str(self.plugin_add_link_dictionary['header']) != 'None':
+        if ('header' in self.plugin_add_link_dictionary) and str(self.plugin_add_link_dictionary['header']) != 'None':
                 self.header_lineEdit.setText(str(self.plugin_add_link_dictionary['header']))
 
         if ('user_agent' in self.plugin_add_link_dictionary):
@@ -393,23 +392,16 @@ class AddLinkWindow(AddLinkWindow_Ui):
         # check that if user limits download speed.
         if not(self.limit_checkBox.isChecked()):
             limit = 0
-        else:
-            if self.limit_comboBox.currentText() == 'KiB/s':
+        elif self.limit_comboBox.currentText() == 'KiB/s':
                 limit = str(self.limit_spinBox.value()) + 'K'
-            else:
-                limit = str(self.limit_spinBox.value()) + 'M'
+        else:
+            limit = str(self.limit_spinBox.value()) + 'M'
 
         # get start time for download if user set that.
-        if not(self.start_checkBox.isChecked()):
-            start_time = None
-        else:
-            start_time = self.start_time_qDataTimeEdit.text()
+        start_time = self.start_time_qDataTimeEdit.text() if self.start_checkBox.isChecked() else None
 
         # get end time for download if user set that.
-        if not(self.end_checkBox.isChecked()):
-            end_time = None
-        else:
-            end_time = self.end_time_qDateTimeEdit.text()
+        end_time = self.end_time_qDateTimeEdit.text() if self.end_checkBox.isChecked() else None
 
         # check that if user set new name for download file.
         if self.change_name_checkBox.isChecked():
@@ -428,28 +420,17 @@ class AddLinkWindow(AddLinkWindow_Ui):
         download_path = self.download_folder_lineEdit.text()
 
         # referer
-        if self.referer_lineEdit.text() != '':
-            referer = self.referer_lineEdit.text()
-        else:
-            referer = None
+        referer = self.referer_lineEdit.text() if self.referer_lineEdit.text() != '' else None
 
         # header
-        if self.header_lineEdit.text() != '':
-            header = self.header_lineEdit.text()
-        else:
-            header = None
+        header = self.header_lineEdit.text() if self.header_lineEdit.text() != '' else None
 
         # user_agent
-        if self.user_agent_lineEdit.text() != '':
-            user_agent = self.user_agent_lineEdit.text()
-        else:
-            user_agent = None
+        user_agent = self.user_agent_lineEdit.text() if self.user_agent_lineEdit.text() != '' else None
 
         # load_cookies
-        if self.load_cookies_lineEdit.text() != '':
-            load_cookies = self.load_cookies_lineEdit.text()
-        else:
-            load_cookies = None
+        load_cookies = self.load_cookies_lineEdit.text() if self.load_cookies_lineEdit.text() != '' else None
+
         # save information in a dictionary(add_link_dictionary).
         self.add_link_dictionary = {
             'referer': referer, 'header': header, 'user_agent': user_agent, 'load_cookies': load_cookies,
