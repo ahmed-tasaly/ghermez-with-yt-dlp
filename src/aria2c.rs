@@ -189,8 +189,10 @@ pub fn tellActive() -> (Option<GidList>, Option<DownloadStatusList>) {
     // get download information from aria2
     let downloads_status_result = Runtime::new().unwrap().handle().block_on(async {
         let server_url = SERVER_URL.read().await;
-        let client = Client::connect(&server_url, None).await.unwrap();
-        client.custom_tell_active(Some(args)).await
+        match Client::connect(&server_url, None).await {
+            Ok(client) => client.custom_tell_active(Some(args)).await,
+            Err(e) => Err(e),
+        }
     });
 
     let downloads_status: Vec<CustomStatus> = match downloads_status_result {

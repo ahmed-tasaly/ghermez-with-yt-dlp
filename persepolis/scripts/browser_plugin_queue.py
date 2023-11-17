@@ -15,6 +15,8 @@ from __future__ import annotations
 
 from typing import Callable
 
+from . import globals
+
 try:
     from PySide6.QtCore import QDir, QPoint, QSettings, QSize, Qt, QThread, Signal
     from PySide6.QtGui import QCloseEvent, QIcon, QKeyEvent
@@ -70,8 +72,7 @@ class BrowserPluginQueue(TextQueue_Ui):
         self.parent = parent
         self.list_of_links = list_of_links
 
-        global icons
-        icons = ':/' + \
+        globals.icons = ':/' + \
             str(self.persepolis_setting.value('settings/icons')) + '/'
 
         self.list_of_links.reverse()
@@ -117,21 +118,19 @@ class BrowserPluginQueue(TextQueue_Ui):
                 self.add_queue_comboBox.addItem(queue)
 
         self.add_queue_comboBox.addItem(
-            QIcon(icons + 'add_queue'), 'Create new queue')
+            QIcon(globals.icons + 'add_queue'), 'Create new queue')
 
 
         # entry initialization
-        global connections
-        connections = int(
+        globals.connections = int(
             self.persepolis_setting.value('settings/connections'))
-        global download_path
-        download_path = str(
+        globals.download_path = str(
             self.persepolis_setting.value('settings/download_path'))
 
 
         # initialization
-        self.connections_spinBox.setValue(connections)
-        self.download_folder_lineEdit.setText(download_path)
+        self.connections_spinBox.setValue(globals.connections)
+        self.download_folder_lineEdit.setText(globals.download_path)
         self.download_folder_lineEdit.setEnabled(False)
 
         # ip_lineEdit initialization
@@ -225,7 +224,7 @@ class BrowserPluginQueue(TextQueue_Ui):
                         self.add_queue_comboBox.addItem(queue)
 
                 self.add_queue_comboBox.addItem(
-                    QIcon(icons + 'add_queue'), 'Create new queue')
+                    QIcon(globals.icons + 'add_queue'), 'Create new queue')
 
                 # finding index of new_queue and setting comboBox for it
                 index = self.add_queue_comboBox.findText(str(new_queue))
@@ -258,7 +257,7 @@ class BrowserPluginQueue(TextQueue_Ui):
 
     def changeFolder(self, _button: QPushButton) -> None:
         fname = QFileDialog.getExistingDirectory(
-            self, 'Select a directory', download_path)
+            self, 'Select a directory', globals.download_path)
 
         if fname:
             # Returns pathName with the '/' separators converted
@@ -320,8 +319,8 @@ class BrowserPluginQueue(TextQueue_Ui):
 
         category = str(self.add_queue_comboBox.currentText())
 
-        connections = self.connections_spinBox.value()
-        download_path = self.download_folder_lineEdit.text()
+        globals.connections = self.connections_spinBox.value()
+        globals.download_path = self.download_folder_lineEdit.text()
 
         addlink_dict = {'out': None,
                 'start_time': None,
@@ -333,9 +332,9 @@ class BrowserPluginQueue(TextQueue_Ui):
                 'proxy_passwd': proxy_passwd,
                 'download_user': download_user,
                 'download_passwd': download_passwd,
-                'connections': connections,
+                'connections': globals.connections,
                 'limit_value': limit,
-                'download_path': download_path,
+                'download_path': globals.download_path,
                 'referer': None,
                 'load_cookies': None,
                 'user_agent': None,

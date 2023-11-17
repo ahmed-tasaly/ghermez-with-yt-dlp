@@ -11,7 +11,7 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-global pyside6_is_installed
+from . import globals
 
 try:
     from PySide6 import __version__ as PYQT_VERSION_STR  # noqa: N812
@@ -29,7 +29,7 @@ try:
         QMessageBox,
         QSystemTrayIcon,
     )
-    pyside6_is_installed = True
+    globals.pyside6_is_installed = True
 except ImportError:
     from PyQt5.Qt import PYQT_VERSION_STR
     from PyQt5.QtCore import (
@@ -58,7 +58,7 @@ except ImportError:
         QMessageBox,
         QSystemTrayIcon,
     )
-    pyside6_is_installed = False
+    globals.pyside6_is_installed = False
 
 import os
 import random
@@ -74,6 +74,7 @@ from time import sleep
 
 import ghermez
 from persepolis.constants import APP_NAME, OS, REPO_LINK
+from persepolis.constants.status import CheckingFlag, ShutdownNotification
 from persepolis.gui import resources  # noqa: F401
 from persepolis.gui.mainwindow_ui import MainWindow_Ui, QTableWidgetItem
 from persepolis.scripts import download, spider
@@ -92,19 +93,14 @@ from persepolis.scripts.update import checkupdate
 from persepolis.scripts.useful_tools import muxer
 from persepolis.scripts.video_finder_progress import VideoFinderProgressWindow
 
-global youtube_dl_is_installed
 try:
     from persepolis.scripts.video_finder_addlink import VideoFinderAddLink
-    youtube_dl_is_installed = True
+    globals.youtube_dl_is_installed = True
 except ModuleNotFoundError:
     # if youtube_dl module is not installed:
     ghermez.sendToLog(
         'youtube_dl is not installed.', 'ERROR')
-    youtube_dl_is_installed = False
-
-# CheckVersionsThread thread can change this variable.
-global ffmpeg_is_installed
-ffmpeg_is_installed = True
+    globals.youtube_dl_is_installed = False
 
 # The GID (or gid) is a key to manage each download. Each download will be assigned a unique GID.
 # The GID is stored as 64-bit binary value in aria2. For RPC access,
@@ -112,36 +108,9 @@ ffmpeg_is_installed = True
 # Normally, aria2 generates this GID for each download, but the user can
 # specify GIDs manually
 
+globals.button_pressed_counter = 0
 
-# shutdown_notification = 0 >> persepolis is running  # noqa: ERA001
-# 1 >> persepolis is ready for closing(closeEvent  is called)
-# 2 >> OK, let's close application!
-global shutdown_notification
-shutdown_notification = 0
-
-# checking_flag : 0 >> normal situation ;
-# 1 >> remove button or delete button pressed or sorting form viewMenu or ... toggled by user ;
-# 2 >> check_download_info function is stopping until remove operation done ;
-# 3 >> deleteFileAction is done it's job and It is called removeButtonPressed.
-
-global checking_flag
-checking_flag = 0
-
-# when rpc connection between persepolis and aria is disconnected >>
-# aria2_disconnected = 1  # noqa: ERA001
-# aria2_disconnected = 0 >> every thing is ok :)
-global aria2_disconnected
-aria2_disconnected = 0
-
-global aria_startup_answer
-aria_startup_answer = None
-
-
-global button_pressed_counter
-button_pressed_counter = 0
-
-global plugin_links_checked
-plugin_links_checked = False
+globals.plugin_links_checked = False
 
 # find os platform
 os_type, desktop_env = ghermez.osAndDesktopEnvironment()
@@ -174,7 +143,6 @@ class CheckVersionsThread(QThread):
         super().__init__()
 
     def run(self):
-        global ffmpeg_is_installed
 
         if os_type in OS.UNIX_LIKE:
             ffmpeg_path = 'ffmpeg'
@@ -212,15 +180,15 @@ class CheckVersionsThread(QThread):
                     shell=False)
 
             if pipe.wait() == 0:
-                ffmpeg_is_installed = True
+                globals.ffmpeg_is_installed = True
                 ffmpeg_output, error = pipe.communicate()
                 ffmpeg_output = ffmpeg_output.decode('utf-8')
 
             else:
-                ffmpeg_is_installed = False
+                globals.ffmpeg_is_installed = False
                 ffmpeg_output = 'ffmpeg is not installed'
         except Exception:
-            ffmpeg_is_installed = False
+            globals.ffmpeg_is_installed = False
             ffmpeg_output = 'ffmpeg is not installed'
 
         # wrap ffmpeg_output with width=70
@@ -241,7 +209,7 @@ class CheckVersionsThread(QThread):
         ghermez.sendToLog('QT version: '
                          + str(QT_VERSION_STR))
         # log pyqt version
-        madule_str = 'PySide version: ' if pyside6_is_installed else 'PyQt version: '
+        madule_str = 'PySide version: ' if globals.pyside6_is_installed else 'PyQt version: '
 
         ghermez.sendToLog(madule_str
                          + str(PYQT_VERSION_STR))
@@ -256,8 +224,6 @@ class CheckVersionsThread(QThread):
                              + str(desktop_env))
 
 # start aria2 when Persepolis starts
-
-
 class StartAria2Thread(QThread):
     ARIA2RESPONDSIGNAL = Signal(str)
 
@@ -322,9 +288,10 @@ class CheckSelectedRowThread(QThread):
         super().__init__()
 
     def run(self):
-        while shutdown_notification == 0 and aria_startup_answer != 'ready':
+        while globals.shutdown_notification == ShutdownNotification.Running \
+            and globals.aria_startup_answer != 'ready':
             sleep(1)
-        while shutdown_notification == 0:
+        while globals.shutdown_notification == ShutdownNotification.Running:
             sleep(0.2)
             self.CHECKSELECTEDROWSIGNAL.emit()
 
@@ -341,37 +308,24 @@ class CheckDownloadInfoThread(QThread):
         self.parent = parent
 
     def run(self):
-        global checking_flag
-        global shutdown_notification
         while True:
 
-            # shutdown_notification = 0 >> persepolis is running  # noqa: ERA001
-            # 1 >> persepolis is ready for closing(closeEvent called)
-            # 2 >> OK, let's close application!
-
-            # checking_flag : 0 >> normal situation ;
-            # 1 >> remove button or delete button pressed or sorting form viewMenu selected by user ;
-            # 2 >> check_download_info function is stopping until remove operation done ;
-            # 3 >> deleteFileAction is done it's job and It is called removeButtonPressed.
-
             # wait until aria gets ready!(see StartAria2Thread for more information)
-            while shutdown_notification == 0 and aria_startup_answer != 'ready':
+            while globals.shutdown_notification == ShutdownNotification.Running and \
+                globals.aria_startup_answer != 'ready':
                 sleep(1)
 
             # data base is updated one time in five times.
             update_data_base = False
             update_data_base_counter = 0
-            while shutdown_notification != 1:
+            while globals.shutdown_notification != ShutdownNotification.ReadyForClose:
                 sleep(0.2)
-                # if checking_flag is equal to 1, it means that user pressed
-                # remove or delete button . so checking download information
-                # must stop until removing is done! It avoids possibility of crashing!
-                if checking_flag == 1:
+                if globals.checking_flag == CheckingFlag.RemoveButtonPressed:
                     # Ok loop is stopped!
-                    checking_flag = 2
+                    globals.checking_flag = CheckingFlag.StoppingJobs
 
                     # check that when job is done!
-                    while checking_flag != 0:
+                    while globals.checking_flag != CheckingFlag.Normal:
                         sleep(0.2)
 
                 # lets getting downloads information from aria and putting them in download_status_list!
@@ -442,14 +396,13 @@ class CheckDownloadInfoThread(QThread):
                     continue
 
             # Ok exit loop! get ready for shutting down!
-            shutdown_notification = 2
+            globals.shutdown_notification = ShutdownNotification.Ok
             break
 
     # when rpc connection between persepolis and aria is
     # disconnected then aria2_disconnected = 1
     def reconnectAria(self):
-        global aria2_disconnected
-        aria2_disconnected = 0
+        globals.aria2_disconnected = False
         # check aria2 availability by aria2Version function(see download.py file fore more information)
         answer = ghermez.aria2Version()
 
@@ -1067,15 +1020,12 @@ class CheckingThread(QThread):
         super().__init__()
 
     def run(self):
-        global plugin_links_checked
 
-        # shutdown_notification = 0 >> persepolis is running  # noqa: ERA001
-        # 1 >> persepolis is ready for closing(closeEvent called)
-        # 2 >> OK, let's close application!
-        while shutdown_notification == 0 and aria_startup_answer != 'ready':
+        while globals.shutdown_notification == ShutdownNotification.Running and \
+            globals.aria_startup_answer != 'ready':
             sleep(2)
 
-        while shutdown_notification == 0:
+        while globals.shutdown_notification == ShutdownNotification.Running:
             sleep(0.2)
 
             # it means , user clicked on persepolis icon and persepolis is
@@ -1095,15 +1045,14 @@ class CheckingThread(QThread):
 
                 # When checkPluginCall method considered request , then
                 # plugin_links_checked is changed to True
-                plugin_links_checked = False
+                globals.plugin_links_checked = False
                 self.CHECKPLUGINDBSIGNAL.emit()  # notifying that we have browser_plugin request
-                while plugin_links_checked is not True:  # wait for persepolis consideration!
+                while globals.plugin_links_checked is not True:  # wait for persepolis consideration!
                     sleep(0.5)
 
 
-# if checking_flag is equal to 1, it means that user pressed remove or delete button or ... .
-# so checking download information must be stopped until job is done!
-# this thread checks checking_flag and when checking_flag changes to 2
+# this thread checks checking_flag
+# and when checking_flag changes to StoppingCheckDownloadInfo
 # QTABLEREADY signal is emitted
 class WaitThread(QThread):
     QTABLEREADY = Signal()
@@ -1112,27 +1061,25 @@ class WaitThread(QThread):
         super().__init__()
 
     def run(self):
-        global checking_flag
-        checking_flag = 1
-        while checking_flag != 2:  # noqa: PLR2004
+        globals.checking_flag = CheckingFlag.RemoveButtonPressed
+        while globals.checking_flag != CheckingFlag.StoppingJobs:
             sleep(0.05)
         self.QTABLEREADY.emit()
 
 # button_pressed_counter changed if user pressed move up and move down and ... actions
-# this thread is changing checking_flag to zero if button_pressed_counter
+# this thread is changing checking_flag to Normal if button_pressed_counter
 # don't change for 2 seconds
 class ButtonPressedThread(QThread):
     def __init__(self) -> None:
         super().__init__()
 
     def run(self):
-        global checking_flag
-        current_button_pressed_value = deepcopy(button_pressed_counter) + 1
-        while current_button_pressed_value != button_pressed_counter:
-            current_button_pressed_value = deepcopy(button_pressed_counter)
+        current_button_pressed_value = deepcopy(globals.button_pressed_counter) + 1
+        while current_button_pressed_value != globals.button_pressed_counter:
+            current_button_pressed_value = deepcopy(globals.button_pressed_counter)
             sleep(2)
         # job is done!
-        checking_flag = 0
+        globals.checking_flag = CheckingFlag.Normal
 
 
 class ShutDownThread(QThread):
@@ -1160,13 +1107,14 @@ class KeepAwakeThread(QThread):
     def run(self):
         while True:
 
-            while shutdown_notification == 0 and aria_startup_answer != 'ready':
+            while globals.shutdown_notification == ShutdownNotification.Running and \
+                globals.aria_startup_answer != 'ready':
                 sleep(1)
 
             old_cursor_array = [0, 0]
             add = True
 
-            while shutdown_notification != 1:
+            while globals.shutdown_notification != ShutdownNotification.Running:
                 sleep(20)
 
                 # finding cursor position
@@ -1234,8 +1182,8 @@ class MainWindow(MainWindow_Ui):
         super().__init__(persepolis_setting)
         self.persepolis_setting = persepolis_setting
         self.persepolis_main = persepolis_main
-        global icons
-        icons = ':/' + \
+
+        globals.icons = ':/' + \
             str(self.persepolis_setting.value('settings/icons')) + '/'
         # add support for other languages
         locale = str(self.persepolis_setting.value('settings/locale'))
@@ -1245,8 +1193,7 @@ class MainWindow(MainWindow_Ui):
             QCoreApplication.installTranslator(self.translator)
 
         # find temp_download_folder
-        global temp_download_folder
-        temp_download_folder = persepolis_setting.value('settings/download_path_temp')
+        globals.temp_download_folder = persepolis_setting.value('settings/download_path_temp')
 
         # this variable is changed to True,
         # if user highlights multiple items in download_table
@@ -1291,7 +1238,7 @@ class MainWindow(MainWindow_Ui):
         # hide MainWindow if start_in_tray is equal to "yes"
         if start_in_tray:
             self.minimizeAction.setText(QCoreApplication.translate('mainwindow_src_ui_tr', 'Show main Window'))
-            self.minimizeAction.setIcon(QIcon(icons + 'window'))
+            self.minimizeAction.setIcon(QIcon(globals.icons + 'window'))
 
         # check user preference for showing or hiding menubar.
         # (It's not for mac osx or DE that have global menu like kde plasma)
@@ -1491,9 +1438,8 @@ class MainWindow(MainWindow_Ui):
         self.after_pushButton.clicked.connect(self.afterPushButtonPressed)
 
         # setting index of all downloads for category_tree
-        global current_category_tree_index
-        current_category_tree_index = self.category_tree_model.index(0, 0)
-        self.category_tree.setCurrentIndex(current_category_tree_index)
+        globals.current_category_tree_index = self.category_tree_model.index(0, 0)
+        self.category_tree.setCurrentIndex(globals.current_category_tree_index)
 
         # this line set toolBar And Context Menu Items
         self.toolBarAndContextMenuItems('All Downloads')
@@ -1639,11 +1585,10 @@ class MainWindow(MainWindow_Ui):
     # sending notification when aria failed to start! see StartAria2Thread for
     # more details
     def startAriaMessage(self, message):
-        global aria_startup_answer
         if message == 'yes':
             sleep(0.5)
             self.statusbar.showMessage(QCoreApplication.translate('mainwindow_src_ui_tr', 'Ready...'))
-            aria_startup_answer = 'ready'
+            globals.aria_startup_answer = 'ready'
 
             self.category_tree_qwidget.setEnabled(True)
 
@@ -1705,8 +1650,7 @@ class MainWindow(MainWindow_Ui):
     # 1! and it means that aria2 rpc connection disconnected.so CheckingThread
     # is trying to fix it .
     def aria2Disconnected(self):
-        global aria2_disconnected
-        aria2_disconnected = 1
+        globals.aria2_disconnected = True
 
 
     # read KeepAwakeThread for more information
@@ -1813,7 +1757,7 @@ class MainWindow(MainWindow_Ui):
                 # check free space in temp_download_folder!
                 # perhaps insufficient space in hard disk caused this error!
                 # find free space in KiB
-                free_space = freeSpace(temp_download_folder)
+                free_space = freeSpace(globals.temp_download_folder)
 
                 # find file size
                 file_size = download_dict['size']
@@ -2503,13 +2447,12 @@ class MainWindow(MainWindow_Ui):
     # when user requests calls persepolis with browser plugin,
     # this method is called by CheckingThread.
     def checkPluginCall(self):
-        global plugin_links_checked
 
         # get new links from plugins_db
         list_of_links = self.plugins_db.returnNewLinks()
 
         # notify that job is done!and new links can be received form plugins_db
-        plugin_links_checked = True
+        globals.plugin_links_checked = True
 
         not_video_finder_links = []  # Store non-video_finder links to process normally.
 
@@ -2653,7 +2596,7 @@ class MainWindow(MainWindow_Ui):
         category_tree_model_index = self.category_tree_model.index(
             category_index, 0)
 
-        current_category_tree_text = current_category_tree_index.data()
+        current_category_tree_text = globals.current_category_tree_index.data()
 
         self.category_tree.setCurrentIndex(category_tree_model_index)
         if current_category_tree_text != category:
@@ -2939,11 +2882,7 @@ class MainWindow(MainWindow_Ui):
 
     # callBack of PropertiesWindow
     def propertiesCallback(self, add_link_dictionary, gid, category, video_finder_dictionary=None):
-
-        # if checking_flag is equal to 1, it means that user pressed remove or
-        # delete button or ... . so checking download information must be
-        # stopped until job is done!
-        if checking_flag != 2:  # noqa: PLR2004
+        if globals.checking_flag != CheckingFlag.StoppingJobs:
             wait_check = WaitThread()
             self.threadPool.append(wait_check)
             self.threadPool[-1].start()
@@ -2993,8 +2932,7 @@ class MainWindow(MainWindow_Ui):
                     self.download_table.removeRow(row)
 
         # tell the CheckDownloadInfoThread that job is done!
-        global checking_flag
-        checking_flag = 0
+        globals.checking_flag = CheckingFlag.Normal
 
     # This method is called if user presses "show/hide progress window" button in
     # MainWindow
@@ -3081,7 +3019,7 @@ class MainWindow(MainWindow_Ui):
 
             # set close event just for minimizing to tray
             self.minimizeAction.setText(QCoreApplication.translate('mainwindow_src_ui_tr', 'Show main Window'))
-            self.minimizeAction.setIcon(QIcon(icons + 'window'))
+            self.minimizeAction.setIcon(QIcon(globals.icons + 'window'))
 
         else:
 
@@ -3131,12 +3069,9 @@ class MainWindow(MainWindow_Ui):
 
         ghermez.shutDown()  # shutting down Aria2
         sleep(0.5)
-        global shutdown_notification  # see start of this script and see inherited QThreads
 
-        # shutdown_notification = 0 >> persepolis running , 1 >> persepolis is
-        # ready for close(closeEvent called) , 2 >> OK, let's close application!
-        shutdown_notification = 1
-        while shutdown_notification != 2:  # noqa: PLR2004
+        globals.shutdown_notification = ShutdownNotification.ReadyForClose
+        while globals.shutdown_notification != ShutdownNotification.Ok:
             sleep(0.1)
 
         # close data bases connections
@@ -3228,18 +3163,18 @@ class MainWindow(MainWindow_Ui):
         # Show MainWindow if it's hided
         if self.isVisible():
             self.minimizeAction.setText(QCoreApplication.translate('mainwindow_src_ui_tr', 'Show main Window'))
-            self.minimizeAction.setIcon(QIcon(icons + 'window'))
+            self.minimizeAction.setIcon(QIcon(globals.icons + 'window'))
             self.hide()
         else:
             self.show()
             self.minimizeAction.setText(QCoreApplication.translate('mainwindow_src_ui_tr', 'Minimize to system tray'))
-            self.minimizeAction.setIcon(QIcon(icons + 'minimize'))
+            self.minimizeAction.setIcon(QIcon(globals.icons + 'minimize'))
 
     # showMainWindow shows main window in normal mode , see CheckingThread
     def showMainWindow(self):
         self.showNormal()
         self.minimizeAction.setText(QCoreApplication.translate('mainwindow_src_ui_tr', 'Minimize to system tray'))
-        self.minimizeAction.setIcon(QIcon(icons + 'minimize'))
+        self.minimizeAction.setIcon(QIcon(globals.icons + 'minimize'))
 
     # stopAllDownloads stops all downloads
     def stopAllDownloads(self, _menu=None):
@@ -3384,29 +3319,25 @@ class MainWindow(MainWindow_Ui):
     def selectDownloads(self):
 
         # find highlighted item in category_tree
-        current_category_tree_text = str(current_category_tree_index.data())
+        current_category_tree_text = str(globals.current_category_tree_index.data())
         self.toolBarAndContextMenuItems(current_category_tree_text)
 
         # change actions icon
         if self.multi_items_selected:
-            self.removeSelectedAction.setIcon(QIcon(icons + 'multi_remove'))
-            self.deleteSelectedAction.setIcon(QIcon(icons + 'multi_trash'))
-            self.moveUpSelectedAction.setIcon(QIcon(icons + 'multi_up'))
-            self.moveDownSelectedAction.setIcon(QIcon(icons + 'multi_down'))
+            self.removeSelectedAction.setIcon(QIcon(globals.icons + 'multi_remove'))
+            self.deleteSelectedAction.setIcon(QIcon(globals.icons + 'multi_trash'))
+            self.moveUpSelectedAction.setIcon(QIcon(globals.icons + 'multi_up'))
+            self.moveDownSelectedAction.setIcon(QIcon(globals.icons + 'multi_down'))
 
         else:
-            self.removeSelectedAction.setIcon(QIcon(icons + 'remove'))
-            self.deleteSelectedAction.setIcon(QIcon(icons + 'trash'))
-            self.moveUpSelectedAction.setIcon(QIcon(icons + 'up'))
-            self.moveDownSelectedAction.setIcon(QIcon(icons + 'down'))
+            self.removeSelectedAction.setIcon(QIcon(globals.icons + 'remove'))
+            self.deleteSelectedAction.setIcon(QIcon(globals.icons + 'trash'))
+            self.moveUpSelectedAction.setIcon(QIcon(globals.icons + 'up'))
+            self.moveDownSelectedAction.setIcon(QIcon(globals.icons + 'down'))
 
     # this method is called when user presses 'remove selected items' button
     def removeSelected(self, _menu=None):
-
-        # if checking_flag is equal to 1, it means that user pressed remove or
-        # delete button or ... . so checking download information must be
-        # stopped until job is done!
-        if checking_flag != 2:  # noqa: PLR2004
+        if globals.checking_flag != CheckingFlag.StoppingJobs:
             wait_check = WaitThread()
             self.threadPool.append(wait_check)
             self.threadPool[-1].start()
@@ -3521,18 +3452,16 @@ class MainWindow(MainWindow_Ui):
             # remove file of download from download temp folder
             if file_name != '***' and status != 'complete':
                 file_name_path = os.path.join(
-                    temp_download_folder,  str(file_name))
+                    globals.temp_download_folder,  str(file_name))
                 ghermez.remove(file_name_path)  # remove file
 
                 file_name_aria = file_name_path + '.aria2'
                 ghermez.remove(file_name_aria)  # remove file.aria
 
         # tell the CheckDownloadInfoThread that job is done!
-        global checking_flag
-        checking_flag = 0
+        globals.checking_flag = CheckingFlag.Normal
 
     # this method is called when user presses 'delete selected items'
-
     def deleteSelected(self, _menu=None):
         # showing Warning message to the user.
         # checking persepolis_setting first!
@@ -3562,10 +3491,7 @@ class MainWindow(MainWindow_Ui):
             if reply != QMessageBox.Yes:
                 return
 
-        # if checking_flag is equal to 1, it means that user pressed remove or
-        # delete button or ... . so checking download information must be
-        # stopped until job is done!
-        if checking_flag != 2:  # noqa: PLR2004
+        if globals.checking_flag != CheckingFlag.StoppingJobs:
             wait_check = WaitThread()
             self.threadPool.append(wait_check)
             self.threadPool[-1].start()
@@ -3673,7 +3599,7 @@ class MainWindow(MainWindow_Ui):
             # remove downloaded file form download temp folder
             if file_name != '***' and status != 'complete':
                 file_name_path = os.path.join(
-                    temp_download_folder, str(file_name))
+                    globals.temp_download_folder, str(file_name))
 
                 # remove file : file_name_path
                 ghermez.remove(file_name_path)
@@ -3703,16 +3629,11 @@ class MainWindow(MainWindow_Ui):
             self.persepolis_db.deleteItemInDownloadTable(gid, category)
 
         # telling the CheckDownloadInfoThread that job is done!
-        global checking_flag
-        checking_flag = 0
+        globals.checking_flag = CheckingFlag.Normal
 
     # this method sorts download table by name
     def sortByName(self, _menu=None):
-
-        # if checking_flag is equal to 1, it means that user pressed remove or
-        # delete button or ... . so checking download information must be
-        # stopped until job is done!
-        if checking_flag != 2:  # noqa: PLR2004
+        if globals.checking_flag != CheckingFlag.StoppingJobs:
             wait_check = WaitThread()
             self.threadPool.append(wait_check)
             self.threadPool[-1].start()
@@ -3736,7 +3657,7 @@ class MainWindow(MainWindow_Ui):
         self.download_table.clearContents()
 
         # find name of selected category
-        current_category_tree_text = str(current_category_tree_index.data())
+        current_category_tree_text = str(globals.current_category_tree_index.data())
 
         # get download information from data base
         if current_category_tree_text == 'All Downloads':
@@ -3787,16 +3708,11 @@ class MainWindow(MainWindow_Ui):
         self.persepolis_db.updateCategoryTable([category_dict])
 
         # tell the CheckDownloadInfoThread that job is done!
-        global checking_flag
-        checking_flag = 0
+        globals.checking_flag = CheckingFlag.Normal
 
     # this method sorts items in download_table by size
     def sortBySize(self, _menu=None):
-
-        # if checking_flag is equal to 1, it means that user pressed remove or
-        # delete button or ... . so checking download information must be
-        # stopped until job is done!
-        if checking_flag != 2:  # noqa: PLR2004
+        if globals.checking_flag != CheckingFlag.StoppingJobs:
             wait_check = WaitThread()
             self.threadPool.append(wait_check)
             self.threadPool[-1].start()
@@ -3807,7 +3723,7 @@ class MainWindow(MainWindow_Ui):
     def sortBySize2(self):
 
         # find name of selected category
-        current_category_tree_text = str(current_category_tree_index.data())
+        current_category_tree_text = str(globals.current_category_tree_index.data())
 
         # find gid and size of downloads
         gid_size_dict = {}
@@ -3891,16 +3807,11 @@ class MainWindow(MainWindow_Ui):
         self.persepolis_db.updateCategoryTable([category_dict])
 
         # tell the CheckDownloadInfoThread that job is done!
-        global checking_flag
-        checking_flag = 0
+        globals.checking_flag = CheckingFlag.Normal
 
     # this method sorts download_table items with status
     def sortByStatus(self, _menu=None):
-
-        # if checking_flag is equal to 1, it means that user pressed remove or
-        # delete button or ... . so checking download information must be
-        # stopped until job is done!
-        if checking_flag != 2:  # noqa: PLR2004
+        if globals.checking_flag != CheckingFlag.StoppingJobs:
             wait_check = WaitThread()
             self.threadPool.append(wait_check)
             self.threadPool[-1].start()
@@ -3911,7 +3822,7 @@ class MainWindow(MainWindow_Ui):
     def sortByStatus2(self):
 
         # find name of selected category
-        current_category_tree_text = str(current_category_tree_index.data())
+        current_category_tree_text = str(globals.current_category_tree_index.data())
 
         # find gid and status of downloads
         gid_status_dict = {}
@@ -3991,16 +3902,11 @@ class MainWindow(MainWindow_Ui):
         self.persepolis_db.updateCategoryTable([category_dict])
 
         # tell the CheckDownloadInfoThread that job is done!
-        global checking_flag
-        checking_flag = 0
+        globals.checking_flag = CheckingFlag.Normal
 
     # this method sorts download table with date added information
     def sortByFirstTry(self, _menu=None):
-
-        # if checking_flag is equal to 1, it means that user pressed remove or
-        # delete button or ... . so checking download information must be
-        # stopped until job is done!
-        if checking_flag != 2:  # noqa: PLR2004
+        if globals.checking_flag != CheckingFlag.StoppingJobs:
             wait_check = WaitThread()
             self.threadPool.append(wait_check)
             self.threadPool[-1].start()
@@ -4038,7 +3944,7 @@ class MainWindow(MainWindow_Ui):
         self.download_table.clearContents()
 
         # find name of selected category
-        current_category_tree_text = str(current_category_tree_index.data())
+        current_category_tree_text = str(globals.current_category_tree_index.data())
 
         # get download information from data base
         if current_category_tree_text == 'All Downloads':
@@ -4090,16 +3996,11 @@ class MainWindow(MainWindow_Ui):
         self.persepolis_db.updateCategoryTable([category_dict])
 
         # tell the CheckDownloadInfoThread that job is done!
-        global checking_flag
-        checking_flag = 0
+        globals.checking_flag = CheckingFlag.Normal
 
     # this method sorts download_table with order of last modify date
-
     def sortByLastTry(self, _menu=None):
-        # if checking_flag is equal to 1, it means that user pressed remove or
-        # delete button or ... . so checking download information must be
-        # stopped until job is done!
-        if checking_flag != 2:  # noqa: PLR2004
+        if globals.checking_flag != CheckingFlag.StoppingJobs:
             wait_check = WaitThread()
             self.threadPool.append(wait_check)
             self.threadPool[-1].start()
@@ -4140,7 +4041,7 @@ class MainWindow(MainWindow_Ui):
         self.download_table.clearContents()
 
         # find name of selected category
-        current_category_tree_text = str(current_category_tree_index.data())
+        current_category_tree_text = str(globals.current_category_tree_index.data())
 
         # get download information from data base
         if current_category_tree_text == 'All Downloads':
@@ -4192,12 +4093,10 @@ class MainWindow(MainWindow_Ui):
         self.persepolis_db.updateCategoryTable([category_dict])
 
         # tell the CheckDownloadInfoThread that job is done!
-        global checking_flag
-        checking_flag = 0
+        globals.checking_flag = CheckingFlag.Normal
 
     # this method called , when user clicks on 'create new queue' button in
     # main window.
-
     def createQueue(self, _menu=None):
         text, ok = QInputDialog.getText(
             self, 'Queue', 'Enter queue name:', text='queue')
@@ -4378,15 +4277,10 @@ class MainWindow(MainWindow_Ui):
 
     # this method is called , when user clicks on an item in
     # category_tree (left side panel)
-
     def categoryTreeSelected(self, item):
         new_selection = item
-        if current_category_tree_index != new_selection:
-            # if checking_flag is equal to 1, it means that user pressed remove
-            # or delete button or ... . so checking download information must
-            # be stopped until job is done!
-            if checking_flag != 2:  # noqa: PLR2004
-
+        if globals.current_category_tree_index != new_selection:
+            if globals.checking_flag != CheckingFlag.StoppingJobs:
                 wait_check = WaitThread()
                 self.threadPool.append(wait_check)
                 self.threadPool[-1].start()
@@ -4396,13 +4290,12 @@ class MainWindow(MainWindow_Ui):
                 self.categoryTreeSelected2(new_selection)
 
     def categoryTreeSelected2(self, new_selection):
-        global current_category_tree_index
 
         # clear download_table
         self.download_table.setRowCount(0)
 
         # old_selection_index
-        old_selection_index = current_category_tree_index
+        old_selection_index = globals.current_category_tree_index
 
         # finding name of old_selection_index
         old_category_tree_item_text = str(old_selection_index.data())
@@ -4463,7 +4356,7 @@ class MainWindow(MainWindow_Ui):
             self.persepolis_db.updateCategoryTable([queue_dict])
 
         # update download_table
-        current_category_tree_index = new_selection
+        globals.current_category_tree_index = new_selection
 
         # find category
         current_category_tree_text = str(
@@ -4509,8 +4402,7 @@ class MainWindow(MainWindow_Ui):
                 i = i + 1
 
         # tell the CheckDownloadInfoThread that job is done!
-        global checking_flag
-        checking_flag = 0
+        globals.checking_flag = CheckingFlag.Normal
 
         # update toolBar and tablewidget_menu items
         self.toolBarAndContextMenuItems(str(current_category_tree_text))
@@ -4532,7 +4424,7 @@ class MainWindow(MainWindow_Ui):
         # clear context menu of category_tree
         self.category_tree.category_tree_menu.clear()
 
-        queueAction = QAction(QIcon(icons + 'add'), 'Single Downloads', self,
+        queueAction = QAction(QIcon(globals.icons + 'add'), 'Single Downloads', self,
                               statusTip='Add to Single Downloads',
                               triggered=partial(self.addToQueue, 'Single Downloads'))
 
@@ -4550,7 +4442,7 @@ class MainWindow(MainWindow_Ui):
         # add categories name to sendMenu
         for category_name in categories_list:
             if category_name not in (category, 'All Downloads'):
-                queueAction = QAction(QIcon(icons + 'add_queue'), category_name, self,
+                queueAction = QAction(QIcon(globals.icons + 'add_queue'), category_name, self,
                                       statusTip='Add to' + category_name,
                                       triggered=partial(self.addToQueue, category_name))
 
@@ -4723,7 +4615,7 @@ class MainWindow(MainWindow_Ui):
                 return
 
         # find name of queue
-        current_category_tree_text = str(current_category_tree_index.data())
+        current_category_tree_text = str(globals.current_category_tree_index.data())
 
         if current_category_tree_text == 'Scheduled Downloads':
             error_messageBox = QMessageBox()
@@ -4737,7 +4629,7 @@ class MainWindow(MainWindow_Ui):
         if current_category_tree_text not in ('All Downloads', 'Single Downloads'):
 
             # remove queue from category_tree
-            row_number = current_category_tree_index.row()
+            row_number = globals.current_category_tree_index.row()
             self.category_tree_model.removeRow(row_number)
 
             # delete category from data base
@@ -4754,7 +4646,7 @@ class MainWindow(MainWindow_Ui):
         self.startQueueAction.setEnabled(False)
 
         # current_category_tree_text is the name of queue that is selected by user
-        current_category_tree_text = str(current_category_tree_index.data())
+        current_category_tree_text = str(globals.current_category_tree_index.data())
 
         # create an item for this category in temp_db if not exists!
         try:
@@ -4811,7 +4703,7 @@ class MainWindow(MainWindow_Ui):
         self.stopQueueAction.setEnabled(False)
 
         # current_category_tree_text is the name of queue that is selected by user
-        current_category_tree_text = str(current_category_tree_index.data())
+        current_category_tree_text = str(globals.current_category_tree_index.data())
 
         queue = self.queue_list_dict[current_category_tree_text]
         queue.start = False
@@ -4821,13 +4713,8 @@ class MainWindow(MainWindow_Ui):
 
     # this method is called , when user want to add a download to a queue with
     # context menu. see also toolBarAndContextMenuItems() method
-
     def addToQueue(self, data, _menu=None):
-        # if checking_flag is equal to 1, it means that user pressed remove or
-        # delete button or ... . so checking download information must be
-        # stopped until job is done!
-
-        if checking_flag != 2:  # noqa: PLR2004
+        if globals.checking_flag != CheckingFlag.StoppingJobs:
             wait_check = WaitThread()
             self.threadPool.append(wait_check)
             self.threadPool[-1].start()
@@ -4934,7 +4821,7 @@ class MainWindow(MainWindow_Ui):
                 self.persepolis_db.updateCategoryTable([new_category_dict])
 
                 # update category in download_table
-                current_category_tree_text = str(current_category_tree_index.data())
+                current_category_tree_text = str(globals.current_category_tree_index.data())
 
                 if current_category_tree_text == 'All Downloads':
                     item = QTableWidgetItem(new_category)
@@ -4949,8 +4836,7 @@ class MainWindow(MainWindow_Ui):
                        QCoreApplication.translate('mainwindow_src_ui_tr', 'Please stop download progress first.'),
                        5000, 'no', parent=self)
 
-        global checking_flag
-        checking_flag = 0
+        globals.checking_flag = CheckingFlag.Normal
 
     # this method activates or deactivates start_frame according to situation
     def startFrame(self, _checkBox):
@@ -4997,7 +4883,7 @@ class MainWindow(MainWindow_Ui):
 
         # current_category_tree_text is the name of queue that selected by user
             current_category_tree_text = str(
-                current_category_tree_index.data())
+                globals.current_category_tree_index.data())
 
         # inform queue about changes
             if current_category_tree_text in self.queue_list_dict:
@@ -5010,7 +4896,7 @@ class MainWindow(MainWindow_Ui):
         self.limit_pushButton.setEnabled(False)
 
         # current_category_tree_text is the name of queue that selected by user
-        current_category_tree_text = str(current_category_tree_index.data())
+        current_category_tree_text = str(globals.current_category_tree_index.data())
 
         # informing queue about changes
         self.queue_list_dict[current_category_tree_text].limit = True
@@ -5019,7 +4905,7 @@ class MainWindow(MainWindow_Ui):
     # this method handles user's shutdown request
     def afterPushButtonPressed(self, _button):
         # current_category_tree_text is the name of queue that selected by user
-        current_category_tree_text = str(current_category_tree_index.data())
+        current_category_tree_text = str(globals.current_category_tree_index.data())
 
         self.after_pushButton.setEnabled(False)
 
@@ -5089,7 +4975,7 @@ class MainWindow(MainWindow_Ui):
 
     def afterFrame(self, _checkBox):
         # current_category_tree_text is the name of queue that selected by user
-        current_category_tree_text = str(current_category_tree_index.data())
+        current_category_tree_text = str(globals.current_category_tree_index.data())
 
         if self.after_checkBox.isChecked():  # enable after_frame
             self.after_frame.setEnabled(True)
@@ -5249,13 +5135,9 @@ class MainWindow(MainWindow_Ui):
     # this method subtituts selected  items with upper one
     def moveUpSelected(self, _menu=None):
 
-        global button_pressed_counter
-        button_pressed_counter = button_pressed_counter + 1
+        globals.button_pressed_counter += 1
 
-        # if checking_flag is equal to 1, it means that user pressed remove or
-        # delete button or ... . so checking download information must be stopped
-        # until job is done!
-        if checking_flag != 2:  # noqa: PLR2004
+        if globals.checking_flag != CheckingFlag.StoppingJobs:
             button_pressed_thread = ButtonPressedThread()
             self.threadPool.append(button_pressed_thread)
             self.threadPool[-1].start()
@@ -5270,7 +5152,7 @@ class MainWindow(MainWindow_Ui):
     def moveUpSelected2(self):
 
         # current_category_tree_text is the name of queue that selected by user
-        current_category_tree_text = str(current_category_tree_index.data())
+        current_category_tree_text = str(globals.current_category_tree_index.data())
 
         # get gid_list from data base
         category_dict = self.persepolis_db.searchCategoryInCategoryTable(current_category_tree_text)
@@ -5339,13 +5221,9 @@ class MainWindow(MainWindow_Ui):
     # this method is substituting selected download item with lower download item
     def moveDownSelected(self, _menu=None):
 
-        global button_pressed_counter
-        button_pressed_counter = button_pressed_counter + 1
+        globals.button_pressed_counter += 1
 
-        # if checking_flag is equal to 1, it means that user pressed remove or
-        # delete button or ... . so checking download information must be stopped
-        # until job is done!
-        if checking_flag != 2:  # noqa: PLR2004
+        if globals.checking_flag != CheckingFlag.StoppingJobs:
             button_pressed_thread = ButtonPressedThread()
             self.threadPool.append(button_pressed_thread)
             self.threadPool[-1].start()
@@ -5365,7 +5243,7 @@ class MainWindow(MainWindow_Ui):
         rows_list = self.userSelectedRows()
 
         # current_category_tree_text is the name of queue that selected by user
-        current_category_tree_text = str(current_category_tree_index.data())
+        current_category_tree_text = str(globals.current_category_tree_index.data())
 
         # get gid_list from data base
         category_dict = self.persepolis_db.searchCategoryInCategoryTable(
@@ -5555,11 +5433,7 @@ class MainWindow(MainWindow_Ui):
 
     # this method deletes all items in data base
     def clearDownloadList(self, _item):
-
-        # if checking_flag is equal to 1, it means that user pressed remove or
-        # delete button or ... . so checking download information must be
-        # stopped until job is done!
-        if checking_flag != 2:  # noqa: PLR2004
+        if globals.checking_flag != CheckingFlag.StoppingJobs:
             wait_check = WaitThread()
             self.threadPool.append(wait_check)
             self.threadPool[-1].start()
@@ -5592,14 +5466,13 @@ class MainWindow(MainWindow_Ui):
         self.download_table.setRowCount(0)
 
         # tell the CheckDownloadInfoThread that job is done!
-        global checking_flag
-        checking_flag = 0
+        globals.checking_flag = CheckingFlag.Normal
 
     def showVideoFinderAddLinkWindow(self, input_dict=None, _menu=None):
 
         # first check youtube_dl_is_installed and ffmpeg_is_installed value!
         # if youtube_dl or ffmpeg is not installed show an error message.
-        if youtube_dl_is_installed and ffmpeg_is_installed:
+        if globals.youtube_dl_is_installed and globals.ffmpeg_is_installed:
             if not(input_dict):
                 input_dict = {}
             video_finder_addlink_window = VideoFinderAddLink(
@@ -5612,11 +5485,11 @@ class MainWindow(MainWindow_Ui):
         else:
             error_message = ''
 
-            if not(youtube_dl_is_installed):
+            if not(globals.youtube_dl_is_installed):
                 error_message = QCoreApplication.translate('mainwindow_src_ui_tr', 'youtube-dl is not installed!')
                 error_message = error_message + '\n'
 
-            if not(ffmpeg_is_installed):
+            if not(globals.ffmpeg_is_installed):
                 error_message = error_message + \
                     QCoreApplication.translate('mainwindow_src_ui_tr', 'ffmpeg is not installed!')
 
@@ -5697,7 +5570,7 @@ class MainWindow(MainWindow_Ui):
             category_tree_model_index = self.category_tree_model.index(
                 category_index, 0)
 
-            current_category_tree_text = current_category_tree_index.data()
+            current_category_tree_text = globals.current_category_tree_index.data()
             self.category_tree.setCurrentIndex(category_tree_model_index)
 
             if current_category_tree_text != category:
@@ -5770,10 +5643,7 @@ class MainWindow(MainWindow_Ui):
     # if video finder done it's job successfully,
     # then this method shows AfterDownloadWindow
     def videoFinderCompleted(self, complete_dictionary):
-        # if checking_flag is equal to 1, it means that user pressed remove or
-        # delete button or ... . so checking download information must be
-        # stopped until job is done!
-        if checking_flag != 2:  # noqa: PLR2004
+        if globals.checking_flag != CheckingFlag.StoppingJobs:
             wait_check = WaitThread()
             self.threadPool.append(wait_check)
             self.threadPool[-1].start()
@@ -5913,8 +5783,7 @@ class MainWindow(MainWindow_Ui):
                        10000, 'fail', parent=self)
 
         # telling the CheckDownloadInfoThread that job is done!
-        global checking_flag
-        checking_flag = 0
+        globals.checking_flag = CheckingFlag.Normal
 
 
 # this method is called, if user clicks on muxing_pushButton
@@ -5957,8 +5826,7 @@ class MainWindow(MainWindow_Ui):
 
     def changeIcon(self, new_icons):
 
-        global icons
-        icons = ':/' + str(new_icons) + '/'
+        globals.icons = ':/' + str(new_icons) + '/'
 
         action_icon_dict = {self.stopAllAction: 'stop_all', self.minimizeAction: 'minimize',
                             self.addlinkAction: 'add', self.addtextfileAction: 'file',
@@ -5973,6 +5841,6 @@ class MainWindow(MainWindow_Ui):
                             self.videoFinderAddLinkAction: 'video_finder', self.qmenu: 'menu'}
 
         for key in action_icon_dict:
-            key.setIcon(QIcon(icons + str(action_icon_dict[key])))
+            key.setIcon(QIcon(globals.icons + str(action_icon_dict[key])))
 
         self.selectDownloads()
