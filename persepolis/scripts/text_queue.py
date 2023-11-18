@@ -85,7 +85,7 @@ class TextQueue(TextQueue_Ui):
         link_list = []
         for link in f_links_list:
             text = link.strip()
-            if ('tp:/' in text[2:6]) or ('tps:/' in text[2:7]):
+            if ('tp:/' in text[2:6] or 'tps:/' in text[2:7]):
                 link_list.append(text)
 
         k = 1
@@ -357,7 +357,7 @@ class TextQueue(TextQueue_Ui):
             item = self.links_table.item(row, 0)
 
             # if item is checked
-            if (item.checkState() == 2):  # noqa: PLR2004
+            if item.checkState() == 2:  # noqa: PLR2004
                 # Create a copy from dict and add it to add_link_dictionary_list
                 self.add_link_dictionary_list.append(
                     addlink_dict.copy())

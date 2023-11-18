@@ -555,7 +555,6 @@ class VideoFinder(QThread):
             # continue loop and check the download status
             # if checking == 'no' >> problem occurred and downloading canceled.
             while self.video_completed != 'yes' and self.checking == 'yes':
-
                 sleep(1)
 
         if self.video_completed == 'yes':
@@ -721,7 +720,7 @@ class Queue(QThread):
 
                 # if gid is related to video finder, so start  Video Finder thread for checking status
                 # check video_finder_threads_dict, perhaps a thread started before for this gid
-                if (gid in self.parent.all_video_finder_gid_list):
+                if gid in self.parent.all_video_finder_gid_list:
 
                     video_finder_dictionary = self.parent.persepolis_db.searchGidInVideoFinderTable(gid)
 
@@ -860,7 +859,6 @@ class Queue(QThread):
 
                                             # wait until end of muxing
                                             while video_finder_thread.active == 'yes':
-
                                                 sleep(0.5)
 
                                 break
@@ -1276,8 +1274,8 @@ class MainWindow(MainWindow_Ui):
         # start aria2
         start_aria = StartAria2Thread()
         self.threadPool.append(start_aria)
-        self.threadPool[0].start()
-        self.threadPool[0].ARIA2RESPONDSIGNAL.connect(self.startAriaMessage)
+        self.threadPool[-1].start()
+        self.threadPool[-1].ARIA2RESPONDSIGNAL.connect(self.startAriaMessage)
 
         # initializing
         # create an object for PluginsDB
@@ -1372,23 +1370,23 @@ class MainWindow(MainWindow_Ui):
         # CheckDownloadInfoThread
         check_download_info = CheckDownloadInfoThread(self)
         self.threadPool.append(check_download_info)
-        self.threadPool[1].start()
-        self.threadPool[1].DOWNLOAD_INFO_SIGNAL.connect(self.checkDownloadInfo)
-        self.threadPool[1].RECONNECTARIASIGNAL.connect(self.reconnectAria)
+        self.threadPool[-1].start()
+        self.threadPool[-1].DOWNLOAD_INFO_SIGNAL.connect(self.checkDownloadInfo)
+        self.threadPool[-1].RECONNECTARIASIGNAL.connect(self.reconnectAria)
 
         # CheckSelectedRowThread
         check_selected_row = CheckSelectedRowThread()
         self.threadPool.append(check_selected_row)
-        self.threadPool[2].start()
-        self.threadPool[2].CHECKSELECTEDROWSIGNAL.connect(
+        self.threadPool[-1].start()
+        self.threadPool[-1].CHECKSELECTEDROWSIGNAL.connect(
             self.checkSelectedRow)
 
         # CheckingThread
         check_browser_plugin = CheckingThread()
         self.threadPool.append(check_browser_plugin)
-        self.threadPool[3].start()
-        self.threadPool[3].CHECKPLUGINDBSIGNAL.connect(self.checkPluginCall)
-        self.threadPool[3].SHOWMAINWINDOWSIGNAL.connect(self.showMainWindow)
+        self.threadPool[-1].start()
+        self.threadPool[-1].CHECKPLUGINDBSIGNAL.connect(self.checkPluginCall)
+        self.threadPool[-1].SHOWMAINWINDOWSIGNAL.connect(self.showMainWindow)
 
         # keepAwake
         self.ongoing_downloads = 0
@@ -2933,7 +2931,7 @@ class MainWindow(MainWindow_Ui):
                     item = QTableWidgetItem(str(category))
                     self.download_table.setItem(row, 12, item)
 
-                elif (str(current_category) != str(category)):
+                elif str(current_category) != str(category):
                     # remove row from download_table
                     self.download_table.removeRow(row)
 

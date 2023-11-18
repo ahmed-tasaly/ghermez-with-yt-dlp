@@ -21,12 +21,12 @@ import time
 import traceback
 import urllib.parse
 import xmlrpc.client
-from typing import TYPE_CHECKING, Any, Literal
+from typing import TYPE_CHECKING, Any
 
 import ghermez
 from ghermez import humanReadableSize, moveFile
-from persepolis.constants.status import DownloadStatus
 from persepolis.constants import APP_NAME, ORG_NAME, OS
+from persepolis.constants.status import DownloadStatus
 from persepolis.scripts.bubble import notifySend
 from persepolis.scripts.os_commands import makeTempDownloadDir
 

@@ -351,7 +351,7 @@ class BrowserPluginQueue(TextQueue_Ui):
             item = self.links_table.item(row, 0)
 
             # if item is checked
-            if (item.checkState() == 2):  # noqa: PLR2004
+            if item.checkState() == 2:  # noqa: PLR2004
                 # Create a copy from dict and add it to add_link_dictionary_list
                 self.add_link_dictionary_list.append(
                     deepcopy(addlink_dict))

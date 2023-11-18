@@ -101,7 +101,7 @@ class AddLinkWindow(AddLinkWindow_Ui):
 
         # if browsers plugin didn't send any links
         # then check clipboard for link!
-        if ('link' in self.plugin_add_link_dictionary):
+        if 'link' in self.plugin_add_link_dictionary:
             # check plugin_add_link_dictionary for link!
             # "link" key-value must be checked
             self.link_lineEdit.setText(
@@ -111,7 +111,7 @@ class AddLinkWindow(AddLinkWindow_Ui):
             # check clipboard
             clipboard = QApplication.clipboard()
             text = clipboard.text()
-            if (('tp:/' in text[2:6]) or ('tps:/' in text[2:7])):
+            if ('tp:/' in text[2:6]) or ('tps:/' in text[2:7]):
                 self.link_lineEdit.setText(str(text))
 
         # detect_proxy_pushButton
@@ -121,13 +121,13 @@ class AddLinkWindow(AddLinkWindow_Ui):
         # ip_lineEdit initialization ->
         settings_ip = self.persepolis_setting.value(
             'add_link_initialization/ip', None)
-        if (settings_ip):
+        if settings_ip:
             self.ip_lineEdit.setText(str(settings_ip))
 
         # proxy user lineEdit initialization ->
         settings_proxy_user = self.persepolis_setting.value(
             'add_link_initialization/proxy_user', None)
-        if (settings_proxy_user):
+        if settings_proxy_user:
             self.proxy_user_lineEdit.setText(str(settings_proxy_user))
 
         # port_spinBox initialization ->
@@ -139,7 +139,7 @@ class AddLinkWindow(AddLinkWindow_Ui):
         # download UserName initialization ->
         settings_download_user = self.persepolis_setting.value(
             'add_link_initialization/download_user', None)
-        if (settings_download_user):
+        if settings_download_user:
             self.download_user_lineEdit.setText(str(settings_download_user))
 
 # get categories name and add them to add_queue_comboBox
@@ -188,22 +188,22 @@ class AddLinkWindow(AddLinkWindow_Ui):
         # check plugin_add_link_dictionary for finding file name
         # perhaps plugin sended file name in plugin_add_link_dictionary
         # for finding file name "out" key must be checked
-        if ('out' in self.plugin_add_link_dictionary) and self.plugin_add_link_dictionary['out']:
+        if 'out' in self.plugin_add_link_dictionary and self.plugin_add_link_dictionary['out']:
             self.change_name_lineEdit.setText(
                 str(self.plugin_add_link_dictionary['out']))
             self.change_name_checkBox.setChecked(True)
 
         # get referer and header and user_agent and load_cookies in plugin_add_link_dictionary if exits.
-        if ('referer' in self.plugin_add_link_dictionary):
+        if 'referer' in self.plugin_add_link_dictionary:
             self.referer_lineEdit.setText(str(self.plugin_add_link_dictionary['referer']))
 
-        if ('header' in self.plugin_add_link_dictionary) and str(self.plugin_add_link_dictionary['header']) != 'None':
+        if 'header' in self.plugin_add_link_dictionary and str(self.plugin_add_link_dictionary['header']) != 'None':
                 self.header_lineEdit.setText(str(self.plugin_add_link_dictionary['header']))
 
-        if ('user_agent' in self.plugin_add_link_dictionary):
+        if 'user_agent' in self.plugin_add_link_dictionary:
             self.user_agent_lineEdit.setText(str(self.plugin_add_link_dictionary['user_agent']))
 
-        if ('load_cookies' in self.plugin_add_link_dictionary):
+        if 'load_cookies' in self.plugin_add_link_dictionary:
             self.load_cookies_lineEdit.setText(self.plugin_add_link_dictionary['load_cookies'])
 
 

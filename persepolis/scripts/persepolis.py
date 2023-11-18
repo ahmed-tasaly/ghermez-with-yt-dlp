@@ -313,7 +313,7 @@ start_in_tray = bool(args.tray)
 # comes up and window gets additional download information
 # from user (port , proxy , ...) and download starts and request file deleted
 
-if ('link' in add_link_dictionary):
+if 'link' in add_link_dictionary:
     plugin_dict = {'link': add_link_dictionary['link'],
                    'referer': add_link_dictionary['referer'],
                    'load_cookies': add_link_dictionary['load_cookies'],
