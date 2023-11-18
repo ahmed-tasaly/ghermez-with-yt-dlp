@@ -27,6 +27,7 @@ import subprocess
 
 import ghermez
 from persepolis.constants import OS
+from persepolis.constants.status import DownloadStatus
 from persepolis.gui.progress_ui import ProgressWindow_Ui
 from persepolis.scripts import download
 from persepolis.scripts.bubble import notifySend
@@ -117,7 +118,7 @@ class ProgressWindow(ProgressWindow_Ui):
 
     def resumePushButtonPressed(self, _button: QPushButton) -> None:
 
-        if self.status == 'paused':
+        if self.status == DownloadStatus.Paused:
             answer = ghermez.downloadUnpause(self.gid)
 
             # if aria2 did not respond , then this function is checking for aria2
@@ -138,7 +139,7 @@ class ProgressWindow(ProgressWindow_Ui):
 
     def pausePushButtonPressed(self, _button: QPushButton) -> None:
 
-        if self.status == 'downloading':
+        if self.status == DownloadStatus.Downloading:
             answer = ghermez.downloadPause(self.gid)
 
             # if aria2 did not respond , then this function is checking for aria2
@@ -189,7 +190,7 @@ class ProgressWindow(ProgressWindow_Ui):
             self.limit_frame.setEnabled(False)
 
             # check download status is "scheduled" or not!
-            if self.status != 'scheduled':
+            if self.status != DownloadStatus.Scheduled:
                 # tell aria2 for unlimited speed
                 ghermez.limitSpeed(self.gid, '0')
             else:
@@ -291,7 +292,7 @@ class ProgressWindow(ProgressWindow_Ui):
 
         # if download was started before , send the limit_speed request to aria2 .
         # else save the request in data_base
-        if self.status != 'scheduled':
+        if self.status != DownloadStatus.Scheduled:
             ghermez.limitSpeed(self.gid, limit_value)
         else:
             # update limit value in data_base

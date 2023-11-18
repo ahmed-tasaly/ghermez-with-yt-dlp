@@ -27,3 +27,16 @@ class CheckingFlag(Enum):
   StoppingJobs = 2
 
   DeleteFileActionDone = 3
+
+
+class DownloadStatus(str, Enum):
+  Downloading = 'downloading'
+  Waiting = 'waiting'
+  Error = 'error'
+  Scheduled = 'scheduled'
+  Paused = 'paused'
+  Stopped = 'stopped'
+  Complete = 'complete'
+
+  def __str__(self) -> str:
+    return str(self.value)

@@ -74,7 +74,7 @@ from time import sleep
 
 import ghermez
 from persepolis.constants import APP_NAME, OS, REPO_LINK
-from persepolis.constants.status import CheckingFlag, ShutdownNotification
+from persepolis.constants.status import CheckingFlag, DownloadStatus, ShutdownNotification
 from persepolis.gui import resources  # noqa: F401
 from persepolis.gui.mainwindow_ui import MainWindow_Ui, QTableWidgetItem
 from persepolis.scripts import download, spider
@@ -701,7 +701,7 @@ class Queue(QThread):
                     # find status of download
                     status = dictionary['status']
 
-                    if status != 'complete':
+                    if status != DownloadStatus.Complete:
                         # We find first item! GREAT!
                         add_link_dict = {'gid': gid}
 
@@ -749,13 +749,13 @@ class Queue(QThread):
                 # if download was completed, continue the loop
                 # with the next iteration of the loop!
                 # We don't want to download it two times :)
-                if dictionary['status'] == 'complete':
+                if dictionary['status'] == DownloadStatus.Complete:
                     continue
 
                 queue_counter = queue_counter + 1
 
                 # change status of download to waiting
-                status = 'waiting'
+                status = DownloadStatus.Waiting
                 dictionary['status'] = status
 
                 if self.end_time:
@@ -814,14 +814,17 @@ class Queue(QThread):
                     self.limit_changed = True
 
                 # continue loop until download has finished
-                while status in ('downloading', 'waiting', 'paused', 'scheduled'):
+                while status in (DownloadStatus.Downloading,
+                                 DownloadStatus.Waiting,
+                                 DownloadStatus.Paused,
+                                 DownloadStatus.Scheduled):
 
                     sleep(1)
                     dictionary = self.parent.persepolis_db.searchGidInDownloadTable(gid)
 
                     status = dictionary['status']
 
-                    if status == 'error':
+                    if status == DownloadStatus.Error:
                         error = 'error'
                         # write error_message in log file
                         error_message = 'Download failed - GID : '\
@@ -831,7 +834,7 @@ class Queue(QThread):
 
                         ghermez.sendToLog(error_message, 'ERROR')
 
-                    elif status == 'complete':
+                    elif status == DownloadStatus.Complete:
                         complete_message = 'Download complete - GID : '\
                             + str(gid)
 
@@ -873,9 +876,9 @@ class Queue(QThread):
                             version_answer = ghermez.aria2Version()
                             if version_answer == 'did not respond':
                                 self.parent.aria2Disconnected()
-                        status = 'stopped'
+                        status = DownloadStatus.Stopped
 
-                    if self.limit and status == 'downloading' and self.limit_changed:
+                    if self.limit and status == DownloadStatus.Downloading and self.limit_changed:
                         # It means user want to limit download speed
                         # get limitation value
                         self.limit_comboBox_value = self.parent.limit_comboBox.currentText()
@@ -891,7 +894,7 @@ class Queue(QThread):
                         # done!
                         self.limit_changed = False
 
-                    if not(self.limit) and status == 'downloading' and self.limit_changed:
+                    if not(self.limit) and status == DownloadStatus.Downloading and self.limit_changed:
                         # speed limitation is canceled by user!
                         # cancel limitation
                         ghermez.limitSpeed(gid, '0')
@@ -900,7 +903,7 @@ class Queue(QThread):
                         self.limit_changed = False
 
                 # it means queue stopped at end time or user stopped queue
-                if status == 'stopped':
+                if status == DownloadStatus.Stopped:
 
                     for video_finder_gid_list in video_finder_list:
 
@@ -1708,7 +1711,7 @@ class MainWindow(MainWindow_Ui):
 
             # add download percent to the tooltip text for persepolis system tray icon
             try:
-                if status == 'downloading':
+                if status == DownloadStatus.Downloading:
                     system_tray_file_name = download_dict['file_name']
                     if len(system_tray_file_name) > 20:  # noqa: PLR2004
                         system_tray_file_name = system_tray_file_name[0:19] + '...'
@@ -1730,7 +1733,7 @@ class MainWindow(MainWindow_Ui):
                 video_finder_video_gid = gid == video_finder_dictionary['video_gid']
 
                 # if download is completed update video finder data base
-                if status == 'complete':
+                if status == DownloadStatus.Complete:
                     if video_finder_video_gid:
                         video_finder_dictionary['video_completed'] = 'yes'
                         video_finder_thread.video_completed = 'yes'
@@ -1753,7 +1756,7 @@ class MainWindow(MainWindow_Ui):
             else:
                 video_finder_link = False
 
-            if status == 'error':
+            if status == DownloadStatus.Error:
                 # check free space in temp_download_folder!
                 # perhaps insufficient space in hard disk caused this error!
                 # find free space in KiB
@@ -1961,29 +1964,29 @@ class MainWindow(MainWindow_Ui):
                 progress_window.status_label.setText(status)
 
                 # activate/deactivate progress_window buttons according to status
-                if progress_window.status == 'downloading':
+                if progress_window.status == DownloadStatus.Downloading:
                     progress_window.resume_pushButton.setEnabled(False)
                     progress_window.stop_pushButton.setEnabled(True)
                     progress_window.pause_pushButton.setEnabled(True)
 
-                elif progress_window.status == 'paused':
+                elif progress_window.status == DownloadStatus.Paused:
                     progress_window.resume_pushButton.setEnabled(True)
                     progress_window.stop_pushButton.setEnabled(True)
                     progress_window.pause_pushButton.setEnabled(False)
 
-                elif progress_window.status in ['waiting', 'scheduled']:
+                elif progress_window.status in [DownloadStatus.Waiting, DownloadStatus.Scheduled]:
                     progress_window.resume_pushButton.setEnabled(False)
                     progress_window.stop_pushButton.setEnabled(True)
                     progress_window.pause_pushButton.setEnabled(False)
 
                 # it means download has finished!
                 # lets do finishing jobs!
-                elif progress_window.status in ('stopped', 'error', 'complete'):
+                elif progress_window.status in (DownloadStatus.Stopped, DownloadStatus.Error, DownloadStatus.Complete):
 
                     # close progress_window if download status is stopped or
                     # completed or error
                     # if window is related to video finder and download is completed, the don't close window
-                    if (video_finder_link and progress_window.status == 'complete'):
+                    if (video_finder_link and progress_window.status == DownloadStatus.Complete):
 
                         # disable stop and pause and push buttons
                         progress_window.resume_pushButton.setEnabled(False)
@@ -1997,7 +2000,7 @@ class MainWindow(MainWindow_Ui):
                         del self.progress_window_list_dict[gid]
 
                     # if download stopped:
-                    if progress_window.status == 'stopped':
+                    if progress_window.status == DownloadStatus.Stopped:
                         # write message in log
                         stop_message = 'Download stopped - GID : '\
                             + str(gid)
@@ -2009,7 +2012,7 @@ class MainWindow(MainWindow_Ui):
                                    str(download_dict['file_name']), 10000, 'no', parent=self)
 
                     # if download status is error!
-                    elif progress_window.status == 'error':
+                    elif progress_window.status == DownloadStatus.Error:
 
                         # get error message from dict
                         error = download_dict['error'] if 'error' in download_dict else 'Error'
@@ -2071,7 +2074,7 @@ class MainWindow(MainWindow_Ui):
 
                     # sync persepolis_setting before checking!
                     self.persepolis_setting.sync()
-                    if progress_window.status == 'complete' and video_finder_link is False:
+                    if progress_window.status == DownloadStatus.Complete and video_finder_link is False:
                         # write message in log file
                         complete_message = 'Download complete - GID : '\
                             + str(gid)
@@ -2197,7 +2200,7 @@ class MainWindow(MainWindow_Ui):
             self.deleteSelectedAction.setEnabled(True)
 
             if category == 'Single Downloads':
-                if status == 'scheduled':
+                if status == DownloadStatus.Scheduled:
                     self.resumeAction.setEnabled(False)
                     self.pauseAction.setEnabled(False)
                     self.stopAction.setEnabled(True)
@@ -2207,7 +2210,7 @@ class MainWindow(MainWindow_Ui):
                     self.openFileAction.setEnabled(False)
                     self.moveSelectedDownloadsAction.setEnabled(False)
 
-                elif status in ('stopped', 'error'):
+                elif status in (DownloadStatus.Stopped, DownloadStatus.Error):
                     self.stopAction.setEnabled(False)
                     self.pauseAction.setEnabled(False)
                     self.resumeAction.setEnabled(True)
@@ -2217,7 +2220,7 @@ class MainWindow(MainWindow_Ui):
                     self.openFileAction.setEnabled(False)
                     self.moveSelectedDownloadsAction.setEnabled(False)
 
-                elif status == 'downloading':
+                elif status == DownloadStatus.Downloading:
                     self.resumeAction.setEnabled(False)
                     self.pauseAction.setEnabled(True)
                     self.stopAction.setEnabled(True)
@@ -2227,7 +2230,7 @@ class MainWindow(MainWindow_Ui):
                     self.openFileAction.setEnabled(False)
                     self.moveSelectedDownloadsAction.setEnabled(False)
 
-                elif status == 'waiting':
+                elif status == DownloadStatus.Waiting:
                     self.stopAction.setEnabled(True)
                     self.resumeAction.setEnabled(False)
                     self.pauseAction.setEnabled(False)
@@ -2237,7 +2240,7 @@ class MainWindow(MainWindow_Ui):
                     self.openFileAction.setEnabled(False)
                     self.moveSelectedDownloadsAction.setEnabled(False)
 
-                elif status == 'complete':
+                elif status == DownloadStatus.Complete:
                     self.stopAction.setEnabled(False)
                     self.resumeAction.setEnabled(False)
                     self.pauseAction.setEnabled(False)
@@ -2247,7 +2250,7 @@ class MainWindow(MainWindow_Ui):
                     self.openFileAction.setEnabled(True)
                     self.moveSelectedDownloadsAction.setEnabled(True)
 
-                elif status == 'paused':
+                elif status == DownloadStatus.Paused:
                     self.stopAction.setEnabled(True)
                     self.resumeAction.setEnabled(True)
                     self.pauseAction.setEnabled(False)
@@ -2272,21 +2275,24 @@ class MainWindow(MainWindow_Ui):
                 self.pauseAction.setEnabled(True)
                 self.stopAction.setEnabled(True)
 
-                if status == 'complete':
+                if status == DownloadStatus.Complete:
                     self.propertiesAction.setEnabled(True)
                     self.progressAction.setEnabled(False)
                     self.openDownloadFolderAction.setEnabled(True)
                     self.openFileAction.setEnabled(True)
                     self.moveSelectedDownloadsAction.setEnabled(True)
 
-                elif status in ('stopped', 'error'):
+                elif status in (DownloadStatus.Stopped, DownloadStatus.Error):
                     self.propertiesAction.setEnabled(True)
                     self.progressAction.setEnabled(False)
                     self.openDownloadFolderAction.setEnabled(False)
                     self.openFileAction.setEnabled(False)
                     self.moveSelectedDownloadsAction.setEnabled(False)
 
-                elif status in ('scheduled', 'downloading', 'paused', 'waiting'):
+                elif status in (DownloadStatus.Scheduled,
+                                DownloadStatus.Downloading,
+                                DownloadStatus.Paused,
+                                DownloadStatus.Waiting):
                     self.propertiesAction.setEnabled(False)
                     self.progressAction.setEnabled(False)
                     self.openDownloadFolderAction.setEnabled(False)
@@ -2561,7 +2567,7 @@ class MainWindow(MainWindow_Ui):
         if str(category) != 'Single Downloads':
             download_later = True
 
-        status = 'waiting' if not download_later else 'stopped'
+        status = DownloadStatus.Waiting if not download_later else DownloadStatus.Stopped
 
         # get now time and date
         date = ghermez.nowDate()
@@ -2671,7 +2677,7 @@ class MainWindow(MainWindow_Ui):
             # this 'if' checks status of download before resuming! If download status
             # is 'paused' then download must be resumed and if status isn't 'paused' new
             # download thread must be created !
-            if download_status == 'paused':
+            if download_status == DownloadStatus.Paused:
 
                 answer = ghermez.downloadUnpause(gid)
 
@@ -3245,7 +3251,7 @@ class MainWindow(MainWindow_Ui):
             download_status = self.download_table.item(
                 selected_row_return, 1).text()
 
-            if download_status == 'complete':
+            if download_status == DownloadStatus.Complete:
 
                 # check if this link is related to video finder
                 # don't open download folder, if download progress for video and audio aren't completed yet.
@@ -3287,7 +3293,7 @@ class MainWindow(MainWindow_Ui):
             download_status = self.download_table.item(
                 selected_row_return, 1).text()
 
-            if download_status == 'complete':
+            if download_status == DownloadStatus.Complete:
 
                 # check if this link is related to video finder
                 # don't open download folder, if download progress for video and audio aren't completed yet.
@@ -3409,7 +3415,7 @@ class MainWindow(MainWindow_Ui):
                 continue
 
             # only download items with "complete", "error" and "stopped" can be removed
-            if status in ('complete', 'error', 'stopped'):
+            if status in (DownloadStatus.Complete, DownloadStatus.Error, DownloadStatus.Stopped):
 
                 # add gid to gid_list
                 gid_list.append(gid)
@@ -3450,7 +3456,7 @@ class MainWindow(MainWindow_Ui):
             self.persepolis_db.deleteItemInDownloadTable(gid, category)
 
             # remove file of download from download temp folder
-            if file_name != '***' and status != 'complete':
+            if file_name != '***' and status != DownloadStatus.Complete:
                 file_name_path = os.path.join(
                     globals.temp_download_folder,  str(file_name))
                 ghermez.remove(file_name_path)  # remove file
@@ -3558,7 +3564,7 @@ class MainWindow(MainWindow_Ui):
                 continue
 
             # only download items with "complete", "error" and "stopped" can be removed
-            if status in ('complete', 'error', 'stopped'):
+            if status in (DownloadStatus.Complete, DownloadStatus.Error, DownloadStatus.Stopped):
 
                 # add gid to gid_list
                 gid_list.append(gid)
@@ -3597,7 +3603,7 @@ class MainWindow(MainWindow_Ui):
 
             # if download is not completed,
             # remove downloaded file form download temp folder
-            if file_name != '***' and status != 'complete':
+            if file_name != '***' and status != DownloadStatus.Complete:
                 file_name_path = os.path.join(
                     globals.temp_download_folder, str(file_name))
 
@@ -3609,7 +3615,7 @@ class MainWindow(MainWindow_Ui):
                 ghermez.remove(file_name_aria)
 
             # remove downloaded file, if download is completed
-            if status == 'complete':
+            if status == DownloadStatus.Complete:
 
                 # find download path
                 dictionary = self.persepolis_db.searchGidInAddLinkTable(gid)
@@ -3830,15 +3836,15 @@ class MainWindow(MainWindow_Ui):
             status = self.download_table.item(row, 1).text()
             gid = self.download_table.item(row, 8).text()
             # assign a number to every status
-            if status == 'complete':
+            if status == DownloadStatus.Complete:
                 status_int = 1
-            elif status == 'stopped':
+            elif status == DownloadStatus.Stopped:
                 status_int = 2
-            elif status == 'error':
+            elif status == DownloadStatus.Error:
                 status_int = 3
-            elif status == 'downloading':
+            elif status == DownloadStatus.Downloading:
                 status_int = 4
-            elif status == 'waiting':
+            elif status == DownloadStatus.Waiting:
                 status_int = 5
             else:
                 status_int = 6
@@ -4237,12 +4243,12 @@ class MainWindow(MainWindow_Ui):
             # add_link_dictionary['out']  # noqa: ERA001
             file_name = add_link_dictionary['out'] if add_link_dictionary['out'] else '***'
 
-            download_table_list = [file_name, 'stopped', '***', '***', '***',
+            download_table_list = [file_name, DownloadStatus.Stopped, '***', '***', '***',
                                    '***', '***', '***', gid, add_link_dictionary['link'],
                                    date, date, category]
 
             dictionary = {'file_name': file_name,
-                          'status': 'stopped',
+                          'status': DownloadStatus.Stopped,
                           'size': '***',
                           'downloaded_size': '***',
                           'percent': '***',
@@ -4738,10 +4744,10 @@ class MainWindow(MainWindow_Ui):
             if category in self.queue_list_dict \
                 and self.queue_list_dict[category].start:
                     # It means queue is in download progress
-                    status = 'downloading'
+                    status = DownloadStatus.Downloading
 
             # download must be in stopped situation.
-            if status in ('error', 'stopped', 'complete'):
+            if status in (DownloadStatus.Error, DownloadStatus.Stopped, DownloadStatus.Complete):
                 # find gid
                 gid = self.download_table.item(row, 8).text()
 
@@ -5535,7 +5541,8 @@ class MainWindow(MainWindow_Ui):
                 download_later = True
 
             # change video status to waiting
-            status = 'waiting' if not download_later and gid == add_link_dictionary_list[0]['gid'] else 'stopped'
+            status = DownloadStatus.Waiting if not download_later and \
+                gid == add_link_dictionary_list[0]['gid'] else DownloadStatus.Stopped
 
             # get now time and date
             date = ghermez.nowDate()

@@ -28,6 +28,7 @@ import subprocess
 
 import ghermez
 from persepolis.constants import OS
+from persepolis.constants.status import DownloadStatus
 from persepolis.gui.video_finder_progress_ui import VideoFinderProgressWindow_Ui
 from persepolis.scripts import download
 from persepolis.scripts.bubble import notifySend
@@ -129,7 +130,7 @@ class VideoFinderProgressWindow(VideoFinderProgressWindow_Ui):
         self.hide()
 
     def resumePushButtonPressed(self, _button: QPushButton) -> None:
-        if self.status == 'paused':
+        if self.status == DownloadStatus.Paused:
             answer = ghermez.downloadUnpause(self.gid)
             # if aria2 did not respond , then this function is checking for aria2
             # availability , and if aria2 disconnected then aria2Disconnected is
@@ -149,7 +150,7 @@ class VideoFinderProgressWindow(VideoFinderProgressWindow_Ui):
 
     def pausePushButtonPressed(self, _button: QPushButton) -> None:
 
-        if self.status == 'downloading':
+        if self.status == DownloadStatus.Downloading:
             answer = ghermez.downloadPause(self.gid)
 
             # if aria2 did not respond , then this function is checking for aria2
@@ -328,7 +329,7 @@ class VideoFinderProgressWindow(VideoFinderProgressWindow_Ui):
             dictionary = self.parent.persepolis_db.searchGidInDownloadTable(gid)
             status = dictionary['status']
 
-            if status != 'scheduled':
+            if status != DownloadStatus.Scheduled:
 
                 ghermez.limitSpeed(self.gid, limit_value)
             else:

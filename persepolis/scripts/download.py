@@ -25,6 +25,7 @@ from typing import TYPE_CHECKING, Any, Literal
 
 import ghermez
 from ghermez import humanReadableSize, moveFile
+from persepolis.constants.status import DownloadStatus
 from persepolis.constants import APP_NAME, ORG_NAME, OS
 from persepolis.scripts.bubble import notifySend
 from persepolis.scripts.os_commands import makeTempDownloadDir
@@ -147,7 +148,7 @@ def downloadAria(gid: str, parent: QWidget) -> bool | None:
         header_list = None
 
     # update status and last_try_date in data_base
-    status = 'scheduled' if start_time else 'waiting'
+    status = DownloadStatus.Scheduled if start_time else DownloadStatus.Waiting
 
     # get last_try_date
     now_date = nowDate()
@@ -163,9 +164,9 @@ def downloadAria(gid: str, parent: QWidget) -> bool | None:
     # call startTime if start_time is available
     # startTime creates sleep loop if user set start_time
     # see startTime function for more information.
-    start_time_status = startTime(start_time, gid, parent) if start_time else 'downloading'
+    start_time_status = startTime(start_time, gid, parent) if start_time else DownloadStatus.Downloading
 
-    if start_time_status == 'scheduled':
+    if start_time_status == DownloadStatus.Scheduled:
         # read limit value again from data_base before starting download!
         # perhaps user changed this in progress bar window
         add_link_dictionary = parent.persepolis_db.searchGidInAddLinkTable(gid)
@@ -212,7 +213,7 @@ def downloadAria(gid: str, parent: QWidget) -> bool | None:
         # write an error in ghermez
         ghermez.sendToLog('download_path is not found!', 'ERROR')
 
-    if start_time_status != 'stopped':
+    if start_time_status != DownloadStatus.Stopped:
         # send download request to aria2
         aria_dict = {
             'gid': gid,
@@ -259,7 +260,7 @@ def downloadAria(gid: str, parent: QWidget) -> bool | None:
         except Exception:
 
             # write error status in data_base
-            download_dict = {'gid': gid, 'status': 'error'}
+            download_dict = {'gid': gid, 'status': DownloadStatus.Error}
             parent.persepolis_db.updateDownloadTable([download_dict])
 
             # write ERROR messages in log
@@ -315,7 +316,7 @@ def tellStatus(gid: str, parent: QWidget) -> (dict[str, Any] | None):
 
 
     # if download has completed , then move file to the download folder
-    if (converted_info_dict['status'] == 'complete'):
+    if converted_info_dict['status'] == DownloadStatus.Complete:
         file_name = converted_info_dict['file_name']
 
         # find user preferred download_path from addlink_db_table in data_base
@@ -359,7 +360,7 @@ def tellStatus(gid: str, parent: QWidget) -> (dict[str, Any] | None):
         parent.persepolis_db.updateAddLinkTable([add_link_dictionary])
 
     # if an error occurred!
-    if (converted_info_dict['status'] == 'error'):
+    if converted_info_dict['status'] == DownloadStatus.Error:
         # add errorMessage to converted_info_dict
         converted_info_dict['error'] = str(download_status['errorMessage'])
 
@@ -477,11 +478,11 @@ def convertDownloadInformation(download_status: dict[str, str]) -> dict[str, Any
 
     # rename active status to downloading
     if (status_str == 'active'):
-        status_str = 'downloading'
+        status_str = DownloadStatus.Downloading
 
     # rename removed status to stopped
     if (status_str == 'removed'):
-        status_str = 'stopped'
+        status_str = DownloadStatus.Stopped
 
     if (status_str == 'None'):
         status_str = None
@@ -649,12 +650,12 @@ def downloadStop(gid: str, parent: QWidget) -> str:
     # if status is "scheduled", then download request has not been sended to aria2!
     # so no need to send stop request to aria2.
     # if status in not "scheduled" so stop request must be sended to aria2.
-    if status != 'scheduled':
+    if status != DownloadStatus.Scheduled:
         try:
             # send remove download request to aria2.
             # see aria2 documentation for more information.
             answer = server.aria2.remove(gid)
-            if status == 'downloading':
+            if status == DownloadStatus.Downloading:
                 server.aria2.removeDownloadResult(gid)
         except Exception:
             answer = 'None'
@@ -665,15 +666,15 @@ def downloadStop(gid: str, parent: QWidget) -> str:
     # if download has not been completed yet,
     # so just chang status of download to "stopped" in data base.
     else:
-        answer = 'stopped'
+        answer = DownloadStatus.Stopped
 
-    if status != 'complete':
+    if status != DownloadStatus.Complete:
         # change start_time end_time and after_download value to None in date base
         parent.persepolis_db.setDefaultGidInAddlinkTable(gid,
                                                          start_time=True, end_time=True, after_download=True)
 
         # change status of download to "stopped" in data base
-        download_dict = {'gid': gid, 'status': 'stopped'}
+        download_dict = {'gid': gid, 'status': DownloadStatus.Stopped}
         parent.persepolis_db.updateDownloadTable([download_dict])
 
     return answer
@@ -765,7 +766,7 @@ def nowTime() -> int:
     return sigmaTime(now_time)
 
 # this function creates sleep time,if user sets "start time" for download.
-def startTime(start_time: str, gid: str, parent: QWidget) -> Literal['stopped', 'scheduled']:
+def startTime(start_time: str, gid: str, parent: QWidget) -> DownloadStatus:
     # write some messages
     ghermez.sendToLog('Download starts at ' + start_time, 'INFO')
 
@@ -775,7 +776,7 @@ def startTime(start_time: str, gid: str, parent: QWidget) -> Literal['stopped', 
     # get current time
     sigma_now = nowTime()
 
-    status = 'scheduled'
+    status = DownloadStatus.Scheduled
 
     # this loop is continuing until download time arrival!
     while sigma_start != sigma_now:
@@ -788,10 +789,10 @@ def startTime(start_time: str, gid: str, parent: QWidget) -> Literal['stopped', 
 
         # if data_base_download_status = stopped >> it means that user
         # canceled download and loop must break!
-        if data_base_download_status == 'stopped':
-            status = 'stopped'
+        if data_base_download_status == DownloadStatus.Stopped:
+            status = DownloadStatus.Stopped
             break
-        status = 'scheduled'
+        status = DownloadStatus.Scheduled
 
     # if user canceled download , then return 'stopped' and if download time arrived then return 'scheduled'!
     return status
