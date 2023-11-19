@@ -248,7 +248,7 @@ fn convertDownloadInformation(download_status: CustomStatus) -> HashMap<String, 
     let path = &file_status[0].path;
     let file_name = if !path.is_empty() {
         Path::new(&path)
-            .parent()
+            .file_name()
             .map(|parent| parent.to_str().unwrap().to_string())
     } else {
         None

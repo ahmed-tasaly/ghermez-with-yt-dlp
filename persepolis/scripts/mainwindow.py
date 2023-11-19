@@ -11,6 +11,8 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from __future__ import annotations
+
 from . import globals
 
 try:
@@ -1269,7 +1271,7 @@ class MainWindow(MainWindow_Ui):
         self.checkSelectedRow()
 
         # list of threads
-        self.threadPool = []
+        self.threadPool: list[QThread] = []
 
         # start aria2
         start_aria = StartAria2Thread()
@@ -3018,15 +3020,11 @@ class MainWindow(MainWindow_Ui):
     # close event
     # when user closes application then this method is called
     def closeEvent(self, event=None):
-
         if str(self.persepolis_setting.value('settings/hide-window')) == 'yes':
-
             # set close event just for minimizing to tray
             self.minimizeAction.setText(QCoreApplication.translate('mainwindow_src_ui_tr', 'Show main Window'))
             self.minimizeAction.setIcon(QIcon(globals.icons + 'window'))
-
         else:
-
             # close window and exit application
             self.closeAction(event)
 
