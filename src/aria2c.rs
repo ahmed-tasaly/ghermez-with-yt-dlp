@@ -350,7 +350,11 @@ fn convertDownloadInformation(download_status: CustomStatus) -> HashMap<String, 
 
 // this function returns folder of download according to file extension
 #[pyfunction]
-pub fn findDownloadPath(file_name: &str, download_path: PathBuf, subfolder: bool) -> PathBuf {
+pub fn findDownloadPath(file_name: &str, download_path: PathBuf, subfolder: &str) -> PathBuf {
+    if subfolder != "yes" {
+        return download_path;
+    }
+
     let mut file_extension = Path::new(file_name)
         .extension()
         .and_then(OsStr::to_str)
@@ -398,22 +402,18 @@ pub fn findDownloadPath(file_name: &str, download_path: PathBuf, subfolder: bool
         "xar", "xp3", "yz1", "zip", "zipx", "zoo", "zpaq", "zz", "ecc", "par", "par2",
     ];
 
-    if subfolder {
-        if audio.contains(&file_extension.as_str()) {
-            download_path.join("Audios")
-        }
-        // aria2c downloads youtube links file_name with 'videoplayback' name?!
-        else if video.contains(&file_extension.as_str()) {
-            download_path.join("Videos")
-        } else if document.contains(&file_extension.as_str()) {
-            download_path.join("Documents")
-        } else if compressed.contains(&file_extension.as_str()) {
-            download_path.join("Compressed")
-        } else {
-            download_path.join("Other")
-        }
+    if audio.contains(&file_extension.as_str()) {
+        download_path.join("Audios")
+    }
+    // aria2c downloads youtube links file_name with 'videoplayback' name?!
+    else if video.contains(&file_extension.as_str()) {
+        download_path.join("Videos")
+    } else if document.contains(&file_extension.as_str()) {
+        download_path.join("Documents")
+    } else if compressed.contains(&file_extension.as_str()) {
+        download_path.join("Compressed")
     } else {
-        download_path
+        download_path.join("Other")
     }
 }
 

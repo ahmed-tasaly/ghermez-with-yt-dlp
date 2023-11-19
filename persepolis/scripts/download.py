@@ -329,7 +329,7 @@ def tellStatus(gid: str, parent: QWidget) -> (dict[str, Any] | None):
         # if user specified download_path is equal to persepolis_setting download_path,
         # then subfolder must added to download path.
         if persepolis_setting.value('settings/download_path') == download_path:
-            download_path = findDownloadPath(
+            download_path = ghermez.findDownloadPath(
                 file_name, download_path, persepolis_setting.value('settings/subfolder'))
 
         # find temp download path
