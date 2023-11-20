@@ -531,7 +531,7 @@ class MainWindow_Ui(QMainWindow):  # noqa: N801
         # statusbar
         self.statusbar = QStatusBar(self)
         self.setStatusBar(self.statusbar)
-        self.statusbar.showMessage(QCoreApplication.translate('mainwindow_ui_tr', 'Persepolis Download Manager'))
+        self.statusbar.showMessage(QCoreApplication.translate('mainwindow_ui_tr', LONG_NAME))
 
         # toolBar
         self.toolBar2 = QToolBar(self)

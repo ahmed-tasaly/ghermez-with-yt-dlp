@@ -2,7 +2,7 @@ language: python
 dist: bionic
 sudo: required
 python:
-  - "3.6"
+  - "3.7"
 virtualenv:
   system_site_packages: true
 
@@ -30,7 +30,7 @@ install: true
 
 script:
  - sudo python3 setup.py install
- - persepolis --version
+ - ghermez --version
 
 after_success:
  - pip3 install transifex-client==0.12.5

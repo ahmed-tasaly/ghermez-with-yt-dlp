@@ -94,7 +94,7 @@ class LogWindow_Ui(QWidget):  # noqa: N801
 
 # set labels
 
-        self.setWindowTitle(QCoreApplication.translate('log_window_ui_tr', 'Persepolis Log'))
+        self.setWindowTitle(QCoreApplication.translate('log_window_ui_tr', f'{APP_NAME.capitalize()} Log'))
         self.close_pushButton.setText(QCoreApplication.translate('log_window_ui_tr', 'Close'))
         self.copy_log_pushButton.setText(QCoreApplication.translate('log_window_ui_tr', 'Copy Selected to Clipboard'))
         self.report_pushButton.setText(QCoreApplication.translate('log_window_ui_tr', 'Report Issue'))

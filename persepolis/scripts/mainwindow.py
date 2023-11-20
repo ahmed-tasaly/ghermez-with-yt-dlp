@@ -75,7 +75,7 @@ from functools import partial
 from time import sleep
 
 import ghermez
-from persepolis.constants import APP_NAME, OS, REPO_LINK
+from persepolis.constants import APP_NAME, LONG_NAME, OS, REPO_LINK
 from persepolis.constants.status import CheckingFlag, DownloadStatus, ShutdownNotification
 from persepolis.gui import resources  # noqa: F401
 from persepolis.gui.mainwindow_ui import MainWindow_Ui, QTableWidgetItem
@@ -995,7 +995,7 @@ class Queue(QThread):
                            15000, 'warning', parent=self.parent)
 
             # show notification for queue completion
-            notifySend(QCoreApplication.translate('mainwindow_src_ui_tr', 'Persepolis'),
+            notifySend(QCoreApplication.translate('mainwindow_src_ui_tr', APP_NAME.capitalize()),
                        QCoreApplication.translate('mainwindow_src_ui_tr', 'Queue completed!'),
                        10000, 'queue', parent=self.parent)
 
@@ -1694,7 +1694,7 @@ class MainWindow(MainWindow_Ui):
         # this variable helps keepAwake method.
         self.ongoing_downloads = len(download_list)
 
-        systemtray_tooltip_text = 'Persepolis Download Manager'
+        systemtray_tooltip_text = LONG_NAME
 
         for download_dict in download_list:
             gid = download_dict['gid']

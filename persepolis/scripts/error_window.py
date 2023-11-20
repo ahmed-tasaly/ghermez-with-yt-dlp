@@ -54,7 +54,7 @@ class ErrorWindow(QWidget):
         self.reset_persepolis_pushButton = QPushButton(self)
         self.reset_persepolis_pushButton.clicked.connect(
             self.resetPushButtonPressed)
-        self.reset_persepolis_pushButton.setText('Reset Persepolis')
+        self.reset_persepolis_pushButton.setText(f'Reset {APP_NAME.capitalize()}')
         horizontalLayout.addWidget(self.reset_persepolis_pushButton)
 
         self.close_pushButton = QPushButton(self)

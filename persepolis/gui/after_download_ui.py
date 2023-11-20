@@ -20,7 +20,7 @@ except ImportError:
     from PyQt5.QtGui import QIcon
     from PyQt5.QtWidgets import QCheckBox, QHBoxLayout, QLabel, QLineEdit, QPushButton, QVBoxLayout, QWidget
 
-from persepolis.constants import APP_NAME
+from persepolis.constants import APP_NAME, LONG_NAME
 from persepolis.gui import resources  # noqa: F401
 
 
@@ -49,7 +49,7 @@ class AfterDownloadWindow_Ui(QWidget):  # noqa: N801
         icons = ':/' + str(self.persepolis_setting.value('settings/icons')) + '/'
 
         self.setWindowIcon(QIcon.fromTheme(APP_NAME, QIcon(':/ghermez.png')))
-        self.setWindowTitle(QCoreApplication.translate('after_download_ui_tr', 'Persepolis Download Manager'))
+        self.setWindowTitle(QCoreApplication.translate('after_download_ui_tr', LONG_NAME))
 
         # complete_label
         window_verticalLayout = QVBoxLayout()

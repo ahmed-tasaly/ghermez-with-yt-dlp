@@ -52,6 +52,7 @@ except ImportError:
 import os
 import platform
 import sys
+from ast import literal_eval
 
 import ghermez
 from persepolis.constants import OS
@@ -712,7 +713,7 @@ class PreferencesWindow(Setting_Ui):
         self.aria2_path_checkBox.setChecked(False)
 
         # wait-queue
-        wait_queue_list = self.setting_dict['wait-queue']
+        wait_queue_list = literal_eval(self.setting_dict['wait-queue'])
         q_time = QTime(wait_queue_list[0], wait_queue_list[1])
         self.wait_queue_time.setTime(q_time)
 
@@ -872,7 +873,7 @@ class PreferencesWindow(Setting_Ui):
 
         # change aria2_path
         if self.aria2_path_checkBox.isChecked():
-            self.persepolis_setting.setValue('settings/aria2_path', str(self.aria2_path_lineEdit.text()))
+            self.persepolis_setting.setValue('aria2_path', str(self.aria2_path_lineEdit.text()))
 
         # don't check certificate
         if self.dont_check_certificate_checkBox.isChecked():
