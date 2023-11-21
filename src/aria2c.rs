@@ -59,7 +59,7 @@ pub fn startAria(port: u16, _aria2_path: Option<String>) -> Option<String> {
         let aria2d = if _aria2_path.is_none()
             || _aria2_path
                 .as_ref()
-                .is_some_and(|x| x == "" || !Path::new(&x).is_file())
+                .is_some_and(|x| x.is_empty() || !Path::new(&x).is_file())
         {
             let aria2 = env::current_dir().unwrap().join("aria2c.exe");
             aria2.to_str().unwrap().to_string()

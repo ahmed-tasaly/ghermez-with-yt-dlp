@@ -3,7 +3,7 @@
 
 use std::{collections::HashMap, path::PathBuf};
 
-#[cfg(not(target_os = "windows"))]
+#[cfg(target_os = "linux")]
 use std::{env, fs, path::Path};
 
 use home::home_dir;
