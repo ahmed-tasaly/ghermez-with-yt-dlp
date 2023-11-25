@@ -163,7 +163,9 @@ If you get error messages, you made mistake. Open an issue [here](https://github
 
 - After this, you have bundled executable file in dist folder, Move ffmpeg.exe and aria2c.exe next to the Ghermez Download Manager.exe. you can run it and test it, it works perfectly
 
-### step 4: create package installer (for windows)
+### step 4: create package installer
+
+#### For Windows
 
 You have executable ghermez and you can put it everywhere (next to the and ffmpeg.exe and aria2c.exe) but we going to create a installer for windows.
 
@@ -173,7 +175,7 @@ You have executable ghermez and you can put it everywhere (next to the and ffmpe
 
 Enjoy it. 😊
 
-### step 4: create debian package (for debian-base linux)
+#### for Debian-base linux
 
 You may want to have a deb file, so run:
 

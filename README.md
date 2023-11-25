@@ -61,7 +61,7 @@ Download the .pkg.tar.zst package from [latest release](https://github.com/IamRe
 sudo pacman -S <file-name>.pkg.tar.zst
 ```
 
-Or download [PKGBUILD](./archlinux/PKGBUILD) file in `archlinux` directory and run:
+Or download [PKGBUILD](./linux/archlinux/PKGBUILD) file in `archlinux` directory and run:
 
 ```sh
 makepkg -si

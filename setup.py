@@ -148,17 +148,17 @@ DESCRIPTION = 'Ghermez Download Manager'
 
 if os_type == 'Linux':
     DATA_FILES = [
-        ('/usr/share/man/man1/', ['man/ghermez.1.gz']),
-        ('/usr/share/applications/', ['xdg/com.github.iamrezamousavi.ghermez.desktop']),
-        ('/usr/share/metainfo/', ['xdg/com.github.iamrezamousavi.ghermez.appdata.xml']),
+        ('/usr/share/man/man1/', ['linux/man/ghermez.1.gz']),
+        ('/usr/share/applications/', ['linux/xdg/com.github.iamrezamousavi.ghermez.desktop']),
+        ('/usr/share/metainfo/', ['linux/xdg/com.github.iamrezamousavi.ghermez.appdata.xml']),
         ('/usr/share/icons/hicolor/scalable/apps/', ['resources/ghermez.png']),
         ('/usr/share/icons/hicolor/scalable/apps/', ['resources/ghermez-tray.png']),
     ]
 elif os_type in ('FreeBSD', 'OpenBSD'):
     DATA_FILES = [
-        ('/usr/local/share/man/man1/', ['man/ghermez.1.gz']),
-        ('/usr/local/share/applications/', ['xdg/com.github.iamrezamousavi.ghermez.desktop']),
-        ('/usr/local/share/metainfo/', ['xdg/com.github.iamrezamousavi.ghermez.appdata.xml']),
+        ('/usr/local/share/man/man1/', ['linux/man/ghermez.1.gz']),
+        ('/usr/local/share/applications/', ['linux/xdg/com.github.iamrezamousavi.ghermez.desktop']),
+        ('/usr/local/share/metainfo/', ['linux/xdg/com.github.iamrezamousavi.ghermez.appdata.xml']),
         ('/usr/local/share/pixmaps/', ['resources/ghermez.png']),
         ('/usr/local/share/pixmaps/', ['resources/ghermez-tray.png']),
     ]
@@ -192,7 +192,7 @@ else:
     print('qt resources genetated!')
 
 # Creating man page file
-ghermez_man_page = os.path.join(setup_dir, 'man', 'ghermez.1')
+ghermez_man_page = os.path.join(setup_dir, 'linux', 'man', 'ghermez.1')
 os.system('gzip -f -k -9 "'
           + ghermez_man_page
           + '"')
