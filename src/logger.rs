@@ -5,7 +5,7 @@ use log::{error, info, warn, Level, LevelFilter, Log, Metadata, Record};
 use pyo3::prelude::*;
 
 use std::{
-    fs::{self, File},
+    fs::{self, File, OpenOptions},
     io::{self, Write},
     path::Path,
     sync::Mutex,
@@ -101,7 +101,7 @@ pub fn initLogger() {
         os_command::touch(log_file.to_str().unwrap());
     }
 
-    let file = File::create(log_file).unwrap();
+    let file = OpenOptions::new().append(true).open(log_file).unwrap();
     LOGGER.renew(file);
     let _ = log::set_logger(&*LOGGER).map(|()| log::set_max_level(LevelFilter::Info));
 }

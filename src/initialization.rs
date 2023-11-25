@@ -36,13 +36,11 @@ pub fn init_log_file() {
     // if number of lines in log_file is more than 300, then keep last 200 lines in log_file.
     if len < 300 {
         let content = format!(
-            "
-    ===================================================
-    Ghermez Download Manager, {}
-    ",
+            "\n\n===================================================\nGhermez Download Manager, {}\n\n",
             current_time
         );
-        fs::write(log_file.clone(), content).unwrap();
+        let mut file = OpenOptions::new().append(true).open(log_file).unwrap();
+        file.write_all(content.as_bytes()).unwrap();
     } else {
         // keep last 200 lines
         let line_num = len - 200;
@@ -51,10 +49,8 @@ pub fn init_log_file() {
             .lines()
             .map(String::from)
             .collect();
-        fs::write(log_file.clone(), f_lines[line_num..].join("\n")).unwrap();
-        let mut file = OpenOptions::new()
-            .append(true)
-            .open(log_file.clone())
+        let mut file = OpenOptions::new().write(true).open(log_file).unwrap();
+        file.write_all(f_lines[line_num..].join("\n").as_bytes())
             .unwrap();
         let content = format!("Ghermez Download Manager, {}", current_time);
         file.write_all(content.as_bytes()).unwrap();
